@@ -1,0 +1,12 @@
+
+event startup
+begin
+  SetLangMode(LangRussian,"RUS",0);
+  
+  Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
+
+  SString(50000,"“кажите цену закупки");
+  SString(50001,"“кажите себестоимость");
+  SString(50002,"“кажите розничную цену");
+	return;
+end;
