@@ -1,6 +1,3 @@
-remote procedure IVCashDClassTouchScreenCreditNoteRemote(record IVCashVc,var record IVCashVc);
-external procedure OpenOnHotelGuestTouchScreenOClass(Integer,LongInt,val,string,string,string);
-external procedure SetPOSWindowDisplayAmount(string,val);
 external procedure IVCashDchsum(record IVCashVc,Integer);
 external function Boolean IVCashDchrsum(record IVCashVc,Integer,Integer);
 external updating procedure RecordActionIVCash_Print(var record IVCashVc,string,Boolean);
@@ -9,8 +6,8 @@ external procedure IVCashToQT_FromPOS(record IVCashVc,var record QTVc);
 external procedure WindowFieldGotoForTouchScreen(Integer,Integer,string,Boolean);
 external procedure OpenOnAccountPaymentTouchScreenDClass(Integer,LongInt,string,string);
 external procedure CancelNPTSCashPaymentTClass();
+external function Integer GetVATLaw();
 external procedure TouchScreenXReading;
-external procedure TouchScreenZReading;
 external procedure IVDClassTouchScreenReprint();
 external updating procedure RestAccDClassTouchScreenTransfertoSL();
 external function integer GetSelectedPOSItemRowIndex(integer);
@@ -51,10 +48,11 @@ external procedure IVCashPasteItem(string);
 remote function Boolean IVCashVc_PasteQuant(var record IVCashVc,Integer);
 remote function Boolean IVCashVc_PasteArtCode(var record IVCashVc,Integer,Boolean,var string,var Integer);
 external updating procedure IVCashDClassTouchScreenSaveInvoice();
-forward updating procedure IVCashDClassTouchScreenButtonLogin();
+external updating procedure IVCashDClassTouchScreenButtonLogin();
 external procedure IVCashDClassTouchScreenAllInvoices();
 external procedure IVCashDClassTouchScreenOpenInvoices();
 external procedure IVCashDClassTouchScreenLookupSerialNr();
+external updating procedure IVCashDClassTouchScreenReturn();
 external updating procedure IVCashDClassTouchScreenInvalidateInvoice();
 external updating procedure IVCashDClassTouchScreenTransfertoSL();
 external updating procedure IVCashDClassTouchScreenTransfertoInvoice();
@@ -774,13 +772,13 @@ begin
   Integer wn,mwn;
   record USRowVc USRr;
 
-  OverrideLogout;
+  /*OverrideLogout; //Edit***************************Sasha2,11:06 09.06.2016 {
   mwn = CurWindow;
   USRr.TextStr = action;
 //  USRr.Name = arg;
   USRr.Sign = arg;
   wn = OpenWindow("POSLoginClass",0,awn,"","",USRr);
-  OverrideLogin;
+  OverrideLogin;*/ //Edit***************************Sasha2,11:06 09.06.2016 }
   return;
 end;
 
@@ -790,11 +788,11 @@ begin
   Integer wn,mwn;
   record USRowVc USRr;
 
-  /*OverrideLogout; //Edit***************************Sasha2,17:43 25.03.2016 {
+  OverrideLogout;
   mwn = CurWindow;
   USRr.TextStr = action;
   wn = OpenWindow("POSLoginClass",0,awn,"","",USRr);
-  OverrideLogin;*/ //Edit***************************Sasha2,17:43 25.03.2016 }
+  OverrideLogin;
   return;
 end;
 
@@ -809,10 +807,10 @@ begin
 
   wn = CurWindow;
   if (SelectedListLine(wn)>=0) then begin
-    /*if (UserCanAction("AllowIVTSRowsDelete",IsStandardProduct==true)==false) then begin
+    if (UserCanAction("AllowIVTSRowsDelete",IsStandardProduct==true)==false) then begin
       POSManagersAction(wn,"DeleteItem");
       goto LIVCashDClassTouchScreenDeleteItem;
-    end;*/
+    end;
     DeselectWIndow(wn,true);
     GetWindowRecord(wn,IVCashr);
     if (IVCashr.OKFlag!=0) then begin goto LIVCashDClassTouchScreenDeleteItem; end;
@@ -887,7 +885,7 @@ begin
         MatRowGet(IVCashr,rownr,IVCashrw);
         IVCashDClass_RefreshStringList(wn,IVCashr);
         tstr = ValToString(-IVCashrw.Quant,M4UVal,ThousandSeparator,DecimalSeparator,0) & "*" & ValToString(IVCashrw.Price,M4Val,ThousandSeparator,DecimalSeparator,0);
-        M4PadString(ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),30-len(tstr)," ",true,t2);
+        M4PadString(ValToString(IVCashrw.Sum,M4Val,ThousandSeparator,DecimalSeparator,0),20-len(tstr)," ",true,t2);
         tstr = tstr & t2;
         if (HasLocalization("POL")) then begin
           tstr = tstr & chr(10) & USetStr(24171) & ": " & IVCashr.Sum4;
@@ -1040,7 +1038,6 @@ begin
   RepSpec.repname = "SearchCuRn";
   RepSpec.Media = mtScreen;
   RepSpec.flags[0] = 4;
-  RepSpec.f12 = GetWindowFileName(mwn);
   RecordCopy(gNPTSRepSpec,RepSpec);
   nwn = OpenWindow("NPTSSearchCURClass",0,mwn,"","",RepSpec);
   WindowFieldGoto(nwn,RepSpec,-1,"f1",true);
@@ -1061,7 +1058,6 @@ begin
   RepSpec.repname = "SearchCuRn";
   RepSpec.Media = mtScreen;
   RepSpec.flags[0] = 4;
-  RepSpec.f12 = GetWindowFileName(mwn);
   nwn = OpenWindow("NPTSSearchCURClass",0,mwn,"","",RepSpec);
   WindowFieldGoto(nwn,RepSpec,-1,"f1",true);
   return;  
@@ -1223,12 +1219,9 @@ retval is calculted in sumup
         OpenChequePayTouchScreenDClass(wn,-1,IVCashr.SerNr,IVCashr.RetValue,IVCashr.Sum4-IVCashr.TendValue,IVCashr.CurncyCode,POSBrw.Code,POSBrw.Label);
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case kPOSButtonTypeCreditCardPayment:
-        SetPOSWindowDisplayAmount(USetStr(27350),IVCashr.Sum4);
         BlockLoad(Rahaxib);
         switch (Rahaxib.TerminalType) begin
           case kLocalCCTerminalNone:
-            OpenCCPayTouchScreenDClass(wn,-1,IVCashr.SerNr,IVCashr.Sum4,IVCashr.RetValue,IVCashr.Sum4-IVCashr.TendValue,IVCashr.CurncyCode,POSBrw.Code,POSBrw.Label);
-          case kLocalCCTerminalBambora:
             OpenCCPayTouchScreenDClass(wn,-1,IVCashr.SerNr,IVCashr.Sum4,IVCashr.RetValue,IVCashr.Sum4-IVCashr.TendValue,IVCashr.CurncyCode,POSBrw.Code,POSBrw.Label);
           case kLocalCCTerminalPCEFTPOS:
             rwcnt = MatRowCnt(IVCashr);
@@ -1263,7 +1256,6 @@ retval is calculted in sumup
         end;
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case kPOSButtonTypeDebitCardPayment:
-          SetPOSWindowDisplayAmount(USetStr(27350),IVCashr.Sum4);
         BlockLoad(Rahaxib);
         switch (Rahaxib.TerminalType) begin
           case kLocalCCTerminalNone:
@@ -1279,9 +1271,6 @@ retval is calculted in sumup
             end;
             nwn = OpenWindow("VoidNPTSSClass",0,wn,"","",RepSpec);  
         end;
-        goto LIVCashDClassTouchScreenPasteButtonDo;
-      case kPOSButtonTypeOnHotelGuestAccount:
-        OpenOnHotelGuestTouchScreenOClass(wn,IVCashr.SerNr,IVCashr.Sum4,IVCashr.Resource,POSBrw.Code,POSBrw.Label);
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case kPOSButtonTypeVolumetricBarCodeScan:
         ReportDefaults(RepSpec,"VolBarCodeScanVClass");
@@ -1310,7 +1299,6 @@ retval is calculted in sumup
         RepSpec.repname = "SearchCuRn";
         RepSpec.Media = mtScreen;
         RepSpec.flags[0] = 4;
-        RepSpec.f12 = GetWindowFileName(wn);
         RecordCopy(gNPTSRepSpec,RepSpec);
         nwn = OpenWindow("NPTSSearchCURClass",0,wn,"","",gNPTSRepSpec);
         gNPTSRepSpec.UsedOnly = wn;
@@ -1342,14 +1330,12 @@ retval is calculted in sumup
       case kPOSButtonTypeItemStatus:
         if (SelectedListLine(wn)<>-1) then begin
           matrowix = GetSelectedPOSItemRowIndex(wn);
-          if (matrowix>=0) then begin
-            MatRowGet(IVCashr,matrowix,IVCashrw);
-            RepSpec.UsedOnly = wn;
-            RepSpec.f1 = IVCashrw.ArtCode;
-            RepSpec.repname = "INInfoRn";
-            RepSpec.Media = mtScreen;
-            RunReport(RepSpec,0);
-          end;
+          MatRowGet(IVCashr,matrowix,IVCashrw);
+          RepSpec.UsedOnly = wn;
+          RepSpec.f1 = IVCashrw.ArtCode;
+          RepSpec.repname = "INInfoRn";
+          RepSpec.Media = mtScreen;
+          RunReport(RepSpec,0);
         end;
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case kPOSButtonTypeOpenCashDrawer:
@@ -1364,7 +1350,6 @@ retval is calculted in sumup
         RepSpec.repname = "SearchCuRn";
         RepSpec.Media = mtScreen;
         RepSpec.flags[0] = 4;
-        RepSpec.f12 = GetWindowFileName(wn);
         nwn = OpenWindow("NPTSSearchBFCURClass",0,wn,"","",RepSpec);
         WindowFieldGoto(nwn,RepSpec,-1,"f1",true);
         goto LIVCashDClassTouchScreenPasteButtonDo;
@@ -1567,10 +1552,10 @@ begin
   line = SelectedListLine(mwn);
 
   if (line>=0) then begin
-    /*if (UserCanAction("AllowAmendLine",IsStandardProduct==true)==false) then begin
+    if (UserCanAction("AllowAmendLine",IsStandardProduct==true)==false) then begin
       POSManagersAction(mwn,"AmendLine");
       goto LIVCashDClassTouchScreenAmendLine;
-    end;*/
+    end;
     RecordClear(RepSpec);
     tagstr = GetListTag(mwn,line);
     rownr = StringToInt(tagstr);
@@ -1595,7 +1580,6 @@ begin
         RepSpec.long1 = rownr;
         RepSpec.f2 = IVCashrw.VATCode;
         RepSpec.f3 = "";
-        RepSpec.long2 = IVCashrw.stp;
         wn = OpenWindow("AmendLineNPTSSClass",0,mwn,"","",RepSpec);
         PutWindowString(wn,"BasePrice",IVCashrw.BasePrice);  
         WindowFieldGoto(wn,RepSpec,-1,"vals0",false);    
@@ -1788,7 +1772,7 @@ BEGIN
         IVCashDClass_RefreshStringList(wn,newIVCashr);
       end else begin
         RecordCopy(newIVCashr,IVCashr);
-        if (HasLocalization("POL")) then begin
+        if (GetVATLaw==vatPolish) then begin
           newIVCashr.FiscalFlag = 0;
         end;
         newIVCashr.UUID = buuid;
@@ -1820,103 +1804,6 @@ BEGIN
       end;
   end;
 LIVCashDClassToolIVReturn:;  
-  return;
-end;
-
-global
-updating procedure IVCashDClassTouchScreenCreditNote()
-BEGIN
-  record IVCashVc IVCashr;
-  record IVCashVc newIVCashr;
-  row IVCashVc cashIVCashrw;
-  row IVCashVc newIVCashrw;
-  row IVCashVc IVCashrw;
-  Integer i,rwcnt,rownr;
-  Integer wn,nwn;
-  Boolean foundcashf;
-  val credcardv;
-  val t,t2;
-  integer err1,err2;
-  uuid buuid;
-
-  wn = CurWindow;
-  DeselectWindow(wn,true);
-  switch (WindowState(wn)) begin
-    case Rs_insert:
-      PutWindowString(wn,"ReturnMode","true");
-      GetWindowRecord(wn,IVCashr);
-      if (HasLocalization("POL")) then begin
-        IVCashr.FiscalFlag = 0;
-      end;
-      rwcnt = MatRowCnt(IVCashr);      
-      for (i=0;i<rwcnt;i=i+1) begin
-        MatRowGet(IVCashr,i,IVCashrw);
-        if (IVCashrw.Quant>0) then begin
-          IVCashrw.Quant = IVCashrw.Quant;
-          IVCashrw.Sum = IVCashrw.Sum;
-          MatRowPut(IVCashr,i,IVCashrw);
-        end;
-      end;
-      IVCashSumup(IVCashr,true);
-      PutWindowRecord(wn,IVCashr);
-      IVCashDClass_RefreshStringList(wn,IVCashr);
-    otherwise
-      GetWindowRecord(wn,IVCashr);
-      if (IVCashr.Invalid!=0) then begin goto LIVCashDClassTouchScreenCreditNote; end;
-      
-      if (IVCashr.OKFlag==0) then begin
-        RecordCopy(newIVCashr,IVCashr);
-        if (HasLocalization("POL")) then begin
-          newIVCashr.FiscalFlag = 0;
-        end;
-        newIVCashr.InvType = kPOSInvoiceTypeCredit;
-        newIVCashr.TransDate = CurrentDate;
-        newIVCashr.InvDate = CurrentDate;
-        rwcnt = MatRowCnt(newIVCashr);
-        for (i=0;i<rwcnt;i=i+1) begin
-          MatRowDelete(newIVCashr,i);
-          rwcnt = MatRowCnt(newIVCashr);
-          i = i - 1;
-        end;
-        IVCashDClassTouchScreenReturnRemote(IVCashr,newIVCashr);    
-        IVCashSumup(newIVCashr,true);
-        PutWindowRecord(wn,newIVCashr);
-        IVCashDClass_RefreshStringList(wn,newIVCashr);
-      end else begin
-        RecordCopy(newIVCashr,IVCashr);
-        if (HasLocalization("POL")) then begin
-          newIVCashr.FiscalFlag = 0;
-        end;
-        newIVCashr.InvType = kPOSInvoiceTypeCredit;
-        newIVCashr.UUID = buuid;
-        newIVCashr.OKFlag = 0;
-        newIVCashr.SerNr = -1;
-        newIVCashr.TransDate = CurrentDate;
-        newIVCashr.InvDate = CurrentDate;
-        newIVCashr.LocalMachineCode = CurMachineName;
-        newIVCashr.DrawerCode = CurDrawerCode(newIVCashr.LocalMachineCode);
-        rwcnt = MatRowCnt(newIVCashr);
-        for (i=0;i<rwcnt;i=i+1) begin
-          MatRowDelete(newIVCashr,i);
-          rwcnt = MatRowCnt(newIVCashr);
-          i = i - 1;
-        end;
-        IVCashDClassTouchScreenCreditNoteRemote(IVCashr,newIVCashr);
-        if (MatRowCnt(newIVCashr)>0) then begin
-          IVCashSumup(newIVCashr,true);
-          SetWindowState(wn,Rs_insert);
-          PutWindowRecord(wn,newIVCashr);
-          if (WindowDoOK(wn,0)) then begin
-            PutWindowPrevRecord(wn,newIVCashr);
-          end;
-          ReRunWindowDef(wn);
-    //    nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",newIVCashr);
-    //    ReRunWindowDef(nwn);
-          IVCashDClass_RefreshStringList(wn,newIVCashr);
-        end;
-      end;
-  end;
-LIVCashDClassTouchScreenCreditNote:;  
   return;
 end;
 
@@ -2331,7 +2218,7 @@ begin
 
   if (UserCanAction("AllowNPTSIVLogout",true)) then begin
     wn = CurWindow;
-    DeselectWindow(wn,true);
+    DeselectWIndow(wn,true);
     switch (WindowState(wn)) begin
       case Rs_normal:
         SaveOpenedWindows;
@@ -2704,9 +2591,6 @@ begin
     case kPOSButtonTypeReturn:
       IVCashDClassTouchScreenReturn;
       res = true;
-    case kPOSButtonTypeCreditNote:
-      IVCashDClassTouchScreenCreditNote;
-      res = true;
     case kPOSButtonTypeCorrectionInvoice:
       IVCashDClassTouchScreenCorrectionInvoice;
       res = true;
@@ -2791,7 +2675,7 @@ begin
   row POSButtonsVc POSBrw;
   Boolean res;
   
-  wn = CurWindow; MessageBox(0,1);
+  wn = CurWindow;
   found = POSButtonsForWindow(wn,POSBr);
   if (found) then begin
     rwcnt = MatRowCnt(POSBr);
@@ -2906,13 +2790,6 @@ begin
 end;
 
 global 
-procedure IVCashDClassTouchScreenZReading()
-begin
-  TouchScreenZReading;
-  return;
-end;
-
-global 
 procedure IVCashDClassTouchScreenAllInvoices()
 begin
   Integer wn,nwn;
@@ -2928,7 +2805,7 @@ begin
   end;
   wn = CurWindow;
 //  nwn = OpenWindow("NPTSIVCashLClass",1,wn,subset,"",IVCashr);  
-  nwn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);  
+  nwn = OpenWindow("NPTSIVCashLClass",1,wn,"","",IVCashr);  
   return;
 end;
 
@@ -3358,6 +3235,16 @@ begin
   end;
   OverrideLogout;
 LQTCashDClassTouchScreenTransfertoQuotation:;  
+  return;
+end;
+
+global
+function Boolean NPTSIVCashDClassOnClose(Integer wn,Integer wn2)
+begin
+  Boolean res;
+  
+  res = UserCanAction("AllowNPTSIVLogout",true)==false;
+  NPTSIVCashDClassOnClose = res;
   return;
 end;
 

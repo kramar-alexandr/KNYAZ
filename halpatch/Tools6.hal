@@ -7,6 +7,7 @@ external procedure MulVATIVExecute(string,val,var val,var val,Integer,Integer,ro
 external function roundmode DefaultRoundMode();
 external function roundmode SetRoundModeD(Integer);
 external function val MulRateToBase1(var string,val,val,val,val,val,val,roundmode);
+external function Integer GetVATLaw();
 external procedure CalcVATBaseVAT(record SMVc,Integer,Integer,Integer,var val,var val);
 external procedure AddVATBase(var record SMVc,string,val,val,Integer,Integer,Integer);
 external procedure SetupVATBase(var record SMVc,var Integer);
@@ -164,7 +165,7 @@ BEGIN
     PUCalcPerc(uprice,PUrw.Extra,cc);//should be in base 1 shouldn't it, PUrw.UPrice
     t = PUrw.Quant*cc;
     PUr.ExtraCost = t + PUr.ExtraCost;
-    if (HasLocalization("POL")) then begin
+    if (GetVATLaw==25) then begin//vatPolish
       uprice = uprice + PUrw.ShipCost;
       uprice = Round(uprice,SetRoundModeD(0));
     end;
@@ -219,9 +220,8 @@ BEGIN
   record SMVc VATr;
   Integer vatcnt;
   val shipcost,cost1,cost2,cost3,cost4,cost5,customscost;
-  val SumCostPrice;
+  val SumCostPrice,totsellprice;
   record INVc INr;
-  val totsellprice;
   
   if (UseTaxTemplatesforTaxCalc) then begin
     PUSumup_TaxTemplate(PUr);
@@ -296,7 +296,7 @@ BEGIN
     PUCalcPerc(uprice,PUrw.Extra,cc);//should be in base 1 shouldn't it, PUrw.UPrice
     t = q*cc;
     PUr.ExtraCost = t + PUr.ExtraCost;
-    if (HasLocalization("POL")) then begin
+    if (GetVATLaw==25) then begin//vatPolish
       uprice = uprice + PUrw.ShipCost;
       uprice = Round(uprice,SetRoundModeD(0));
     end;
@@ -411,7 +411,7 @@ BEGIN
   end;
   sump = sump + shipc;
   if (nonblank(custc)) then begin
-    if (HasLocalization("POL")) then begin
+    if (GetVATLaw==25) then begin//vatPolish
       bas = bas + shipc;
       bas = Round(bas,SetRoundModeD(0));
     end;

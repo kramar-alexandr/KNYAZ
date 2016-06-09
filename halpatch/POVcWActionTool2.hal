@@ -1,12 +1,3 @@
-external procedure FindSalesExVat(record TaxMatrixVc,string,val,Integer,Integer,var val);
-external procedure GetItemSalesAcc(string,Integer,var string);
-external procedure RowCalculateTaxMatrix_VIVc(var record VIVc,Integer,row VIVc,Integer);
-external procedure VIVc_PastePayDeal(var record VIVc);
-external procedure GetAPAcc(string,var string);
-external function Boolean VIVc_PasteVECode(var record VIVc,Integer,Boolean,Boolean,var string);
-external procedure VISumup(record VIVc,var val);
-external function LongInt GetCurUserLastNr(string);
-external function Boolean PasteActTypeInAct(string,var record ActVc);
 external procedure MailTextRow(string,string,string,var row MailTextVc,var Integer);
 external procedure Base1ToOther(var string,val,val,val,val,val,val,var val,roundmode);
 external procedure CurValToOtherCurWithRate(Date,string,val,val,val,val,val,val,string,var val,roundmode);
@@ -19,6 +10,7 @@ external function string 255 FillupTaxMatrix(Integer,string,string,string,string
 external procedure GetItemTaxTemplateCode(string,Integer,var string,Boolean);
 external function Boolean GetItemPurchasePriceDiscount(string,string,Date,string,string,val,string,string,string,string,Integer,Boolean,val,val,val,val,val,
          var record INVc,var record PIVc,var Boolean,var val,var string,var val,var string,var string,var Boolean,var string);
+external function Integer GetVATLaw();
 external function roundmode SetRoundModeD(Integer);
 external function Integer GetPUPControlAcc(string,string,Integer,string,string,record AccBlock,Integer,var string,var string,Boolean);
 external function Boolean GetItemNameStr(Integer,var string,string,string,string);
@@ -126,7 +118,7 @@ BEGIN
 
 //    CalcSum(POrw.VEQuant,POrw.Price,POrw.PriceFactor,blankval,cc,0);
 
-    if (HasLocalization("POL")) then begin
+    if (GetVATLaw==25) then begin//vatPolish
       uprice = uprice + POrw.ShipCost;
       uprice = Round(uprice,SetRoundModeD(0));
     end;
@@ -225,13 +217,13 @@ BEGIN
 
 //    CalcSum(POrw.VEQuant,POrw.Price,POrw.PriceFactor,blankval,cc,0);
 
-    if (HasLocalization("POL")) then begin
+    if (GetVATLaw==25) then begin//vatPolish
       uprice = uprice + POrw.ShipCost;
       uprice = Round(uprice,SetRoundModeD(0));
     end;
     PUCalcPerc(uprice,POrw.CustomsCost,cc);
     t = q*cc;
-    POp.CustomsCost = t + POp.CustomsCost;
+    POp.CustomsCost = t + POp.CustomsCost;   
     POrw.rowGP = ((POrw.SellPrice/POrw.Price)-1)*100; //Edit***************************Sasha2,16:37 04.03.2016
     sumq = sumq + POrw.Quant; //Edit***************************Sasha2,12:11 09.03.2016
     sumReb = sumReb + POrw.rowGP*POrw.Quant; //Edit***************************Sasha2,12:11 09.03.2016
@@ -1245,14 +1237,14 @@ global
 function Boolean POVc_PasteArtCode(var record POVc POp,Integer rownr,Boolean multilinef)
 begin
   Boolean res,pifound;
-  record INVc INr,orgINr;
+  record INVc INr;
   record PIVc PIr;  
   row PIVc PIrw;
   Integer i,rwcnt;
   row POVc POrw;
   val price,reb,t;
-  string 255 descstr,vatcode,purchacc,taxtemplatecode,tstr,artcode;
-  Boolean nomoreremotecalls,infound;
+  string 255 descstr,vatcode,purchacc,taxtemplatecode;
+  Boolean nomoreremotecalls;
   record POSettingBlock POset;
   record TaxMatrixVc TMr;
 
@@ -1264,8 +1256,7 @@ begin
                                    INr,PIr,pifound,price,descstr,reb,vatcode,purchacc,nomoreremotecalls,taxtemplatecode))
   then begin
     res = true;
-    artcode = POrw.ArtCode;
-    infound = ReadFirstItem(POrw.ArtCode,orgINr,true,false);
+
     BlockLoad(POset);
     POrw.ArtCode = INr.Code;
     POrw.Price = price;
@@ -1285,11 +1276,7 @@ begin
       POrw.VEArtCode = PIr.VEItemCode;
       POrw.CustomsCost = PIr.PurchaseCost;
       POrw.StockType = PIr.DefStockType;
-      if (PIr.ItemCode==POrw.ArtCode and artcode==POrw.ArtCode) then begin 
-        POrw.Spec = PIr.Comment;
-      end else begin
-        POrw.Spec = PIr.Comment & ", " & descstr;
-      end;
+      POrw.Spec = PIr.Comment;
       POrw.VEUnit =  PIr.VEUnit;
       POrw.PIFactor = PIr.PIFactor;
     end else begin
@@ -1325,28 +1312,25 @@ begin
   end;
 
   if ((res==true) and (POset.WarnNotDefSup!=0)) then begin
-//    if (FindItemVAR(INr.Code,tstr,tstr,tstr,tstr)==false) then begin
-//why no message for variety items ? 
-    if (true) then begin
-      pifound  = false;
+//    varf = FindItemVAR(INr.Code,itsz,mask,mskrep,subsets);
+    PIr.DefaultChoice = 1;
+    PIr.ItemCode = POrw.ArtCode;
+    PIr.VECode = POp.VECode;
+    pifound = ReadFirstKey("DefaultChoice",PIr,3,true);
+    pifound = pifound and ((PIr.ItemCode==POrw.ArtCode) and (PIr.VECode==POp.VECode));
+    if (pifound==false) then begin
       PIr.DefaultChoice = 1;
-      PIr.ItemCode = POrw.ArtCode;
-      if (ReadFirstKey("DefaultChoice",PIr,2,true)) then begin
-        if (PIr.VECode==POp.VECode) then begin
-          pifound = true;
-        end;
-      end else begin
-        PIr.DefaultChoice = 1;
-        PIr.ItemCode = orgINr.Code;
-        if (ReadFirstKey("DefaultChoice",PIr,2,true)) then begin
-          if (PIr.VECode==POp.VECode) then begin
-            pifound = true;
-          end;
-        end;
-      end;
-      if (pifound==false) then begin
-        MessageBox(1933,": " & POrw.ArtCode);
-      end;
+      PIr.ItemCode = INr.Code;
+      PIr.VECode = POp.VECode;
+      pifound = ReadFirstKey("DefaultChoice",PIr,3,true);
+      pifound = pifound and ((PIr.ItemCode==INr.Code) and (PIr.VECode==POp.VECode));
+    end;
+    if (pifound==false) then begin
+//      if (varf) then begin
+//      end;
+    end;
+    if (pifound==false) then begin
+      MessageBox(1933,"");
     end;
   end;
 
@@ -1663,508 +1647,10 @@ begin
   VEr.Code = PIr.VECode;
   if (ReadFirstMain(VEr,1,true)) then begin
     PIr.VEName = VEr.Name;
-    if (PIr.CurncyCode!=VEr.VECurncyCode) then begin
-      CurValToOtherCur(CurrentDate,PIr.CurncyCode,PIr.PurPrice,VEr.VECurncyCode,PIr.PurPrice,DefaultCurRoundOff);
-      PIr.CurncyCode = VEr.VECurncyCode;
-    end;
+    CurValToOtherCur(CurrentDate,PIr.CurncyCode,PIr.PurPrice,VEr.VECurncyCode,PIr.PurPrice,DefaultCurRoundOff);
+    PIr.CurncyCode = VEr.VECurncyCode;
     res = true;
   end;
   PIVc_PasteVECode = res;
-  return;
-end;
-
-global
-updating function Boolean MakeActFromPO2(var record POVc POr,var record ActVc Actr,Boolean autof)
-begin
-  record ASTBlock ASTb;
-  Integer curcomp;
-  Boolean res;
-  record CUVc VEr;
-  record POrderClassVc POCr;
-  record ActTypeVc ATr;
-  record ActTypeGrVc ATGr;
-
-  BlockLoad(ASTb);
-  if (autof) then begin
-    if (ASTb.GenPurchOrder==0) then begin
-      goto LMakeActFromPO;
-    end;
-  end;
-  if (ReadFirstMain(POr,0,true)) then begin end;  
-  curcomp = CurrentCompany;
-  POCr.Code = POr.POClass;
-  if (ReadFirstMain(POCr,1,true)) then begin
-  end;
-  Actr.MainPersons = POr.SalesMan;
-  Actr.TransDate = CurrentDate;
-  Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");  
-  Actr.Invalid = 0;
-  Actr.TodoFlag = 1;
-  Actr.CUCode = POr.VECode;
-  Actr.Comment = POr.Comment;
-  Actr.Contact = POr.VEContact;
-  VEr.Code = POr.VECode;
-  if (ReadFirstMain(VEr,1,true)) then begin
-    Actr.CUName = VEr.Name;
-    Actr.Phone = VEr.Phone;
-    if (blank(Actr.Contact)) then begin
-      Actr.Contact = POr.SalesMan;
-    end;
-  end;
-  Actr.ActType = POCr.ActType;
-  if (blank(Actr.ActType)) then begin
-    Actr.ActType = ASTb.GenPurchOrd;
-  end;
-  if (PasteActTypeInAct("",Actr)) then begin
-  end;
-  ATr.Code = Actr.ActType;
-  if (ReadFirstMain(ATr,1,true)) then begin
-    Actr.ItemCode = ATr.ItemCode;
-    ATGr.Code = ATr.ActTypeGr;
-    if (ReadFirstMain(ATGr,1,true)) then begin
-      Actr.CalTimeFlag = ATGr.DefTimeFlag;
-    end;
-  end;  
-  Actr.OKFlag = ASTb.PurchOrderDone;
-  if (POr.SalesMan!=CurrentUser) then begin
-    Actr.CCPersons = CurrentUser;
-  end;
-  if (RecordStore(Actr,false)) then begin 
-    CreateRecordLink(Actr,curcomp,POr,curcomp);  
-    CreateRecordLink(POr,curcomp,Actr,curcomp);  
-    res = true;
-  end;  
-LMakeActFromPO:;  
-  MakeActFromPO2 = res;
-  return;
-end;
-
-global
-updating function Boolean MakeActFromPO(var record POVc POr,var record ActVc Actr)
-begin
-  MakeActFromPO = MakeActFromPO2(POr,Actr,false);
-  return;
-end;
-
-global
-updating procedure CreateActFromPO(record POVc POr)
-begin
-  record ASTBlock ASTb;
-  record CUVc VEr;
-  record POrderClassVc POCr;
-  record ActTypeVc ATr;
-  record ActTypeGrVc ATGr;
-  record ActVc Actr;
-  Integer curcomp; 
-  Boolean testf;
-  
-  testf = false;
-  curcomp = CurrentCompany;
-  POCr.Code = POr.POClass;
-  if (ReadFirstMain(POCr,1,true)) then begin
-    switch (POCr.OrderAct) begin
-      case 0: 
-        testf = true;
-        goto LCreateActFromPO;
-      case 1: 
-        Actr.MainPersons = POr.SalesMan;
-      case 2:       
-        Actr.MainPersons = POCr.ActMainPerson;
-        if (blank(Actr.MainPersons)) then begin
-          Actr.MainPersons = POr.SalesMan;
-        end;
-    end;
-    Actr.TransDate = POr.TransDate;
-    Actr.SerNr = NextSerNr("ActVc",Actr.TransDate,-1,false,"");
-    Actr.Invalid = 0;
-    Actr.TodoFlag = 1;
-    Actr.CUCode = POr.VECode;
-    Actr.Comment = POr.Comment;
-    Actr.Contact = POr.VEContact;
-    VEr.Code = POr.VECode;
-    if (ReadFirstMain(VEr,1,true)) then begin
-      Actr.CUName = VEr.Name;
-      Actr.Phone = VEr.Phone;
-      if (blank(Actr.Contact)) then begin Actr.Contact = POr.SalesMan; end;
-    end;
-    BlockLoad(ASTb);
-    Actr.ActType = POCr.ActType;
-    if (blank(Actr.ActType)) then begin
-      Actr.ActType = ASTb.GenPurchOrd;
-    end;
-    if (PasteActTypeInAct("",Actr)) then begin
-    end;    
-    ATr.Code = Actr.ActType;
-    if (ReadFirstMain(ATr,1,true)) then begin
-      Actr.ItemCode = ATr.ItemCode;
-      ATGr.Code = ATr.ActTypeGr;
-      if (ReadFirstMain(ATGr,1,true)) then begin
-        Actr.CalTimeFlag = ATGr.DefTimeFlag;
-      end;
-    end;
-    Actr.OKFlag = ASTb.PurchOrderDone;
-    if (RecordInsert(Actr,false)) then begin
-      CreateRecordLink(Actr,curcomp,POr,curcomp);  
-      CreateRecordLink(POr,curcomp,Actr,curcomp);  
-    end;
-    testf = true;
-  end; 
-LCreateActFromPO:;  
-  if (testf==false) then begin
-    MakeActFromPO2(POr,Actr,true); 
-  end;
-  return;
-end;
-
-procedure DownPayMul(val a,val b,var val c)
-begin
-  if (b!=100) then begin
-    c = a*b;
-    c = c/100;
-    c = Round(c,SetRoundModeD(2));//0
-  end else begin
-    c = a;
-  end;
-  return;
-end;
-
-function string 255 OrdDownPay(record VIVc VIp,LongInt ordnr,var val sum,val perc,var record POVc POr,Integer useRemainPerc)
-begin
-  string 255 res;
-  record PODownPayBlock DPb;
-  record INVc INr;
-  record CUVc VEr;
-  row POVc POrw;
-  row VIVc VIrw;
-  val t,t2,baseprice;
-  val percentage;
-  Integer i,rwcnt,rownr;
-  string 255 tstr,vewarn;
-  string 10 VATCode;
-  string 5 ipcurncy;
-  record RoundBlock Roundb;
-  record TaxMatrixVc TMr;
-  val RemainPerc,price,vrebate;
-  
-  BlockLoad(Roundb);
-  ipcurncy = VIp.CurncyCode;
-  VIp.POSerNr = ordnr;
-  POr.SerNr = VIp.POSerNr;  
-  ReadFirstMain(POr,1,true);
-  VIp.POSerNr = POr.SerNr;
-//  VIp.InclVAT = POr.InclVAT;
-  VIp.NoTAXonVAT = POr.NoTAXonVAT;
-  if (nonblank(POr.InvoiceToCode)) then begin
-    VIp.VECode = POr.InvoiceToCode;
-  end else begin
-    VIp.VECode = POr.VECode;
-  end;
-  VIVc_PasteVECode(VIp,0,true,true,vewarn);
-  GetAPAcc(VIp.VECode,VIp.APAcc);
-  if (nonblank(POr.VEFactoring)) then begin
-    VEr.Code = POr.VEFactoring;
-    if (ReadFirstMain(VEr,1,true)) then begin
-      VIp.VECode = VEr.Code;
-      VIp.VEName = VEr.Name;
-      VIp.Addr1 = VEr.InvAddr0;
-      VIp.Addr2 = VEr.InvAddr1;
-      VIp.Addr3 = VEr.InvAddr2;
-      VIp.InvAddr3 = VEr.InvAddr3;
-      VIp.InvAddr4 = VEr.InvAddr4;
-//      VIp.VECat = VEr.VECat;
-      VIp.OrgVE = POr.VECode;
-      VIp.PayDeal = VEr.PayDeal;
-      VIp.ExportFlag = VEr.ExportFlag;
-      VIp.InvCountry = VEr.CountryCode;
-    end else begin
-      goto L20OrdDownPay; 
-    end;
-  end else begin
-L20OrdDownPay:;
-    VIp.VECode = POr.VECode;
-    VIp.VEName = POr.Addr0;
-    VIp.Addr1 = POr.Addr1;
-    VIp.Addr2 = POr.Addr2;
-    VIp.Addr3 = POr.Addr3;
-    VIp.InvAddr3 = POr.InvAddr3;
-    VIp.InvAddr4 = POr.InvAddr4;
-//    VIp.InvCountry = POr.InvCountry;
-//    VIp.VECat = POr.VECat;
-    VIp.PayDeal = POr.PayDeal;
-    VIp.OrgVE = "";
-    VIp.ExportFlag = POr.ExportFlag;
-  end;
-  VIp.BranchID = POr.BranchID;
-/*  
-  if (nonblank(POr.ShipAddr0)) then begin
-    VIp.ShipAddr0 = POr.ShipAddr0;
-  end;
-  if (nonblank(POr.ShipAddr1)) then begin
-    VIp.ShipAddr1 = POr.ShipAddr1;
-  end;
-  if (nonblank(POr.ShipAddr2)) then begin
-    VIp.ShipAddr2 = POr.ShipAddr2;
-  end;
-  if (nonblank(POr.ShipAddr3)) then begin
-    VIp.ShipAddr3 = POr.ShipAddr3;
-  end;
-  if (nonblank(POr.DelAddr3)) then begin
-    VIp.DelAddr3 = POr.DelAddr3;
-  end;
-  if (nonblank(POr.DelAddr4)) then begin
-    VIp.DelAddr4 = POr.DelAddr4;
-  end;
-  if (nonblank(POr.DelCountry)) then begin
-    VIp.DelCountry = POr.DelCountry;
-  end;
-*/  
-  VIp.Comment = POr.Comment;
-  VIp.LangCode = POr.LangCode;
-  VIp.Objects = POr.Objects;
-  VIp.ExportFlag = POr.ExportFlag;
-  VIp.SalesMan = POr.SalesMan;
-  VIp.CurncyCode = POr.CurncyCode;
-  VIp.PRCode = POr.PRCode;
-  VIp.FrRate = POr.FrRate;
-  VIp.ToRateB1 = POr.ToRateB1;
-  VIp.ToRateB2 = POr.ToRateB2;
-  VIp.BaseRate1 = POr.BaseRate1;
-  VIp.BaseRate2 = POr.BaseRate2;
-  BlockLoad(DPb);
-  if (nonblank(DPb.PayDeal)) then begin
-    VIp.PayDeal = DPb.PayDeal;
-  end;
-  VIVc_PastePayDeal(VIp);
-  VIp.InvType = kInvoiceTypeDownpayment;
-  rownr = 0;
-  percentage = perc;
-  GetAPAcc(VIp.VECode,VIp.APAcc);
-  VATCode = DPb.VATCode;
-  if (blank(VATCode)) then begin
-    GetItemVATCode(DPb.ArtCode,VIp.ExportFlag,VATCode,true);
-  end;
-  if (blank(VATCode)) then begin 
-    VATCode = VIp.VEVatCode; 
-  end;
-  if (DPb.DetailsOnVI==0) then begin
-    rwcnt = MatRowCnt(POr);
-    VATCode = DPb.VATCode;
-    if (blank(VATCode)) then begin
-      GetItemVATCode(DPb.ArtCode,VIp.ExportFlag,VATCode,true);
-    end;
-    if (blank(VATCode)) then begin VATCode = VIp.VEVatCode; end;
-    INr.Code = DPb.ArtCode;
-    ReadFirstMain(INr,1,true);
-    baseprice = INr.InPrice + INr.ExtraCost;
-    if (sum==0) then begin
-      if (percentage==0) then begin
-        percentage = DPb.Percentage;
-//        GetCustCatPerc(POr.VECode,percentage);
-      end;
-      switch (DPb.CalcMode) begin
-        case 2:
-          if (POr.InclVAT!=0) then begin
-            t2 = POr.Sum4 - POr.Sum3;
-            DownPayMul(t2,percentage,t);
-//            DownPayMul(baseprice,percentage,baseprice);
-          end else begin
-            DownPayMul(POr.Sum1,percentage,t);
-//            DownPayMul(baseprice,percentage,baseprice);
-          end;
-        case 1:
-          if (POr.InclVAT!=0) then begin
-            t2 = POr.Sum4 - POr.Sum3;
-            DownPayMul(t2,percentage,t);
-//            DownPayMul(baseprice,percentage,baseprice);
-          end else begin
-            DownPayMul(POr.Sum1,percentage,t);
-//            DownPayMul(baseprice,percentage,baseprice);
-          end;
-        otherwise
-          DownPayMul(POr.Sum4,percentage,t);
-//          DownPayMul(baseprice,percentage,baseprice);
-      end;
-    end else begin
-      UnpackFieldMatrix(POr,"TaxMatrix",TMr);
-      FindSalesExVat(TMr,VATCode,sum,1,0,t);
-    end;
-    ClearRow(VIp,VIrw,kInvoiceRowTypeDownpayment);
-    VIrw.stp = kInvoiceRowTypeDownpayment;
-
-    if (nonblank(DPb.TextA)) then begin
-      VIrw.Comment = DPb.TextA;
-    end else begin
-      if (GetItemNameStr(1,tstr,POr.LangCode,INr.Name,INr.Code)) then begin end;
-      VIrw.Comment = tstr;
-    end;
-    VIrw.Comment = VIrw.Comment & " ";
-    VIrw.Comment = VIrw.Comment & POr.SerNr;
-    t = t - POr.DownPaySent;
-    if (t<0) then begin t = 0; end;
-    VIrw.Sum = t;
-    VIrw.Item = DPb.ArtCode;
-    GetItemSalesAcc(DPb.ArtCode,VIp.ExportFlag,VIrw.AccNumber);
-    VIrw.VATCode = VATCode;
-    VIrw.Objects = "";
-//    VIrw.BasePrice = baseprice;
-    t2 = MulRateToBase1(VIp.CurncyCode,VIrw.Sum,VIp.FrRate,VIp.ToRateB1,VIp.ToRateB2,VIp.BaseRate1,VIp.BaseRate2,DefaultCurRoundOff);  
-    UnpackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
-    FindSalesExVat(TMr,VIrw.VATCode,t2,1,VIp.NoTAXonVAT,t2);
-    VIrw.TaxTemplateCode = FillupTaxMatrix(1,VIp.BranchID,VIp.VECode,"","",INr.TaxTemplateCode,TMr);
-    PackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
-    RowCalculateTaxMatrix_VIVc(VIp,rownr,VIrw,0);
-    MatRowPut(VIp,rownr,VIrw);
-  end else begin
-    if (percentage==0) then begin
-      percentage = DPb.Percentage;
-    end;
-    if (sum!=0) then begin
-      percentage = (sum/POr.Sum4)*100;
-    end;
-    rwcnt = MatRowCnt(POr);
-    for (i=0;i<rwcnt;i=i+1) begin
-      MatRowGet(POr,i,POrw);
-      if (POrw.stp==10) then begin
-        goto LOrdDownPay;
-      end;
-      if (POrw.stp==kInvoiceRowTypeNormal) then begin
-        price = blankval;
-//        vrebate = POrw.vRebate;
-        INr.Code = POrw.ArtCode;
-        ReadFirstMain(INr,1,true);
-//        baseprice = INr.InPrice + INr.ExtraCost;
-        switch (DPb.CalcMode) begin
-          case 1:
-            if (POr.InclVAT!=0) then begin
-              t2 = POrw.Sum - FindVAT(POrw.VATCode,POrw.Sum,POr.InclVAT,POr.NoTAXonVAT);
-              DownPayMul(t2,percentage,t);
-//              DownPayMul(baseprice,percentage,baseprice);
-            end else begin
-              DownPayMul(POrw.Sum,percentage,t);
-//              DownPayMul(baseprice,percentage,baseprice);
-            end;
-          otherwise
-            switch (Roundb.VATCalcWay) begin
-              case 0:
-                if (POr.InclVAT!=0) then begin
-  //                t2 = POrw.Sum + FindVAT(POrw.VATCode,POrw.Sum,POr.InclVAT,POr.NoTAXonVAT);//wierd stuff, it is already including VAT
-                  t2 = POrw.Sum;
-                  DownPayMul(t2,percentage,t);
-//                  DownPayMul(baseprice,percentage,baseprice);
-                end else begin
-//                  t2 = POrw.Sum + FindVAT(POrw.VATCode,POrw.Sum,POr.InclVAT,POr.NoTAXonVAT); vat will be calculated per vat code
-                  t2 = POrw.Sum;
-                  DownPayMul(t2,percentage,t);
-//                  DownPayMul(baseprice,percentage,baseprice);
-                end;
-              case 1:
-                if (POr.InclVAT!=0) then begin
-                  t2 = POrw.Sum;
-                  DownPayMul(t2,percentage,t);
-//                  DownPayMul(baseprice,percentage,baseprice);
-                end else begin
-                  t2 = POrw.Sum + FindVAT(POrw.VATCode,POrw.Sum,POr.InclVAT,POr.NoTAXonVAT);
-                  DownPayMul(t2,percentage,t);
-//                  DownPayMul(baseprice,percentage,baseprice);
-                end;
-            end;
-        end;
-        DownPayMul(POrw.Price,percentage,price);
-        
-        if (t!=0) then begin
-          ClearRow(VIp,VIrw,kInvoiceRowTypeDownpayment);
-          VIrw.Sum = t;
-          VIrw.Item = POrw.ArtCode;
-          VIrw.qty = POrw.Quant;
-          VIrw.Comment = POrw.Spec;
-          VIrw.AccNumber = POrw.CostAcc;
-//          GetItemSalesAccFromOR(POr,tstr);
-/*
-          if (nonblank(tstr)) then begin
-            VIrw.AccNumber = tstr;
-          end else begin
-            GetItemSalesAcc(DPb.ArtCode,VIp.ExportFlag,tstr);
-            if (nonblank(tstr)) then begin
-              VIrw.SalesAcc = tstr;
-            end;
-          end;
-*/          
-          VIrw.VATCode = DPb.VATCode;
-          if (blank(VIrw.VATCode)) then begin
-            VIrw.VATCode = POrw.VATCode;
-          end;
-          VIrw.OrdRow = i;
-//          VIrw.Price = price;
-//          VIrw.vRebate = vrebate;
-//          VIrw.BasePrice = baseprice;
-          t2 = MulRateToBase1(VIp.CurncyCode,VIrw.Sum,VIp.FrRate,VIp.ToRateB1,VIp.ToRateB2,VIp.BaseRate1,VIp.BaseRate2,DefaultCurRoundOff);  
-          UnpackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
-          FindSalesExVat(TMr,VIrw.VATCode,t2,1,VIp.NoTAXonVAT,t2);
-          VIrw.TaxTemplateCode = POrw.TaxTemplateCode;
-          UnpackRowFieldMatrix(POrw,"TaxMatrix",TMr);
-          PackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
-          RowCalculateTaxMatrix_VIVc(VIp,rownr,VIrw,0);
-          MatRowPut(VIp,rownr,VIrw);
-          rownr = rownr + 1;
-        end;
-      end;
-    end;
-LOrdDownPay:;
-  end;
-  VISumup(VIp,t);
-  if ((VIp.PayVal+POr.DownPaySent)>POr.Sum4) then begin
-    res = USetStr(20406);
-    res = res & POr.Sum4 - POr.DownPaySent;
-    res = res & ". ";
-    res = res & USetStr(20412);
-    if ((useRemainPerc == 1) and (POr.DownPaySent < POr.Sum4)) then begin 
-      RemainPerc = ((POr.Sum4 - POr.DownPaySent)/POr.Sum4)*100;
-      res = OrdDownPay(VIp,ordnr,sum,RemainPerc,POr,0);
-    end;  
-  end;
-
-  OrdDownPay = res;
-  return;
-end;
-
-global
-updating function Integer RecordAction_POOrdDownPay(LongInt ordnr,val percentage,val prepaidsum,var record VIVc VIp,var string errstr,integer userRemainPerc)
-begin
-  Integer res;
-  LongInt newnr;
-  record SRBlock SRb;
-  string 255 tstr;
-  val temp;
-  record POVc POr;
-  
-  res = -1;
-  RecordNew(VIp);
-  VIp.SerNr = -1;
-  VIp.POSerNr = ordnr;
-  if (VIp.SerNr==-1) then begin
-    BlockLoad(SRb);
-    newnr = GetCurUserLastNr("VIVc");
-    if (newnr==-1) then begin
-      newnr = SRb.LastPurNr;
-    end;
-    VIp.SerNr = NextSerNr("VIVc",VIp.TransDate,newnr,false,"");
-    if (VIp.SerNr==-1) then begin
-      errstr = USetStr(1747);
-      goto LRecordAction_POOrdDownPay;
-    end;
-  end;
-  errstr = OrdDownPay(VIp,ordnr,prepaidsum,percentage,POr,userRemainPerc);
-  if (blank(errstr)) then begin
-    if ((MatRowCnt(VIp)>0) and (VIp.SerNr!=-1)) then begin
-      VISumup(VIp,temp);
-      if (RecordInsert(VIp,false)) then begin
-        CreateRecordLink(VIp,CurrentCompany,POr,CurrentCompany);
-        CreateRecordLink(POr,CurrentCompany,VIp,CurrentCompany);
-        res = 1;
-      end;
-    end;
-  end;
-LRecordAction_POOrdDownPay:;
-  RecordAction_POOrdDownPay = res;
   return;
 end;

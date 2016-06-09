@@ -1,10 +1,8 @@
-remote function Integer POApprovalStatus(record POVc,var record AcceptanceRulesVc);
-remote function Integer POTestApprovalStatus(record POVc);
-remote procedure PODClassOnOpenWindowRemote(var record POVc,var Integer);
-remote updating function Integer RecordAction_POOrdDownPay(LongInt,val,val,var record VIVc,var string,Integer);
 remote procedure POSetShipCost(var record POVc,Integer);
+remote function Integer EditingAcceptanceRejectedAllowed(Integer,string,string,Integer,string);
 external function Integer OpenArtStat(Integer,record RcVc,Boolean);
 remote procedure POVc_PasteTaxTemplateCode(var record POVc,Integer,var Boolean);
+external function Integer TestAcceptanceStatus(Integer);
 remote updating function LongInt RecordAction_raPastePOInDropSH(var record POVc,var record DropSHVc);
 remote function Boolean POShipdTest(record POVc,Boolean);
 external function roundmode DefaultRoundMode();
@@ -47,7 +45,6 @@ external function Boolean PODClassShipCostEFAfter(Integer,Integer,Integer,Intege
 external function Boolean PODClassCustomsCostEFAfter(Integer,Integer,Integer,Integer);
 external function Boolean PODchrsum(record POVc,Integer);
 external function Boolean UserCanChangePendingRecord(Integer);
-external function Boolean OpenContactRecord(string,string);
 remote procedure POVc_PasteSellPrice(var record POVc,Integer); //Edit***************************Sasha2,17:06 04.03.2016
 remote procedure POVc_PastenewrowGP(var record POVc,Integer); //Edit***************************Sasha2,17:06 04.03.2016
 
@@ -155,7 +152,7 @@ BEGIN
             MessageBox(20053,"");
           end; 
         end;
-        err = POTestApprovalStatus(POr);
+        err = TestAcceptanceStatus(POr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           testf = false;
@@ -196,7 +193,7 @@ begin
   testf = true;
   DeselectWindow(wn,false);
   GetWindowRecord(wn,POr); 
-  err = POTestApprovalStatus(POr);
+  err = TestAcceptanceStatus(POr.AcceptanceStatus);
   if (err!=0) then begin
     MessageBox(err,"");
     testf = false;
@@ -214,10 +211,9 @@ BEGIN
   record POVc POr;
   Integer i,err;
   
-  StartPrintDialogGroup;
   i = 1;
   while (GetRecordFromBrowse(POr,wn,i)) begin
-    err = POTestApprovalStatus(POr);
+    err = TestAcceptanceStatus(POr.AcceptanceStatus);
     if (err!=0) then begin
       MessageBox(err," " & POr.SerNr);
       goto LSKIPOrderPOL;
@@ -226,7 +222,6 @@ BEGIN
 LSKIPOrderPOL:;    
     i = i + 1;
   end;
-  EndPrintDialogGroup;
   RETURN;
 END;
 
@@ -279,9 +274,9 @@ BEGIN
           MessageBox(20053,"");
         end; 
       end;
-      err = POTestApprovalStatus(POr);
+      err = TestAcceptanceStatus(POr.AcceptanceStatus);
       if (err!=0) then begin
-        MessageBox(err,"");
+        MessageBox(err," " & POr.SerNr);
         testf = false;
       end;
       if (testf) then begin
@@ -316,7 +311,7 @@ BEGIN
     i = 1;
     while (GetRecordFromBrowse(POr,wn,i)) begin
       testf = true;
-      err = POTestApprovalStatus(POr);
+      err = TestAcceptanceStatus(POr.AcceptanceStatus);
       if (err!=0) then begin
         MessageBox(err,"");
         testf = false;
@@ -389,7 +384,7 @@ END;
 
 global
 updating procedure VIFromPODExecute(LongInt PONr)
-begin
+BEGIN
   Integer nwn;
   record RcVc RepSpec;
   record POSettingBlock POSb;
@@ -434,12 +429,12 @@ begin
   end else begin
     MessageBox(1274,StringFromStringSet(3,"POToVI"));
   end;
-  return;
-end;
+  RETURN;
+END;
 
 global
 updating procedure VIFromPODsm()
-begin
+BEGIN
   Integer wn;
   record POVc POr;
 
@@ -562,9 +557,9 @@ BEGIN
         MessageBox(1274,StringFromStringSet(3,"EMailFromOKPO"));
       end;
     end;
-    err = POTestApprovalStatus(POr);
+    err = TestAcceptanceStatus(POr.AcceptanceStatus);
     if (err!=0) then begin
-      MessageBox(err,"");
+      MessageBox(err,": " & POr.SerNr);
       testf = false;
     end;
     if (testf) then begin
@@ -591,7 +586,7 @@ BEGIN
   if (WindowState(wn)==Rs_normal) then begin
     DoUpdate(wn);
   end;
-  if (WindowState(wn)!=Rs_update and WindowState(wn)!=Rs_insert) then begin
+  if (WindowState(wn)!=Rs_update) then begin
     goto LSubtotalPODsm;
   end;
   GetWindowRecord(wn,POr);
@@ -665,15 +660,18 @@ function Boolean PODClassInclVATButtonAction(Integer wn,Integer value)
 BEGIN
   Boolean res;
   record POVc POr;
+  Integer normalmode,updatemode;
  
   res = true;
-  if (WindowState(wn)==Rs_normal) then begin
+  normalmode = 0;//Rs_normal
+  updatemode = 2;//Rs_update
+  if (WindowState(wn)==normalmode) then begin
     GetWindowRecord(wn,POr);
     if (POr.Closed!=0) then begin
       res = false;
     end;
   end;  
-  if (WindowState(wn)==Rs_update) then begin
+  if (WindowState(wn)==updatemode) then begin
     GetPrevWindowRecord(wn,POr);
     if (POr.Closed!=0) then begin
       res = false;
@@ -688,15 +686,18 @@ function Boolean PODClassClosedButtonAction(Integer wn,Integer value)
 BEGIN
   Boolean res;
   record POVc POr;
+  Integer normalmode,updatemode;
  
   res = true;
-  if (WindowState(wn)==Rs_normal) then begin
+  normalmode = 0;//Rs_normal
+  updatemode = 2;//Rs_update
+  if (WindowState(wn)==normalmode) then begin
     GetWindowRecord(wn,POr);
     if (POr.Closed!=0) then begin
       res = false;
     end;
   end;  
-  if (WindowState(wn)==Rs_update) then begin
+  if (WindowState(wn)==updatemode) then begin
     GetPrevWindowRecord(wn,POr);
     if (POr.Closed!=0) then begin
       res = false;
@@ -706,16 +707,15 @@ BEGIN
   RETURN;
 END;
 
-function Boolean POApprovalStarted(record POVc POr)
+function Boolean POAcceptanceStarted(record POVc POr)
 begin
   Boolean res;
-  record AcceptanceRulesVc Acptr;
 
   res = false;
-  if (POApprovalStatus(POr,Acptr)>=kAcceptanceStatePending) then begin
+  if (POr.AcceptanceStatus>=kAcceptanceStatePending) then begin
     res = true;
   end;
-  POApprovalStarted = res;
+  POAcceptanceStarted = res;
   return;
 end;
 
@@ -724,14 +724,17 @@ function Boolean PODClassOKFlagButtonAction(Integer wn,Integer value)
 BEGIN
   Boolean res;
   record POVc POr;
+  Integer normalmode,updatemode;
   record POSettingBlock POSb;
   Integer err;
  
   BlockLoad(POSb);
   res = true;
+  normalmode = 0;//Rs_normal
+  updatemode = 2;//Rs_update
   if (WindowState(wn)==Rs_insert) then begin
     GetWindowRecord(wn,POr);
-    err = POTestApprovalStatus(POr);
+    err = TestAcceptanceStatus(POr.AcceptanceStatus);
     if (err!=0) then begin
       MessageBox(err,"");
       res = false;
@@ -743,38 +746,34 @@ BEGIN
     if (POr.Closed!=0) then begin
       res = false;
     end;
-    if (res) then begin
-      err = POTestApprovalStatus(POr);
-      if (err!=0) then begin
-        MessageBox(err,"");
-        res = false;
-        goto LPODClassOKFlagButtonAction;
-      end;
-      if (POr.OKFlag!=0) then begin
-        res = false;
-        if (UserCanAction("UnOKPO",false)) or (UserCanAction("UnOKAll",false)) then begin
-          res = true;
-        end;
+    err = TestAcceptanceStatus(POr.AcceptanceStatus);
+    if (err!=0) then begin
+      MessageBox(err,"");
+      res = false;
+      goto LPODClassOKFlagButtonAction;
+    end;
+    if (POr.OKFlag!=0) then begin
+      res = false;
+      if (UserCanAction("UnOKPO",false)) or (UserCanAction("UnOKAll",false)) then begin
+        res = true;
       end;
     end;
   end;  
-  if (WindowState(wn)==Rs_update) then begin
+  if (WindowState(wn)==updatemode) then begin
     GetPrevWindowRecord(wn,POr);
     if (POr.Closed!=0) then begin
       res = false;
     end;
-    if (res) then begin
-      err = POTestApprovalStatus(POr);
-      if (err!=0) then begin
-        MessageBox(err,"");
-        res = false;
-        goto LPODClassOKFlagButtonAction;
-      end;
-      if (POr.OKFlag!=0) then begin
-        res = false;
-        if (UserCanAction("UnOKPO",false)) or (UserCanAction("UnOKAll",false)) then begin
-          res = true;
-        end;
+    err = TestAcceptanceStatus(POr.AcceptanceStatus);
+    if (err!=0) then begin
+      MessageBox(err,"");
+      res = false;
+      goto LPODClassOKFlagButtonAction;
+    end;
+    if (POr.OKFlag!=0) then begin
+      res = false;
+      if (UserCanAction("UnOKPO",false)) or (UserCanAction("UnOKAll",false)) then begin
+        res = true;
       end;
     end;
   end; 
@@ -801,7 +800,7 @@ begin
         res = !ReadFirstKey("PONr",PUr,1,true);
       end;
       if (res) then begin
-        err = POTestApprovalStatus(POr);
+        err = TestAcceptanceStatus(POr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           res = false;
@@ -819,7 +818,7 @@ begin
         res = !ReadFirstKey("PONr",PUr,1,true);
       end;
       if (res) then begin
-        err = POTestApprovalStatus(POr);
+        err = TestAcceptanceStatus(POr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           res = false;
@@ -899,11 +898,10 @@ begin
   end;
   if (WindowState(wn)==Rs_update) then begin
     GetPrevWindowRecord(wn,PO2r);
-    if (POApprovalStarted(POr) and UserCanAction("ChangeRecordMatrixWhenPending",false)==false) then begin
+    if (POAcceptanceStarted(POr) and UserCanAction("ChangeRecordMatrixWhenPending",false)==false) then begin
       res = false;
       goto LPODClassDeleteRowTest;
     end;
-    
     if (POShipdFromRowTest(POr,rownr)) then begin
       res = false;
       MessageBox(1304,"");
@@ -929,7 +927,7 @@ begin
   GetWindowRecord(wn,POr);
   if (POr.Closed==0) then begin
     res = true;  
-    if (POApprovalStarted(POr) and UserCanAction("ChangeRecordMatrixWhenPending",false)==false) then begin
+    if (POAcceptanceStarted(POr) and UserCanAction("ChangeRecordMatrixWhenPending",false)==false) then begin
       res = false;
       goto LPODClassInsertRowTest;
     end;
@@ -965,32 +963,6 @@ begin
     PutWindowRecord(wn,POr);    
   end;
   PODClassOnOverStrike = true;
-  return;
-end;
-
-/*newapproval*/
-global
-function Boolean PODClassOnOpenWindow(Integer wn)
-begin
-  record POVc POr;
-  Integer AcceptanceStatusFlag;
-  
-  GetWindowRecord(wn,POr);
-  PODClassOnOpenWindowRemote(POr,AcceptanceStatusFlag);
-  PutWindowString(wn,"AcceptanceStatusFlag",StringFromSet(443,AcceptanceStatusFlag));  
-  PODClassOnOpenWindow = false;
-  return;
-end;
-
-global
-procedure PODClassOnWindowRecordChange(Integer wn)
-begin
-  record POVc POr;
-  Integer AcceptanceStatusFlag;
-
-  GetWindowRecord(wn,POr);
-  PODClassOnOpenWindowRemote(POr,AcceptanceStatusFlag);
-  PutWindowString(wn,"AcceptanceStatusFlag",StringFromSet(443,AcceptanceStatusFlag));  
   return;
 end;
 
@@ -1067,7 +1039,7 @@ begin
   end;
   if (wnst==2) then begin//Rs_update
     GetPrevWindowRecord(wn,PO2r);
-    if (POApprovalStarted(POr) and UserCanChangePendingRecord(rownr)==false) then begin
+    if (POAcceptanceStarted(POr) and UserCanChangePendingRecord(rownr)==false) then begin
       res = false;
       goto LPODClassActiveEditField;
     end;
@@ -1561,6 +1533,23 @@ BEGIN
   RETURN;
 END;
 
+global
+function Boolean PODClassAcceptanceStatusButtonAction(Integer wn,Integer value)
+BEGIN
+  Boolean res;
+  record POVc POr;
+
+  res = false;
+  if (value==kAcceptanceStateNotRequested) then begin
+    GetWindowRecord(wn,POr);
+    if (POr.AcceptanceStatus==kAcceptanceStateRejected) then begin
+      res = EditingAcceptanceRejectedAllowed(kAcceptancePO,"POVc",POr.SerNr,POr.AcceptanceStatus,POr.VECode)==0;
+    end;
+  end;
+  PODClassAcceptanceStatusButtonAction = res;
+  RETURN;
+END;
+
 procedure PODClassSpecPasteNameArtCode(Integer wn,var string psname)
 begin
   record POVc POr;
@@ -2031,106 +2020,3 @@ BEGIN
   PORowDClassAfterEditField = res;
   RETURN;
 END;
-
-global
-function Boolean PODClassOpenRecord(Integer wn,string fieldname,Integer fn,Integer rownr)
-begin
-  Boolean res;
-  record POVc POr;
-  
-  GetWindowRecord(wn,POr);  
-  switch (fieldname) begin
-    case "VEContact":
-      res = OpenContactRecord(POr.VEContact,POr.VECode);
-  end;
-  PODClassOpenRecord = res;
-end;
-
-global
-updating procedure DownPayFromPODsm()
-begin
-  Integer wn,nwn;
-  record RcVc RepSpec;
-  record POVc POr;
-  record PODownPayBlock DPb;
-  record VIVc VIr;
-  Integer r;
-  string 255 errstr;
-  Boolean testf;
-
-  wn = CurWindow;
-  DeselectWindow(wn,false);
-  if (WindowState(wn)!=Rs_normal) then begin
-    Beep;
-    goto LDownPayFromPODsm;
-  end;
-  if (UserCanAction("POToDownPay",true)==false) then begin
-    MessageBox(1274,StringFromStringSet(3,"POToDownPay"));
-    goto LDownPayFromPODsm;
-  end;
-  GetWindowRecord(wn,POr);
-  r = POTestApprovalStatus(POr);
-  if (r!=0) then begin
-    MessageBox(r,"");
-    goto LDownPayFromPODsm;
-  end;
-  BlockLoad(DPb);
-  if (DPb.DetailsOnVI==0) then begin
-    r = RecordAction_POOrdDownPay(POr.SerNr,blankval,blankval,VIr,errstr,0);
-    switch (r) begin
-      case -1: 
-        if (nonblank(errstr)) then begin
-          MessageBox(0,errstr);
-        end else begin
-          Beep;
-        end;
-      case -2: MessageBox(1281,"");
-      otherwise
-        nwn = OpenWindow("VIDClass",1,0,"","",VIr);
-        UpdateBrowses("POVc");
-    end;
-  end else begin
-    ReportDefaults(RepSpec,"DownPayFromPOVClass");
-    RepSpec.FirstVer = POr.SerNr;
-    RepSpec.vals0 = DPb.Percentage;
-    nwn = OpenWindow("DownPayFromPOVClass",1,0,"","",RepSpec);
-    PutWindowRecord(nwn,RepSpec);
-    SelectWindow(nwn);
-  end;
-LDownPayFromPODsm:;  
-  return;
-end;
-
-global
-updating function Boolean DownPayFromPOVClassOnOKWindow(Integer wn)
-begin
-  record RcVc RepSpec;
-  record VIVc VIr;
-  Integer nwn;
-  Integer r;
-  string 255 errstr;
-  
-  GetWindowRecord(wn,RepSpec);
-  if (RepSpec.FirstVer<=0) then begin
-    MessageBox(1058,"");
-    WindowFieldGoto(wn,RepSpec,-1,"FirstVer",true);
-    goto LDownPayFromPOVClassOnOKWindow;
-  end;
-  r = RecordAction_POOrdDownPay(RepSpec.FirstVer,RepSpec.vals0,blankval,VIr,errstr,RepSpec.flags[1]);
-  CloseWindow(wn);
-  switch (r) begin
-    case -1: 
-      if (nonblank(errstr)) then begin
-        MessageBox(0,errstr);
-      end else begin
-        Beep;
-      end;
-    case -2: MessageBox(1281,"");
-    otherwise
-      nwn = OpenWindow("VIDClass",1,0,"","",VIr);
-      UpdateBrowses("POVc");
-  end;
-LDownPayFromPOVClassOnOKWindow:;  
-  DownPayFromPOVClassOnOKWindow = false;
-  return;
-end;

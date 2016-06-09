@@ -10,6 +10,7 @@ external function Boolean HasIncomeAndExpenseBook();
 external procedure VerifyRowObjects(String,String,String,String,var Integer,var String,var Boolean,Array string,Array string,var Integer);
 external updating function Integer CreateVIFromPO(LongInt,record RcVc,var record VIVc);
 external updating procedure FindAcptRulesAndCreateAcceptanceAlert(Integer,Integer,string,string,string,val,string,string,string,string);
+external function Boolean AcceptanceActivityExists(Integer,string,string,string);
 external updating procedure CancelApprovalRequestActivities(Integer,string,string,string);
 external function Boolean IsDigit(string);
 external function string 255 NextSerialNumber(string,string,record SerNrTrackBlock);
@@ -67,6 +68,7 @@ external function Boolean ExistStockTrans(string,Date,var Integer,var string,str
 external function Integer SerialNrOnThisPU(record PUVc,string,string);
 external function Boolean SerialNrAvail2(string,string,val);
 external function Boolean CheckAllowedSize(record INVc,val,val,val);
+external function Integer GetVATLaw();
 external function Integer CheckPosition(string,string,Integer,val,val,val);
 external function Boolean IsOffice(Boolean);
 external function Boolean Date2Test(string,Date,string,Integer);
@@ -76,6 +78,34 @@ external procedure PUSumUp(var record PUVc);
 external procedure GetFullCurncyRate (var string,Date,var val,var val,var val,var val,var val);
 external procedure GetCurUser(var record UserVc);
 external function val GetAcceptanceSum_PUVc(record PUVc);
+external function Integer SetAcceptanceStatus(Integer,string,val);
+
+procedure SetPUAcceptanceFlag(var record PUVc PUr,record PUVc prevPUr,LongInt stat)
+begin
+  val bc1v;
+  Boolean testf;
+  
+  testf = true;
+  switch (stat) begin
+    case Rs_update:
+      if (prevPUr.OKFlag!=0) then begin
+        testf = false;
+      end;
+    otherwise
+      ;
+  end;
+  if (testf) then begin
+    switch (PUr.AcceptanceStatus) begin
+      case kAcceptanceStatePending:
+      case kAcceptanceStateApproved:
+      case kAcceptanceStateRejected:
+      otherwise
+        bc1v = GetAcceptanceSum_PUVc(PUr);
+        PUr.AcceptanceStatus = SetAcceptanceStatus(kAcceptancePU,PUr.VECode,bc1v);      
+    end;
+  end;
+  return;
+end;
 
 global
 function LongInt PUVcRecordDefaults(var record PUVc PUr,record PUVc PU2r,LongInt stat,LongInt long4)
@@ -121,8 +151,12 @@ begin
   GetCurUser(Userr);
   PUr.Location = Userr.Location;
   PUr.NoTAXonVAT = ARAccb.NoTAXonVAT;
+  PUr.AcceptanceStatus = kAcceptanceStateNotRequired;
   PUr.BranchID = CurBranchID;
   PUr.ExtraCostsCalculation = MSb.ExtraCostsCalculation;
+  if (AcceptanceRulesExists(kAcceptancePU,PUr.VECode)) then begin
+    PUr.AcceptanceStatus = kAcceptanceStateNotStarted;
+  end;
   PUVcRecordDefaults = res; 
   return;
 end;
@@ -166,6 +200,10 @@ begin
   PUr.BaseRate1 = br1;
   PUr.BaseRate2 = br2;
   PUr.LocOKNr = blankval;
+  PUr.AcceptanceStatus = kAcceptanceStateNotRequired;
+  if (AcceptanceRulesExists(kAcceptancePU,PUr.VECode)) then begin
+    PUr.AcceptanceStatus = kAcceptanceStateNotStarted;
+  end;
   PUr.BranchID = CurBranchID;
   PUSumUp(PUr); 
   PUVcRecordDuplicate = res; 
@@ -178,9 +216,6 @@ begin
   LongInt res;
   record DBLockBlock DBLockRec;
   record IVCashVc IVCashr;
-  Integer actnr;
-  record ActVc Actr;
-  record RLinkVc RLr;
 
   res = 1;
   BlockLoad(DBLockRec);
@@ -201,15 +236,11 @@ begin
       res = 0;
     end;
   end;
-  actnr = 1;
-  while (ReadRecordLink(PUr,actnr,Actr,RLr)) begin
-    if (Actr.TodoFlag==kTodoFlagApproval) then begin
-      if (long3>0) then begin MessageBox(22408,""); end;
-      res = 0;
-      goto LPUVcRecordRemoveTest;
-    end;
-    actnr = actnr + 1;
-  end;
+  if (AcceptanceActivityExists(kAcceptancePU,"PUVc",PUr.SerNr,PUr.VECode)) then begin
+    if (long3>0) then begin MessageBox(22408,""); end;
+    res = 0;
+    goto LPUVcRecordRemoveTest;
+  end;  
 LPUVcRecordRemoveTest:;
   PUVcRecordRemoveTest = res; 
   return;
@@ -364,6 +395,7 @@ begin
   if (PUr.OKFlag!=0) then begin
     PUr.LocOKNr = NextLocOKNr(PUr.Location);
   end;
+  SetPUAcceptanceFlag(PUr,PU2r,stat);
   PUVcRecordSave = res;
   return;
 end;
@@ -494,6 +526,7 @@ begin
       PUr.LocOKNr = NextLocOKNr(PUr.Location);
     end;
   end;
+  SetPUAcceptanceFlag(PUr,PU2r,stat);
 LPUVcRecordUpdate:;  
   PUVcRecordUpdate = res;
   return;
@@ -594,6 +627,18 @@ begin
   if ((PUr.OKFlag!=0) and (PU2r.OKFlag!=0)) then begin//overstrike
     PUVc_UpdateTR(PUr,PU2r);
   end;
+  switch (PUr.AcceptanceStatus) begin
+    case kAcceptanceStatePending:
+      if (PU2r.AcceptanceStatus!=kAcceptanceStatePending) then begin
+        bc1v = GetAcceptanceSum_PUVc(PUr);
+        FindAcptRulesAndCreateAcceptanceAlert(kAcceptancePU,PU2r.AcceptanceStatus,"PUVc",PUr.SerNr,"",bc1v,PUr.CurncyCode,PUr.VECode,PUr.AcceptanceBy,PUr.AcceptanceFYI);
+      end;
+    case kAcceptanceStateNotRequested:
+      if (PU2r.AcceptanceStatus==kAcceptanceStatePending) then begin
+        CancelApprovalRequestActivities(kAcceptancePU,"PUVc",PUr.SerNr,PUr.VECode);
+      end;
+  end;
+
   PUVcRecordUpdateAfter = res;
   return;
 end;
@@ -669,7 +714,7 @@ begin
     end;
   end;
   rwcnt = MatRowCnt(PUr);
-  serialnr = FirstInRange(PUrw.SerialNr,60);
+  serialnr = FirstInRange(PUrw.SerialNr,30);
   while (nonblank(serialnr)) begin
     if (SerialNrAvail2(PUrw.ArtCode,serialnr,1.00)==true) then begin
       res = 1241;
@@ -683,7 +728,7 @@ begin
       if (PU2rw.Quant!=0) then begin
         if (PUrw.ArtCode==PU2rw.ArtCode) then begin
           qty2 = blankval;
-          serialnr2 = FirstInRange(PU2rw.SerialNr,60);
+          serialnr2 = FirstInRange(PU2rw.SerialNr,30);
           while (nonblank(serialnr2)) begin
             if (serialnr==serialnr2) then begin
               res = 1241;
@@ -749,10 +794,10 @@ begin
   Array string 255 otcheckaccs;
   Array string 255 otcheckobjtyps;
   Integer otcheckcnt;
-  Boolean initotcheckf,testf;    
+  Boolean initotcheckf,testf; 
   record ItemSettingBlock ItSetb; //Edit***************************Sasha2,12:55 10.03.2016
   record ITVc ITr; //Edit***************************Sasha2,17:30 16.03.2016
-  Boolean itemexists; //Edit***************************Sasha2,18:04 16.03.2016
+  Boolean itemexists; //Edit***************************Sasha2,18:04 16.03.2016   
 
   res = 0;
   oldnr = PUr.SerNr;
@@ -894,16 +939,6 @@ begin
           res = -1;
           goto L99PUVcRecordCheck;
         end;
-      end;
-    end;
-  end;
-  if (HasLocalization("PRT")) then begin
-    VEr.Code = PUr.VECode;
-    if (ReadFirstMain(VEr,1,true)) then begin
-      if (blank(VEr.VATNr)) then begin
-        RecordCheckError(20275,"",-1,"VECode");      
-        res = -1;
-        goto L99PUVcRecordCheck;
       end;
     end;
   end;
@@ -1140,7 +1175,7 @@ begin
         goto L99PUVcRecordCheck;
       end;
     end;
-    if ((HasLocalization("EST")) or (HasLocalization("POL"))) then begin//vatEstonian,vatPolish
+    if ((GetVATLaw==27) or (GetVATLaw==25)) then begin//vatEstonian,vatPolish
       if (INr.ItemType!=1) then begin
         RecordCheckError(1301,"",i,"ArtCode");      
         res = -1;
@@ -1387,7 +1422,7 @@ begin
                   goto L99PUVcRecordCheck;
                 end;
               end;
-              if (PUrw.Quant!=1) then begin
+              if (PUrw.Quant>1) then begin
                 RecordCheckError(1242,"",i,"Quant");      
                 res = -1;
                 goto L99PUVcRecordCheck;

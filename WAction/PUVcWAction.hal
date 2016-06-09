@@ -1,11 +1,9 @@
-remote procedure PUDClassOnOpenWindowRemote(var record PUVc,var Integer);
-remote function Integer PUApprovalStatus(record PUVc,var record AcceptanceRulesVc);
-remote function Integer PUTestApprovalStatus(record PUVc);
 remote function Boolean PUVc_PasteArtCode(var record PUVc,Integer,var string,var string);
 remote function Integer PUVc_PasteQuant(var record PUVc,Integer);
 remote function string 255 ReturnItemCodeFromBarCode(string);
 remote procedure PUVc_PasteTaxTemplateCode(var record PUVc,Integer,var Boolean);
 remote procedure PUVc_PasteCostPrice(var record PUVc,Integer);
+external function Integer TestAcceptanceStatus(Integer);
 remote procedure PUVc_PasteTransDate(var record PUVc,var Boolean,var Boolean,var Boolean);
 remote function Integer PUVc_PasteSerialNr(record PUVc,Integer);
 remote procedure PUVc_PasteStockType(var record PUVc,Integer);
@@ -41,7 +39,7 @@ external function Boolean PUDClassRowCost5EFAfter(Integer,Integer,Integer,Intege
 external function Boolean PUDClassExtraEFAfter(Integer,Integer,Integer,Integer);
 external function Boolean PUDClassCustomsCostEFAfter(Integer,Integer,Integer,Integer);
 external function Boolean PUDClassVATCodeEFAfter(Integer,Integer,Integer,Integer);
-remote procedure PUSumUp(var record PUVc);
+external procedure PUSumUp(var record PUVc);
 external procedure MulVATIV(string,val,var val,var val,Integer,Integer);
 remote procedure PUSetShipCost(var record PUVc,Integer);
 remote procedure PURecalcCost(var record PUVc);
@@ -94,59 +92,21 @@ BEGIN
   RETURN;
 END;
 
-function val SerialNrOnNotOKDelivery(string artcode,string serialnr,string location)
-begin
-  val res;
-  record SHVc SHr;
-  row SHVc SHrw;
-  Integer i,rwcnt;
-  Boolean found,testf;
-  
-  found = true;
-  SHr.OKFlag = 0;
-  while (LoopKey("OKFlag",SHr,1,found)) begin
-    if (SHr.OKFlag!=0) then begin found = false; end;
-    if (found) then begin
-      rwcnt = MatRowCnt(SHr);
-      for (i=0;i<rwcnt;i=i+1) begin
-        MatRowGet(SHr,i,SHrw);
-        testf = true;
-        if (SHrw.ArtCode!=artcode) then begin testf = false; end;
-        if (nonblank(serialnr)) then begin
-          if (SHrw.SerialNr!=serialnr) then begin testf = false; end;
-        end;
-        if (nonblank(location)) then begin
-          if (nonblank(SHrw.Location)) then begin
-            if (SHrw.Location!=location) then begin testf = false; end;
-          end else begin
-            if (SHr.Location!=location) then begin testf = false; end;
-          end;
-        end;
-        if (testf) then begin
-          res = res + SHrw.Ship;
-        end;        
-      end;
-    end;
-  end;
-  SerialNrOnNotOKDelivery = res;
-  return;
-end;
-
 global
 function val FindSerialNrQty2(string artcode,string serialnr,string location,Boolean mainstockf)
 BEGIN
   record SerBalVc SBr;
-  record MainStockBlock MSb;
+  record MainStockBlock MainStockRec;
   string 20 llocation;
   val res;
   Boolean found;
   Integer segs;
 
   llocation = location;
-  BlockLoad(MSb);
   if (mainstockf) or (nonblank(llocation)) then begin
     if (blank(llocation)) then begin
-      llocation = MSb.MainStock;
+      BlockLoad(MainStockRec);
+      llocation = MainStockRec.MainStock;
     end;
     SBr.Item = artcode;
     SBr.Location = llocation;
@@ -182,11 +142,6 @@ BEGIN
         res = res + SBr.Quant;
       end;
     end;
-  end;
-  switch (MSb.UpdateAvailable) begin
-    case 0:
-    case 1:
-      res = res - SerialNrOnNotOKDelivery(artcode,serialnr,llocation);
   end;
   FindSerialNrQty2 = res;
   RETURN;
@@ -387,19 +342,6 @@ BEGIN
   RETURN;
 END;
 
-function Boolean PUApprovalStarted(record PUVc PUr)
-begin
-  Boolean res;
-  record AcceptanceRulesVc Acptr;
-
-  res = false;
-  if (PUApprovalStatus(PUr,Acptr)>=kAcceptanceStatePending) then begin
-    res = true;
-  end;
-  PUApprovalStarted = res;
-  return;
-end;
-
 global 
 function Boolean PUDClassDeleteRowTest(Integer wn, Integer rownr)
 BEGIN
@@ -407,15 +349,10 @@ BEGIN
   record PUVc PUr;
 
   res = true;
-  if (WindowState(wn)==Rs_update) then begin
+  if (WindowState(wn)==2) then begin//Rs_update
     GetPrevWindowRecord(wn,PUr);
     if (PUr.OKFlag!=0) then begin res = false; end;
-    if (PUApprovalStarted(PUr) and UserCanAction("ChangeRecordMatrixWhenPending",false)==false) then begin
-      res = false;
-      goto LPUDClassDeleteRowTest;
-    end;
   end;
-LPUDClassDeleteRowTest:;  
   PUDClassDeleteRowTest = res;
   RETURN;
 END;
@@ -441,11 +378,6 @@ begin
       res = false;
       goto LPUDClassOverStrikeTest;
     end;
-  end;
-  if (UserCanAction("PUInvalid",true)==false) then begin
-    MessageBox(1051,"");
-    res = false;
-    goto LPUDClassOverStrikeTest;
   end;
   if (PUCheckifOverstrikeAllowed(PUr,rownr)==false) then begin
     MessageBox(1051,"");
@@ -790,7 +722,7 @@ BEGIN
 end;
 
 function Boolean PUDClassScanBarcodeEFAfter(Integer wn,Integer fn,Integer rownr,Boolean changedf)
-begin
+BEGIN
   record PUVc PUr,PU2r;
     
   if (changedf) then begin 
@@ -963,7 +895,7 @@ begin
       GetWindowRecord(wn,PUr);
       if (PUr.OKFlag!=0) then begin res = false; end;
       if (res) then begin
-        err = PUTestApprovalStatus(PUr);
+        err = TestAcceptanceStatus(PUr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           res = false;
@@ -977,7 +909,7 @@ begin
       GetPrevWindowRecord(wn,PUr);
       if (PUr.OKFlag!=0) then begin res = false; end;    
       if (res) then begin
-        err = PUTestApprovalStatus(PUr);
+        err = TestAcceptanceStatus(PUr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           res = false;
@@ -1004,7 +936,7 @@ begin
       if (PUr.OKFlag!=0) then begin res = false; end;
       if (PUr.PONr>0) then begin res = false; end;
       if (res) then begin
-        err = PUTestApprovalStatus(PUr);
+        err = TestAcceptanceStatus(PUr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           res = false;
@@ -1019,7 +951,7 @@ begin
       if (PUr.OKFlag!=0) then begin res = false; end;    
       if (PUr.PONr>0) then begin res = false; end;
       if (res) then begin
-        err = PUTestApprovalStatus(PUr);
+        err = TestAcceptanceStatus(PUr.AcceptanceStatus);
         if (err!=0) then begin
           MessageBox(err,"");
           res = false;
@@ -1173,30 +1105,5 @@ begin
   end;
 LPUDClassOnEnterKey:;  
   PUDClassOnEnterKey = res;
-  return;
-end;
-
-global
-function Boolean PUDClassOnOpenWindow(Integer wn)
-begin
-  record PUVc PUr;
-  Integer AcceptanceStatusFlag;
-  
-  GetWindowRecord(wn,PUr);
-  PUDClassOnOpenWindowRemote(PUr,AcceptanceStatusFlag);
-  PutWindowString(wn,"AcceptanceStatusFlag",StringFromSet(443,AcceptanceStatusFlag));  
-  PUDClassOnOpenWindow = false;
-  return;
-end;
-
-global
-procedure PUDClassOnWindowRecordChange(Integer wn)
-begin
-  record PUVc PUr;
-  Integer AcceptanceStatusFlag;
-
-  GetWindowRecord(wn,PUr);
-  PUDClassOnOpenWindowRemote(PUr,AcceptanceStatusFlag);
-  PutWindowString(wn,"AcceptanceStatusFlag",StringFromSet(443,AcceptanceStatusFlag));  
   return;
 end;

@@ -629,12 +629,12 @@ BEGIN
         otherwise
           t2 = POrw.Quant - POrw.Shipd2;
       end;
+      if (t2<0) then begin t2 = 0; end;
       if (POp.OKFlag!=0) then begin
-        t3 = t2;
+        t3 = POrw.Quant;
       end else begin
         t3 = blankval;
       end;
-      if (t2<0) then begin t2 = 0; end;
       if (POp.Closed!=0) then begin  // if po is closed then nothing left to deliver
         t2 = 0;
         t3 = 0;
@@ -763,9 +763,8 @@ LUpdatePOFromPU:;
   RETURN;
 END;
 
-/*
 updating procedure UpdatePORowWithPURow(record PUVc PUp,row PUVc PUrw,LongInt PONr,Boolean addf,Boolean shipd1f,Boolean shipd2f)
-begin
+BEGIN
   record POVc POr;
   record POVc oldPOr;
   row POVc POrw;
@@ -812,12 +811,12 @@ begin
     if (RecordUpdate(oldPOr,POr,true)==0) then begin
     end;
   end;
-  return;
-end;
+  RETURN;
+END;
 
 global
 updating procedure UpdatePOFromPURows(record PUVc PUp,Boolean puf,record PUVc PU2p,Boolean pu2f,Boolean shipd1f)
-begin
+BEGIN
   Integer i,rwcnt;
   row PUVc PUrw;
   LongInt PONr;
@@ -847,12 +846,12 @@ begin
 //  SetPOFlags(POr,false);
   
 LUpdatePOFromPURows:;  
-  return;
-end;
+  RETURN;
+END;
 
 global
 updating procedure RemovePU_PORows(var record PUVc PUp)
-begin
+BEGIN
   Integer i,rwcnt;
   row PUVc PUrw;
 
@@ -863,207 +862,11 @@ begin
       UpdatePORowWithPURow(PUp,PUrw,PUrw.PONr,false,true,true);
     end;
   end;
-  return;
-end;
-
-*/
-
-updating procedure UpdatePORowWithPURow(record PUVc PUp,row PUVc PUrw,Boolean addf,Boolean shipd1f,Boolean shipd2f,var record POVc POr)
-begin
-  row POVc POrw;
-  Integer porwcnt;
-  record INVc INr;
-  string 255 tstr;
-
-  porwcnt = MatRowCnt(POr);
-  if (PUrw.OrdRow<porwcnt) then begin
-    MatRowGet(POr,PUrw.OrdRow,POrw);
-    if (POrw.StockType!=PUrw.StockType) then begin
-      POrw.StockType = PUrw.StockType;
-      if (ReadFirstItem(POrw.ArtCode,INr,true,false)) then begin end;
-      GetINPurchaseControlAcc(INr,tstr,POr.VECode,POr.Location,POrw.StockType);
-      POrw.CostAcc = tstr;
-    end;
-    if (shipd1f) then begin
-      if (addf) then begin
-        POrw.Shipd1 = POrw.Shipd1 + PUrw.Quant;
-      end else begin
-        POrw.Shipd1 = POrw.Shipd1 - PUrw.Quant;
-      end;
-    end;
-    if (shipd2f) then begin
-      if (PUp.OKFlag!=0) then begin
-        if (addf) then begin
-          POrw.Shipd2 = POrw.Shipd2 + PUrw.Quant;
-        end else begin
-          POrw.Shipd2 = POrw.Shipd2 - PUrw.Quant;
-        end;
-      end;
-    end;
-    if (POrw.Shipd1==0) then begin
-      POrw.Shipd1 = blankval;
-    end;
-    if (POrw.Shipd2==0) then begin
-      POrw.Shipd2 = blankval;
-    end;
-    MatRowPut(POr,PUrw.OrdRow,POrw);
-  end;
-  return;
-end;
-
-global
-updating procedure UpdatePOFromPURows(record PUVc PUp,Boolean puf,record PUVc PU2p,Boolean pu2f,Boolean shipd1f)
-begin
-  Integer i,rwcnt,err;
-  row PUVc PUrw;
-  LongInt PONr;
-  Integer apocnt,pos;
-  record POVc POr;
-  record POVc oldPOr;
-  vector LongInt vponr;
-  array record POVc aPOr;
-  array record POVc aoldPOr;
-  
-  if (PUp.PONr!=-1) then begin goto LUpdatePOFromPURows; end;
-  if (pu2f) then begin
-    apocnt = 0;
-    rwcnt = MatRowCnt(PU2p);
-    for (i=0;i<rwcnt;i=i+1) begin
-      MatRowGet(PU2p,i,PUrw);
-      PONr = PUrw.PONr;
-      if (PONr<=0) then begin PONr = PU2p.PONr; end;
-      if (PONr!=-1) and (PUrw.OrdRow>=0) and (PUrw.ovst==0) then begin
-        if (vponr[PONr]<0) then begin
-          POr.SerNr = PONr;
-          if (ReadFirstMain(POr,1,true)) then begin
-            aPOr[apocnt] = POr;
-            aoldPOr[apocnt] = POr;
-            vponr[PONr] = apocnt;
-            apocnt = apocnt + 1;
-          end;
-        end;
-      end;
-    end;
-    for (i=0;i<rwcnt;i=i+1) begin
-      MatRowGet(PU2p,i,PUrw);
-      PONr = PUrw.PONr;
-      if (PONr<=0) then begin PONr = PU2p.PONr; end;
-      if (PONr!=-1) and (PUrw.OrdRow>=0) and (PUrw.ovst==0) then begin
-        if (vponr[PONr]>=0) then begin
-          pos = vponr[PONr];
-          RecordCopy(POr,aPOr[pos]);
-          UpdatePORowWithPURow(PU2p,PUrw,false,shipd1f,true,POr);
-          aPOr[pos] = POr;
-        end;
-      end;
-    end;
-    for (i=0;i<apocnt;i=i+1) begin
-      RecordCopy(POr,aPOr[i]);
-      RecordCopy(oldPOr,aoldPOr[i]);
-//      RecordUpdate(POr,oldPOr,true);//why record update dont work here ? 
-      RecordStore(POr,true);
-    end;
-  end;
-  
-  if (puf) then begin
-    ClearArray(aPOr);
-    ClearArray(aoldPOr);
-    ClearVector(vponr);
-    apocnt = 0;
-
-    rwcnt = MatRowCnt(PUp);
-    for (i=0;i<rwcnt;i=i+1) begin
-      MatRowGet(PUp,i,PUrw);
-      if (PUrw.PONr!=-1) and (PUrw.OrdRow>=0) and (PUrw.ovst==0) then begin
-        if (vponr[PUrw.PONr]<0) then begin
-          POr.SerNr = PUrw.PONr;
-          if (ReadFirstMain(POr,1,true)) then begin
-            aPOr[apocnt] = POr;
-            aoldPOr[apocnt] = POr;
-            vponr[POr.SerNr] = apocnt;
-            apocnt = apocnt + 1;
-          end;
-        end;
-      end;
-    end;
-
-    for (i=0;i<rwcnt;i=i+1) begin
-      MatRowGet(PUp,i,PUrw);
-      if (PUrw.PONr!=-1) and (PUrw.OrdRow>=0) and (PUrw.ovst==0) then begin
-        if (vponr[PUrw.PONr]>=0) then begin
-          pos = vponr[PUrw.PONr];
-          RecordCopy(POr,aPOr[pos]);
-          UpdatePORowWithPURow(PUp,PUrw,true,shipd1f,true,POr);
-          aPOr[pos] = POr;
-        end;
-      end;
-    end;
-    for (i=0;i<apocnt;i=i+1) begin
-      RecordCopy(POr,aPOr[i]);
-      RecordCopy(oldPOr,aoldPOr[i]);
-//      err = RecordUpdate(POr,oldPOr,true);//why record update dont work here ? 
-      RecordStore(POr,true);
-    end;
-  end;
-//  UpdatePOOut(POr,true,false);
-//  SetPOFlags(POr,false);
-  
-LUpdatePOFromPURows:;  
-  return;
-end;
-
-global
-updating procedure RemovePU_PORows(var record PUVc PUp)
-begin
-  Integer i,rwcnt;
-  row PUVc PUrw;
-  Integer apocnt,pos;
-  record POVc POr;
-  record POVc oldPOr;
-  vector LongInt vponr;
-  array record POVc aPOr;
-  array record POVc aoldPOr;
-
-  apocnt = 0;
-  rwcnt = MatRowCnt(PUp);
-  for (i=0;i<rwcnt;i=i+1) begin
-    MatRowGet(PUp,i,PUrw);
-    if (PUrw.PONr!=-1) and (PUrw.OrdRow>=0) and (PUrw.ovst==0) then begin
-      if (vponr[PUrw.PONr]<0) then begin
-        POr.SerNr = PUrw.PONr;
-        if (ReadFirstMain(POr,1,true)) then begin
-          aPOr[apocnt] = POr;
-          aoldPOr[apocnt] = POr;
-          vponr[POr.SerNr] = apocnt;
-          apocnt = apocnt + 1;
-        end;
-      end;
-    end;
-  end;
-  
-  for (i=0;i<rwcnt;i=i+1) begin
-    MatRowGet(PUp,i,PUrw);
-    if (PUrw.PONr!=-1) and (PUrw.OrdRow>=0) and (PUrw.ovst==0) then begin
-      if (vponr[PUrw.PONr]>=0) then begin
-        pos = vponr[PUrw.PONr];
-        RecordCopy(POr,aPOr[pos]);
-        UpdatePORowWithPURow(PUp,PUrw,false,true,true,POr);
-        aPOr[pos] = POr;
-      end;
-    end;
-  end;
-  for (i=0;i<apocnt;i=i+1) begin
-    RecordCopy(POr,aPOr[i]);
-    RecordCopy(oldPOr,aoldPOr[i]);
-//      err = RecordUpdate(POr,oldPOr,true);//why record update dont work here ? 
-    RecordStore(POr,true);
-  end;
-  return;
-end;
-
+  RETURN;
+END;
 
 procedure ArtCodeOnThisPU(Integer cnt,record PUVc PUp,string artcode,string location,string MainStock,record INVc INr,var val resp)
-begin
+BEGIN
   row PUVc PUrw;
   Integer rwcnt,i;
   string 255 location2;
@@ -1085,12 +888,12 @@ begin
       end;
     end;
   end;
-  return;
-end;
+  RETURN;
+END;
 
 global
 updating procedure UpdateLocationWeightedAv(string itemcode,string location,val qty,val price,val priceb2,val qonrecp,Boolean ovstf)
-begin
+BEGIN
   record ItemStatusVc ISr;
   record WeigAvVc war;
   record WeigAvVc oldwar;
@@ -1159,12 +962,12 @@ begin
     end;
   end;
 LUpdateLocationWeightedAv:;
-  return;
-end;
+  RETURN;
+END;
 
 global
 updating procedure UpdateLocationWeightedAv2(string itemcode,string location,val qty,val price,val priceb2,val qonrecp)
-begin
+BEGIN
   record ItemStatusVc ISr;
   record WeigAvVc war;
   record WeigAvVc oldwar;
@@ -1279,7 +1082,7 @@ begin
 END;
 
 procedure AddToSummaryPU(record MainStockBlock MSb,row PUVc nextPUrw,Boolean ovstf,Boolean perlocationf,
-                         var record PUVc PUp,var vector val LastPUCostPrice,var vector val LastPUUPrice,var vector val LastPUSellPrice) //Edit***************************Sasha2,17:25 16.03.2016
+                         var record PUVc PUp,var vector val LastPUCostPrice,var vector val LastPUUPrice,var vector val LastPUSellPrice) //Edit***************************Sasha2,11:28 09.06.2016
 begin
   Integer rwcnt,i;
   row PUVc PUrw;
@@ -1392,7 +1195,7 @@ BEGIN
     rwcnt = MatRowCnt(okPUp);
     for (i=0;i<rwcnt;i=i+1) begin
       MatRowGet(okPUp,i,PUrw);
-      AddToSummaryPU(MSb,PUrw,ovstf,false,PUp,LastPUCostPrice,LastPUUPrice,LastPUSellPrice); //Edit***************************Sasha2,17:24 16.03.2016
+      AddToSummaryPU(MSb,PUrw,ovstf,false,PUp,LastPUCostPrice,LastPUUPrice,LastPUSellPrice); //Edit***************************Sasha2,11:29 09.06.2016
     end;
 
 
@@ -1580,7 +1383,7 @@ LSKIPPUROW:;
     rwcnt = MatRowCnt(okPUp);
     for (i=0;i<rwcnt;i=i+1) begin
       MatRowGet(okPUp,i,PUrw);
-      AddToSummaryPU(MSb,PUrw,ovstf,true,PUp,LastPUCostPrice,LastPUUPrice,LastPUSellPrice); //Edit***************************Sasha2,18:17 16.03.2016
+      AddToSummaryPU(MSb,PUrw,ovstf,true,PUp,LastPUCostPrice,LastPUUPrice,LastPUSellPrice); //Edit***************************Sasha2,11:30 09.06.2016
     end;
 
     rwcnt = MatRowCnt(PUp);
