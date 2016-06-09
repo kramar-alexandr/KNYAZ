@@ -809,10 +809,10 @@ begin
 
   wn = CurWindow;
   if (SelectedListLine(wn)>=0) then begin
-    if (UserCanAction("AllowIVTSRowsDelete",IsStandardProduct==true)==false) then begin
+    /*if (UserCanAction("AllowIVTSRowsDelete",IsStandardProduct==true)==false) then begin
       POSManagersAction(wn,"DeleteItem");
       goto LIVCashDClassTouchScreenDeleteItem;
-    end;
+    end;*/
     DeselectWIndow(wn,true);
     GetWindowRecord(wn,IVCashr);
     if (IVCashr.OKFlag!=0) then begin goto LIVCashDClassTouchScreenDeleteItem; end;
