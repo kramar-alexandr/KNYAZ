@@ -1,8 +1,12 @@
+external updating procedure POCreateInterCompanyOR(record POVc);
+external function Integer POApprovalStatus(record POVc,var record AcceptanceRulesVc);
+external updating procedure CreateActFromPO(record POVc);
+external updating procedure DeletePlannedPayment(string,LongInt,LongInt);
+external updating procedure POCreatePlannedPayment(record POVc);
 external function Boolean StockRecordForLocationAllowed(string,string,string,date,integer,var Integer,var string);
 external procedure VerifyRowObjects(String,String,String,String,var Integer,var String,var Boolean,Array string,Array string,var Integer);
 external function LongInt GetCurUserLastNr(string);
 external updating procedure FindAcptRulesAndCreateAcceptanceAlert2(Integer,Integer,string,string,string,val,val,string,string,string,string);
-external function Boolean AcceptanceActivityExists(Integer,string,string,string);
 external updating procedure CancelApprovalRequestActivities(Integer,string,string,string);
 external function Integer VerifyTaxTemplateCode(string,var string);
 external function Boolean AcceptanceRulesExists(Integer,string);
@@ -39,36 +43,9 @@ external procedure GetFullCurncyRate (var string,Date,var val,var val,var val,va
 external procedure GetSalesGroup(string,var string);
 external updating procedure UpdateStockResFromPO(record POVc,boolean);
 
-procedure SetPOAcceptanceFlag(var record POVc POr,record POVc prevPOr,LongInt stat)
-begin
-  val bc1v;
-  Boolean testf;
-
-  testf = true;
-  switch (stat) begin
-    case Rs_update:
-      if (prevPOr.OKFlag!=0) then begin
-        testf = false;
-      end;
-    otherwise
-      ;
-  end;
-  if (testf) then begin
-    switch (POr.AcceptanceStatus) begin
-      case kAcceptanceStatePending:
-      case kAcceptanceStateApproved:
-      case kAcceptanceStateRejected:
-      otherwise
-        bc1v = MulRateToBase1(POr.CurncyCode,POr.Sum4,POr.FrRate,POr.ToRateB1,POr.ToRateB2,POr.BaseRate1,POr.BaseRate2,DefaultCurRoundOff);
-        POr.AcceptanceStatus = SetAcceptanceStatus(kAcceptancePO,POr.VECode,bc1v);      
-    end;
-  end;
-  return;
-end;
-
 global
 function LongInt POVcRecordInIndex(record POVc POr,string indexname)
-BEGIN
+begin
   LongInt res;
   
   res = 1;
@@ -85,15 +62,18 @@ BEGIN
     if (indexname=="VECodeOpen")  then begin res = 0; end;
   end;
   POVcRecordInIndex = res;
-  RETURN;
-END;
+  return;
+end;
 
 global
 function LongInt POVcRecordRemoveTest(var record POVc POr,record POVc PO2r,LongInt long3,LongInt long4)
-BEGIN
+begin
   LongInt res;
   record DBLockBlock DBLockRec;
   record PUVc PUr;
+  Integer actnr;
+  record ActVc Actr;
+  record RLinkVc RLr;
 
   res = 1;
   BlockLoad(DBLockRec);
@@ -114,19 +94,23 @@ BEGIN
       res = 0;
       goto LPOVcRecordRemoveTest;
     end;
-    if (AcceptanceActivityExists(kAcceptancePO,"POVc",POr.SerNr,POr.VECode)) then begin
-      if (long3>0) then begin MessageBox(22408,""); end;
-      res = 0;
-      goto LPOVcRecordRemoveTest;
-    end;  
+    actnr = 1;
+    while (ReadRecordLink(POr,actnr,Actr,RLr)) begin
+      if (Actr.TodoFlag==kTodoFlagApproval) then begin
+        if (long3>0) then begin MessageBox(22408,""); end;
+        res = 0;
+        goto LPOVcRecordRemoveTest;
+      end;
+      actnr = actnr + 1;
+    end;
   end;
 LPOVcRecordRemoveTest:;
   POVcRecordRemoveTest = res; 
-  RETURN;
-END;
+  return;
+end;
 
 procedure PasteLocationToPO(string location,record POVc POp)
-BEGIN
+begin
   record LocationVc Locr;
   
   Locr.Code = location;
@@ -139,12 +123,12 @@ BEGIN
     POp.DelAddr3 = Locr.Addr3;
     POp.DelAddr4 = Locr.Addr4;    
   end;
-  RETURN;
-END;
+  return;
+end;
 
 global
 function LongInt POVcRecordDefaults(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
   record UserVc Userr;
   string 255 tstr;
@@ -196,17 +180,13 @@ BEGIN
     POr.SerNr = NextSerNr("POVc",POr.TransDate,-1,false,"");
   end;
   POr.NoTAXonVAT = ARAccb.NoTAXonVAT;
-  POr.AcceptanceStatus = kAcceptanceStateNotRequired;
-  if (AcceptanceRulesExists(kAcceptancePO,POr.VECode)) then begin
-    POr.AcceptanceStatus = kAcceptanceStateNotStarted;
-  end;
   POVcRecordDefaults = res; 
-  RETURN;
-END;
+  return;
+end;
 
 global
 function LongInt POVcRecordDuplicate(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
   Integer i,rwcnt;
   string 10 curcode;
@@ -245,20 +225,18 @@ BEGIN
   POr.BaseRate1 = br1;
   POr.BaseRate2 = br2;  
   POr.OKPersons = "";
+  POr.DownPaySent = blankval;  
+  POr.DownPayRedcd = blankval;  
 //  POr.InvBeforePU = MainStockRec.AllowInvBeforePU;//they want this to be copied
   SetPOFlags(POr,false);
   WarnFutureDate(true,POr.TransDate);
   POr.OrderType = kOrderTypeNormal;
-  POr.AcceptanceStatus = kAcceptanceStateNotRequired;
-  if (AcceptanceRulesExists(kAcceptancePO,POr.VECode)) then begin
-    POr.AcceptanceStatus = kAcceptanceStateNotStarted;
-  end;
   POVcRecordDuplicate = res; 
-  RETURN;
-END;
+  return;
+end;
 
 procedure AutRecNonStockItem(record POVc POp)
-BEGIN
+begin
   row POVc POrw;
   Integer i,rwcnt;
   record MainStockBlock MainStockRec;
@@ -286,11 +264,11 @@ BEGIN
       end;
     end;
   end;
-  RETURN;
-END;
+  return;
+end;
 
 updating procedure PRPOINStatUp(LongInt posernr,Date td,string project,string artcode,val quantp,val sump,Boolean addf)
-BEGIN
+begin
   record PRPOINVc PRPOr;
   record PRPOINVc oldPRPOr;
   Boolean found;
@@ -338,12 +316,12 @@ BEGIN
     end;
   end;
 LPRPOINStatUp:;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating procedure UpdatePRPO(record POVc POp,Boolean addf)
-BEGIN
+begin
   row POVc POrw;
   Integer i,rwcnt;
   string 255 project;
@@ -364,12 +342,12 @@ BEGIN
       end;
     end;
   end;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating procedure POUpdatePOCO(record POVc POp,Boolean negf)
-BEGIN
+begin
   record POCOVc oldPOCOr;
   record POCOVc POCOr;
   row POCOVc POCOrw;
@@ -397,8 +375,8 @@ BEGIN
     end;
     if (RecordUpdate(oldPOCOr,POCOr,false)==0) then begin end;
   end;
-  RETURN;
-END;
+  return;
+end;
 
 /*
 wierd stuff
@@ -476,12 +454,11 @@ end;
 
 global
 updating function LongInt POVcRecordSave(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
 
   AutRecNonStockItem(POr);
   SetPOFlags(POr,false);
-  SetPOAcceptanceFlag(POr,PO2r,stat);
   UpdatePOOut(POr,true,false);
   UpdatePRPO(POr,true);
   if (POr.OKFlag==1) then begin 
@@ -493,17 +470,16 @@ BEGIN
     end;
   end;  
   POVcRecordSave = res; 
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function LongInt POVcRecordUpdate(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
 
   AutRecNonStockItem(POr);
   SetPOFlags(POr,false);
-  SetPOAcceptanceFlag(POr,PO2r,stat);
   UpdatePOOut(PO2r,false,false);
   UpdatePOOut(POr,true,false);
   UpdatePRPO(PO2r,false);
@@ -517,23 +493,23 @@ BEGIN
     end;
   end;  
   POVcRecordUpdate = res; 
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function LongInt POVcRecordRemove(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
 
   UpdatePOOut(POr,false,false);
   UpdatePRPO(POr,false);
   UpdateStockResFromPO(POr,true);
   POVcRecordRemove = res; 
-  RETURN;
-END;
+  return;
+end;
 
 updating procedure UpdateIntOrderFromPO(record POVc POp,record POVc PO2p)
-BEGIN
+begin
   Integer i,rwcnt;
   row POVc POrw;
   record IntORVc oldIntORr;
@@ -541,6 +517,7 @@ BEGIN
   row IntORVc IntORrw;
   Integer orw,orcnt;
   Boolean testf;
+  record AcceptanceRulesVc Acptr;
 
   if (RecordValid(POp)) then begin
     IntORr.SerNr = POp.IntORNo;
@@ -569,7 +546,8 @@ BEGIN
     end;
     if (RecordValid(POp)) then begin
       testf = true;
-      if (POp.AcceptanceStatus!=kAcceptanceStateApproved) and (POp.AcceptanceStatus!=kAcceptanceStateNotRequired) then begin testf = false; end;
+      i = POApprovalStatus(POp,Acptr);
+      if (i!=kAcceptanceStateApproved) and (i!=kAcceptanceStateNotRequired) then begin testf = false; end;
       if (testf) then begin
         rwcnt = MatRowCnt(POp);
         for (i=0;i<rwcnt;i=i+1) begin
@@ -590,14 +568,15 @@ BEGIN
     if (RecordUpdate(oldIntORr,IntORr,false)==0) then begin // When added IntORVcRecordProtectFields, had to change this to false
     end;
   end;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function LongInt POVcRecordSaveAfter(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
   
+  CreateActFromPO(POr);
   POUpdatePOCO(POr,false);
   if (POr.IntORNo!=-1) then begin
     UpdateIntOrderFromPO(POr,PO2r);
@@ -606,13 +585,17 @@ BEGIN
   if (POr.OKFlag!=0) then begin
     AssignStockResFromPO(POr);
   end;
+  POCreatePlannedPayment(POr);
+  if (POr.OKFlag!=0) then begin
+    POCreateInterCompanyOR(POr);
+  end;
   POVcRecordSaveAfter = res;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating  function LongInt POVcRecordUpdateAfter(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
   val bc1v;
   
@@ -624,26 +607,20 @@ BEGIN
   UpdateVARItemsPO(POr);
   if ((POr.OKFlag!=0) and (PO2r.OKFlag==0)) then begin
     AssignStockResFromPO(POr);
+    POCreateInterCompanyOR(POr);
   end;
   UpdateStockResFromPO(POr,POr.Closed);
-  switch (POr.AcceptanceStatus) begin
-    case kAcceptanceStatePending:
-      if (PO2r.AcceptanceStatus!=kAcceptanceStatePending) then begin
-        bc1v = MulRateToBase1(POr.CurncyCode,POr.Sum4,POr.FrRate,POr.ToRateB1,POr.ToRateB2,POr.BaseRate1,POr.BaseRate2,DefaultCurRoundOff);
-        FindAcptRulesAndCreateAcceptanceAlert2(kAcceptancePO,PO2r.AcceptanceStatus,"POVc",POr.SerNr,POr.SalesMan,bc1v,POr.Sum4,POr.CurncyCode,POr.VECode,POr.AcceptanceBy,POr.AcceptanceFYI);
-      end;
-    case kAcceptanceStateNotRequested:
-      if (PO2r.AcceptanceStatus==kAcceptanceStatePending) then begin
-        CancelApprovalRequestActivities(kAcceptancePO,"POVc",POr.SerNr,POr.VECode);
-      end;
+  if (PO2r.Sum4!=POr.Sum4) then begin
+    DeletePlannedPayment("POVc",POr.SerNr,-1);
+    POCreatePlannedPayment(POr);
   end;
   POVcRecordUpdateAfter = res;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function LongInt POVcRecordRemoveAfter(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
 
   POUpdatePOCO(POr,true);
@@ -652,12 +629,12 @@ BEGIN
     UpdateIntOrderFromPO(PO2r,POr);
   end;
   POVcRecordRemoveAfter = res;
-  RETURN;
-END;
+  return;
+end;
 
 global
 function Date ConvertPlanShipString(string PlanShip)
-BEGIN
+begin
   Date res;
   record PlanDeliveryBlock PlanDelRec;
 
@@ -666,19 +643,19 @@ BEGIN
     res = StringToDate(PlanShip);
   end;
   ConvertPlanShipString = res;
-  RETURN;
-END;
+  return;
+end;
 
 procedure POVcConvertB1ToB2(var val to1p,var val to2p,var val br1p,var val br2p)
-BEGIN    
+begin    
   SwapM4Val(br1p,br2p);
   SwapM4Val(to1p,to2p);
-  RETURN;
-END;
+  return;
+end;
 
 global
 function LongInt POVcRecordImport(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
   val t,fr,to1,to2,br1,br2;
   string 5 curncy;
@@ -726,12 +703,12 @@ BEGIN
   POr.PrepaidAmount = blankval;
   SetPOFlags(POr,false);
   POVcRecordImport = res;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function LongInt POVcRecordImportAfter(var record POVc POr,record POVc PO2r,LongInt stat,LongInt long4)
-BEGIN
+begin
   LongInt res;
   Integer err;
 
@@ -740,8 +717,8 @@ BEGIN
     UpdatePOOut(POr,true,true);
   end;
   POVcRecordImportAfter = res; 
-  RETURN;
-END;
+  return;
+end;
 
 function Boolean POReservationsExists(record POVc POr)
 begin
@@ -772,7 +749,7 @@ updating function Integer ValidatePORecord(var record POVc POr,record POVc PO2r,
 begin
   LongInt res;
   record PRVc PRr;
-  record POrderClassVc POClasr;
+  record POrderClassVc POCr;
   record POSettingBlock POSettingRec;
   Integer insertmode,updatemode;
   string 255 tstr,errstr,objstr;
@@ -788,12 +765,14 @@ begin
   record LocationVc Locationr;
   record TaxTemplateVc TTr;
   record SRBlock SRb;
+  record SerNrTrackBlock SNrb;
   Array string 255 otcheckaccs;
   Array string 255 otcheckobjtyps;
   Integer otcheckcnt;
   Boolean initotcheckf;    
   transaction string 255 gRuniningMaint;
   record AccVc Accr;
+  LongInt l;
   record ItemSettingBlock ItSetb; //Edit***************************Sasha2,12:55 10.03.2016
   record ITVc ITr; //Edit***************************Sasha2,17:30 16.03.2016
   Boolean itemexists; //Edit***************************Sasha2,18:04 16.03.2016
@@ -807,6 +786,7 @@ begin
   end else begin
     check = false;
   end;
+  BlockLoad(SNrb);
   BlockLoad(POSettingRec);
   rwcnt = MatRowCnt(POr);
   if (stat==Rs_update) then begin
@@ -963,8 +943,8 @@ begin
   end;  
   end;
   if (nonblank(POr.POClass)) then begin
-    POClasr.Code = POr.POClass;
-    if (ReadFirstMain(POClasr,1,true)==false) then begin
+    POCr.Code = POr.POClass;
+    if (ReadFirstMain(POCr,1,true)==false) then begin
       if (disperrf) then begin
         RecordCheckError(20097,"",-1,"POClass");
       end;
@@ -978,6 +958,16 @@ begin
     end;
     res = 22066;
     goto LPOVcRecordCheck;
+  end;
+  if (HasLocalization("PRT")) then begin
+    VEr.Code = POr.VECode;
+    if (ReadFirstMain(VEr,1,true)) then begin
+      if (blank(VEr.VATNr)) then begin
+        RecordCheckError(20275,"",-1,"VECode");      
+        res = -1;
+        goto LPOVcRecordCheck;
+      end;
+    end;
   end;
   found = true; 
   if (stat==updatemode) then begin
@@ -1112,22 +1102,36 @@ begin
               goto LPOVcRecordCheck;
             end;
           end;
-          if (POrw.StockType==kStockTypeConsigment) then begin
-            if (INr.SerNrf<1) then begin
-              if (disperrf) then begin
-                RecordCheckError(1953,"",i,"StockType");      
+          switch (INr.SerNrf) begin
+            case 1:
+              if (SNrb.BulkSerialNos!=0) then begin
+              end else begin
+                l = POrw.Quant;
+                if ((POrw.Quant - l)!=0) then begin
+                  if (disperrf) then begin
+                    RecordCheckError(1242,"",i,"SerialNr");
+                  end;
+                  res = 1242; 
+                  goto LPOVcRecordCheck;
+                end;
               end;
-              res = 1953;
-              goto LPOVcRecordCheck;
-            end;
-          end;  
-          if (POrw.TREO==kTREO) then begin
-            if (INr.SerNrf<1) then begin
-              RecordCheckError(1953,"",i,"TREO");
-              res = -1;
-              goto LPOVcRecordCheck;
-            end;
-          end;        
+            case 2:
+            otherwise
+              if (INr.SerNrf<1) then begin
+                if (POrw.StockType==kStockTypeConsigment) then begin
+                  if (disperrf) then begin
+                    RecordCheckError(1953,"",i,"StockType");      
+                  end;
+                  res = 1953;
+                  goto LPOVcRecordCheck;
+                end;
+                if (POrw.TREO==kTREO) then begin
+                  RecordCheckError(1953,"",i,"TREO");
+                  res = -1;
+                  goto LPOVcRecordCheck;
+                end;
+              end; 
+          end;       
           if (INr.ItemType==2) then begin
             if (disperrf) then begin
               RecordCheckError(1826,POrw.ArtCode,i,"ArtCode");      
@@ -1253,7 +1257,7 @@ end;
 
 global
 updating function LongInt POVcRecordCheck(var record POVc POr,record POVc PO2r,LongInt stat,LongInt along4)
-BEGIN
+begin
   LongInt res,long4;
   string 255 errmsg;
   transaction Boolean gMaintenance;
@@ -1267,5 +1271,5 @@ BEGIN
     res = -1;
   end;
   POVcRecordCheck = res;
-  RETURN;
-END;
+  return;
+end;

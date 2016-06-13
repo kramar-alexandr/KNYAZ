@@ -1,3 +1,10 @@
+external function Integer POApprovalStatus(record POVc,var record AcceptanceRulesVc);
+external function Boolean HasApprovals();
+external procedure GetItemSalesAcc(string,Integer,var string);
+external procedure FindSalesExVat(record TaxMatrixVc,string,val,Integer,Integer,var val);
+external function string 255 FillupTaxMatrix(Integer,string,string,string,string,string,var record TaxMatrixVc);
+external procedure GetItemTaxTemplateCode(string,Integer,var string,Boolean);
+external function Boolean UseTaxTemplatesforTaxCalc();
 external function Boolean GetCOSAcc(string,string,string,record AccBlock,record INVc,Integer,Boolean,Integer,var string,var string);
 external function val CalculateTotalVATFromTaxMatrix(record TaxMatrixVc,Integer);
 external procedure RowCalculateTaxMatrix_PUVc(var record PUVc,Integer,row PUVc,Integer);
@@ -38,7 +45,7 @@ external procedure DivPIFactor(val,val,var val);
 external function Boolean FindItemVAR2(string,var string,var string,var string);
 external procedure GetItemVATCode(string,Integer,var string,Boolean);
 external procedure MulVATIV(string,val,var val,var val,Integer,Integer);
-external procedure VICalcEReb(record VIVc);
+external procedure VICalcEReb(var record VIVc);
 external procedure CalcVATBaseVAT(record SMVc,Integer,Integer,Integer,var val,var val);
 external procedure RoundVATSum(string,string,string,var val);
 external procedure VISumup(record VIVc,var val);
@@ -141,7 +148,7 @@ BEGIN
   row PUVc palletPUrw;
   val p,s;
   Boolean chsum,testf;
-  record MainStockBlock MainStockRec;
+  record MainStockBlock MSb;
   record INVc INr;
   val orgquant;
   string 255 tstr,tstr2;
@@ -157,8 +164,8 @@ BEGIN
   
   LocRec.Code = PUr.Location;
   if (blank(LocRec.Code)) then begin 
-    BlockLoad(MainStockRec);
-    LocRec.Code = MainStockRec.MainStock;
+    BlockLoad(MSb);
+    LocRec.Code = MSb.MainStock;
   end;
   if (ReadFirstMain(LocRec,1,true)) then begin end;  
   res = 0;    
@@ -368,7 +375,7 @@ LCalculateOPPrepaymentAvgRate:;
   return;
 end;
 
-updating function Integer PasteRowToPU(record POSettingBlock POSetb,record CostAccBlock CAb,record MainStockBlock MainStockRec,record PUVc PUp,record POVc POp,row POVc POrw,Integer rownr,record INVc INr,
+updating function Integer PasteRowToPU(record POSettingBlock POSetb,record CostAccBlock CAb,record MainStockBlock MSb,record PUVc PUp,record POVc POp,row POVc POrw,Integer rownr,record INVc INr,
                                        val qty,var Integer nrwcnt)
 begin
   Integer res;
@@ -467,7 +474,7 @@ begin
   PUrw.CostPrice = pv;                                        
   PUrw.Sum = sv;
   PUrw.OrdRow = rownr;
-  if (MainStockRec.PONoOnPURowsOnly==1) then begin
+  if (MSb.PONoOnPURowsOnly==1) then begin
     PUrw.PONr = POp.SerNr;
   end;
   PUrw.ChargeNumber = POrw.ChargeNumber;
@@ -527,7 +534,7 @@ updating function Integer PastePOInPU(record POVc POp,record PUVc PUp,Integer ma
 BEGIN
   Integer res;
   record POSettingBlock POSetb;
-  record MainStockBlock MainStockRec;
+  record MainStockBlock MSb;
   record CostAccBlock CAb;
   record INVc INr;
   record PIVc PIr;
@@ -556,11 +563,11 @@ BEGIN
     goto LPastePOInPU;
   end;
   BlockLoad(POSetb);
-  BlockLoad(MainStockRec);
+  BlockLoad(MSb);
   BlockLoad(CAb);
   BlockLoad(SNrb);
-  if (MainStockRec.dontAllowOverreceive!=1) then begin res = -1; end;
-  if (MainStockRec.PONoOnPURowsOnly<>1) then begin
+  if (MSb.dontAllowOverreceive!=1) then begin res = -1; end;
+  if (MSb.PONoOnPURowsOnly<>1) then begin
     PUp.PONr = POp.SerNr;
   end else begin
     PUp.PONr = -1;
@@ -648,9 +655,9 @@ BEGIN
       CreateRecordLink(POp,CurrentCompany,PUp,CurrentCompany);
       CreateNewPUFromPO(PUp,POp,ponr);
     end;
-    if ((INr.SerNrf==1) and (MainStockRec.NoSerOnPU==0)) then begin
+    if ((INr.SerNrf==1) and (MSb.NoSerOnPU==0)) then begin
       if (SNrb.BulkSerialNos!=0) then begin
-        res = PasteRowToPU(POSetb,CAb,MainStockRec,PUp,POp,POrw,i,INr,POrw.Quant,nrwcnt);
+        res = PasteRowToPU(POSetb,CAb,MSb,PUp,POp,POrw,i,INr,POrw.Quant,nrwcnt);
       end else begin
       
         while (remn>0) begin
@@ -665,7 +672,7 @@ BEGIN
             CreateNewPUFromPO(PUp,POp,ponr);
           end;
           remn = remn - 1;
-          res = PasteRowToPU(POSetb,CAb,MainStockRec,PUp,POp,POrw,i,INr,1.00,nrwcnt);
+          res = PasteRowToPU(POSetb,CAb,MSb,PUp,POp,POrw,i,INr,1.00,nrwcnt);
         end;
       end;
     end else begin
@@ -688,6 +695,7 @@ BEGIN
       PUrw.SerialNr = "";
       PUrw.PIFactor = POrw.PIFactor;
       p = POrw.Price;
+/*      
       if (nonblank(POrw.VEUnit)) then begin
         if (POrw.PIFactor!=0) then begin
           p = p/POrw.PIFactor;
@@ -696,15 +704,22 @@ BEGIN
       end else begin    
         CalcSum(1,p,POrw.PriceFactor,POrw.vRebate,p,0);
       end;
-/*
-either above line or the one below , both have issues
+*/      
+
+//either above lines or the ones below , both have issues
+
+//the below code is fine when u do 
+//Qty 1, Price 2000, Sum 1999  (then discount is calculated 0.1)
+//if you find the below ones not working and above ones working, please write such case here
+
       if (POrw.PIFactor==0) then begin
         p = Round(POrw.Sum/POrw.Quant,SetRoundModeD(5));
       end else begin
-        p = Round((POrw.Sum*POrw.PIFactor)/POrw.Quant,SetRoundModeD(5));
+//        p = Round((POrw.Sum*POrw.PIFactor)/POrw.Quant,SetRoundModeD(5)); //??
+        p = Round(POrw.Sum/POrw.Quant,SetRoundModeD(5));
       end;
-*/      
-//      if (nonblank(POrw.VEArtCode)) then begin sometime people dont put supplier item code on Supplier items      
+      
+//      if (nonblank(POrw.VEArtCode)) then begin // sometime people dont put supplier item code on Supplier items      
       t = p;
       PUrw.UPrice = ROund(t,SetRoundModeD(5)); //only 5 in DB
 /*
@@ -721,7 +736,7 @@ calculated above and CalcSum2 does not take into account Discount Calculation
       PUrw.Extra = ValToString(Round(INr.ExtraCost,SetRoundModeD(5)),M45Val,"","",0);
       PUrw.CostPrice = blankval;
       PUrw.OrdRow = i;
-      if (MainStockRec.PONoOnPURowsOnly==1) then begin
+      if (MSb.PONoOnPURowsOnly==1) then begin
         PUrw.PONr = POp.SerNr;
       end;
         extra = "";
@@ -934,7 +949,9 @@ begin
       if (PUr.OKFlag==0) then begin testf = false; end;
       if (found and testf) then begin
         res = 0;
-
+        
+        if (itempricef==false) then begin goto LPastePURowsToVISKIPROWS; end;
+        
         rwcnt = MatRowCnt(PUr);
         for (i=0;i<rwcnt;i=i+1) begin  
           MatRowGet(PUr,i,PUrw);
@@ -947,11 +964,15 @@ begin
             VIrw.OrdRow = PUrw.OrdRow;
             if (vifound==false) then begin
               rPOr.SerNr = PUrw.PONr;
+              if (rPOr.SerNr<=0) then begin
+                rPOr.SerNr = PUr.PONr;
+              end;
               if (ReadFirstMain(rPOr,1,true)) then begin 
                 if (PUrw.OrdRow>=0) then begin
                   MatRowGet(rPOr,PUrw.OrdRow,POrw);
-                  if (q>(POrw.Quant-POrw.Invd)) then begin
-                    q = POrw.Quant-POrw.Invd;
+                  if (q>(POrw.Shipd2-POrw.Invd)) then begin//needs to take Ret Goods into account
+//                    q = POrw.Quant - POrw.Invd;
+                    q = POrw.Shipd2 - POrw.Invd;
                   end;
                 end;
               end;
@@ -963,6 +984,8 @@ begin
               VIrw.PURow = i;
               VIrw.Objects = PUrw.Objects;
               VIrw.SerialNr = PUrw.SerialNr;
+            end else begin
+              goto LPastePURowsToVISKIPROW;
             end;
           end else begin
             if (vifound==false) then begin
@@ -1045,9 +1068,10 @@ begin
             vicnt = vicnt + 1;         
           end;
 LPastePURowsToVISKIPROW:;    
-        end;  
+        end;
 //        PUAddFreightRow(PUr,VIp,ARb,APb,BCb,vicnt);
 
+LPastePURowsToVISKIPROWS:;
         SetupVATBase(VATr,vatcnt);
         if (customsf) then begin
           AddExtraCostRow(ARB,BCb,VIp,"customs",PUr.CustomsCost,PUr.InclVAT,ExportFlag,PUr.ExportFlag,PUr.CurncyCode,VATr,vatcnt);
@@ -1104,11 +1128,254 @@ LPastePURowsZeroQty:;
   return;
 end;
 
+procedure DownpaymentPerVATCode(record VIVc theVIp,record PODownPayBlock DPb,val downp,var Integer srw)
+begin
+  record VIVc VIr;
+  record POVc POr; 
+  row VIVc VIrw;
+  row VIVc theVIrw;
+  row VIVc newVIrw;
+  Boolean TrHs,testf,subvatf;
+  Integer di,drwcnt;
+  Integer i,rwcnt;
+  val t,qty,sum;  
+  val totd,v;
+  string 255 tstr;
+  LongInt ordrow;
+  record RoundBlock Roundb;
+  record TaxMatrixVc TMr;
+  val vatv,t1;
+    
+  BlockLoad(Roundb);
+  POr.SerNr = VIr.POSerNr;
+  ReadFirstMain(POr,1,true);
+  if (POr.InclVAT==0) then begin
+    subvatf = true;
+  end else begin
+    subvatf = false;
+  end;
+  t = downp;
+  if (DPb.CalcMode==0) then begin
+    switch (Roundb.VATCalcWay) begin
+      case 1: subvatf = false;
+    end;
+  end;
+  if (t<=0) then begin
+    goto LDownpaymentPerVATCode;
+  end;
+
+  rwcnt = MatRowCnt(theVIp);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(theVIp,i,theVIrw);
+    TrHs = true;
+    qty = theVIrw.qty;
+    sum = theVIrw.Sum;
+    if (theVIrw.stp!=kInvoiceRowTypeNormal) then begin
+      TrHs = false;
+    end;
+    if (ordrow==theVIrw.OrdRow) then begin
+      TrHs = false;
+    end;
+    if (TrHs) then begin
+      for (di=i+1;di<rwcnt;di=di+1) begin
+        MatRowGet(theVIp,di,VIrw);
+        if (VIrw.OrdRow==theVIrw.OrdRow) then begin
+          qty = qty + VIrw.qty;
+          sum = sum + VIrw.Sum;
+        end;
+      end;
+    end;
+    ordrow = theVIrw.OrdRow;
+    ResetLoop(VIr);
+    VIr.POSerNr = theVIp.POSerNr;
+    while (LoopKey("POSerNr",VIr,1,TrHs)) begin
+      if (VIr.POSerNr!=theVIp.POSerNr) then begin TrHs = false; end;
+      if (TrHs) then begin
+        testf = true;
+        if (VIr.InvType!=kInvoiceTypeDownpayment) then begin testf = false; end;
+        if (VIr.OKFlag==0) then begin testf = false; end;
+        if (VIr.Invalid!=0) then begin testf = false; end;
+        if (testf) then begin
+          drwcnt = MatRowCnt(VIr);
+          for (di=0;di<drwcnt;di=di+1) begin
+            MatRowGet(VIr,di,VIrw);
+            if (VIrw.Sum<0) then begin
+              goto LSkiDpRow;
+            end;
+            switch (VIrw.stp) begin
+              case kInvoiceRowTypeDownpayment:
+                if (VIrw.OrdRow==ordrow) then begin 
+                  v = VIrw.Sum;
+                  if (POr.InclVAT==0) then begin
+                    if (DPb.CalcMode==0) then begin
+                      switch (Roundb.VATCalcWay) begin
+                        case 1:
+                          if (v>sum) then begin
+                            v = sum;
+                          end;
+                        otherwise
+                          if (POr.InclVAT!=0) then begin
+                            if (UseTaxTemplatesforTaxCalc==false) then begin
+                              MulVATIV(theVIrw.VATCode,sum,vatv,t1,POr.InclVAT,theVIp.NoTAXonVAT);
+                              if (v>(sum-vatv)) then begin
+                                v = sum - vatv;
+                              end;
+                            end;
+                          end else begin
+                            if (v>sum) then begin
+                              v = sum;
+                            end;
+                          end;
+                      end;
+                    end else begin
+                      if (UseTaxTemplatesforTaxCalc==false) then begin
+                        if (POr.InclVAT!=0) then begin
+                          MulVATIV(theVIrw.VATCode,sum,vatv,t1,POr.InclVAT,theVIp.NoTAXonVAT);
+                          if (v>(sum-vatv)) then begin
+                            if (v>(sum-vatv)) then begin
+                              v = sum - vatv;
+                            end;
+                          end;
+                        end else begin
+                          if (v>sum) then begin
+                            v = sum;
+                          end;
+                        end;
+                      end;
+                    end;
+                  end else begin
+                    if (v>sum) then begin
+                      v = sum;
+                    end;
+                  end;
+                  if (v>t) then begin
+                    v = t;
+                    if (subvatf) then begin
+                      UnpackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
+                      FindSalesExVat(TMr,VIrw.VATCode,v,1,0,v);
+                    end;
+                  end;        
+                  ClearRow(theVIp,newVIrw,kInvoiceRowTypeDownpayment);
+                  newVIrw.Item = VIr.SerNr;
+                  newVIrw.Comment = DPb.TextA;
+                  newVIrw.Comment = newVIrw.Comment & " ";
+                  newVIrw.Comment = newVIrw.Comment & theVIp.POSerNr;
+                  newVIrw.Sum =  newVIrw.Sum - v;
+                  if (blank(tstr)) then begin
+                    GetItemSalesAcc(DPb.ArtCode,theVIp.ExportFlag,tstr);
+                  end;
+                  newVIrw.AccNumber = tstr;
+                  newVIrw.VATCode = VIrw.VATCode;
+                  newVIrw.OrdRow = VIrw.OrdRow;
+                  newVIrw.TaxTemplateCode = VIrw.TaxTemplateCode;
+//                  newVIrw.vRebate = theVIrw.vRebate;
+                  newVIrw.qty = qty;
+//                  newVIrw.Price = (newVIrw.Sum/(100-newVIrw.vRebate))*100;
+//                  newVIrw.Price = Round(newVIrw.Price/newVIrw.qty,SetRoundModeD(2));
+                  UnpackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
+                  PackRowFieldMatrix(newVIrw,"TaxMatrix",TMr);
+                  RowCalculateTaxMatrix_VIVc(theVIp,srw,newVIrw,0);
+                  MatRowPut(theVIp,srw,newVIrw);
+                  srw = srw + 1;
+                end;
+              end;
+LSkiDpRow:;;
+          end;
+        end;
+      end;
+    end;  
+  end;    
+LDownpaymentPerVATCode:;   
+  return;
+end;
+
+procedure AddDownpaymentRows(record POVc POp,var record VIVc VIp)
+begin
+  val t;
+  record PODownPayBlock DPb;
+  Boolean subvatf;
+  string 255 taxtemplatecode,VATCode;
+  record TaxMatrixVc TMr;
+  row VIVc VIrw;
+  Integer srw;
+  
+  BlockLoad(DPb);
+  t = POp.DownPaySent - POp.DownPayRedcd;
+  if (t>0) then begin
+    if (DPb.DetailsOnVI==0) then begin
+      subvatf = true;
+      if (DPb.CalcMode==1) then begin
+        if (t>VIp.PayVal) then begin
+          t = VIp.PayVal;
+          subvatf = false;
+        end;
+      end else begin
+        if (t>VIp.PayVal) then begin
+          t = VIp.PayVal;
+          subvatf = false;
+        end;        
+      end;
+      if (UseTaxTemplatesforTaxCalc) then begin
+        taxtemplatecode = "";
+        GetItemTaxTemplateCode(DPb.ArtCode,VIp.ExportFlag,taxtemplatecode,false);
+        if (blank(taxtemplatecode)) then begin taxtemplatecode = VIp.VETaxTemplateCode; end;
+        taxtemplatecode = FillupTaxMatrix(0,VIp.BranchID,VIp.VECode,"","",taxtemplatecode,TMr);
+        if (nonblank(taxtemplatecode)) then begin
+          if (POp.InclVAT==0) then begin
+            subvatf = true;
+          end else begin
+            subvatf = false;
+          end;      
+          if (subvatf) then begin
+            FindSalesExVat(TMr,"",t,1,0,t);//no vat like in InvDownPaySum
+          end;
+        end;
+      end else begin
+        VATCode = DPb.VATCode;
+        if (blank(VATCode)) then begin
+          GetItemVATCode(DPb.ArtCode,VIp.ExportFlag,VATCode,true);
+        end;
+        if (blank(VATCode)) then begin VATCode = VIp.VEVatCode; end;
+        if (nonblank(VATCode)) then begin
+          if (POp.InclVAT==0) then begin
+            subvatf = true;
+          end else begin
+            subvatf = false;
+          end;      
+          if (subvatf) then begin
+            RecordClear(TMr);
+            FindSalesExVat(TMr,VATCode,t,1,0,t);//no vat like in InvDownPaySum
+          end;
+        end;
+      end;
+      if (t>0) then begin
+        t = -t;
+        ClearRow(VIp,VIrw,kInvoiceRowTypeDownpayment);
+        VIrw.Comment = DPb.TextA;
+        VIrw.Comment = VIrw.Comment & " ";
+        VIrw.Comment = VIrw.Comment & POp.SerNr;
+        VIrw.Sum = t;
+        GetItemSalesAcc(DPb.ArtCode,VIp.ExportFlag,VIrw.AccNumber);
+        VIrw.VATCode = VATCode;        
+        VIrw.TaxTemplateCode = taxtemplatecode;        
+        PackRowFieldMatrix(VIrw,"TaxMatrix",TMr);
+        RowCalculateTaxMatrix_VIVc(VIp,MatRowCnt(VIp),VIrw,0);
+        MatRowPut(VIp,MatRowCnt(VIp),VIrw);
+      end;
+    end else begin
+      srw = MatRowCnt(VIp);
+      DownpaymentPerVATCode(VIp,DPb,t,srw);
+    end;
+  end;
+    
+  return;
+end;
+
 global
 updating function Integer PastePOInVI(var record POVc POp,var record VIVc VIp,string vecode,
                                       Boolean itempricef,Boolean customsf,Boolean freightf,
                                       Boolean cost1f,Boolean cost2f,Boolean cost3f,Boolean cost4f,Boolean cost5f)
-BEGIN
+begin
   Integer i,rwcnt,vatcnt;
   Integer j,virwcnt;
   row VIVc VIrw;
@@ -1189,7 +1456,6 @@ BEGIN
   end;
 //  if (POp.Closed!=0) then goto LPastePOInVI;// the same as OR
   res = 0;
-  VIp.AcceptanceStatus = kAcceptanceStateNotStarted;
   VIp.OrderType = POp.OrderType;
   VIp.ExportFlag = POp.ExportFlag;
   VIp.POSerNr = POp.SerNr;
@@ -1656,13 +1922,14 @@ LPastePOInVI:;
       end;
     end;
   end;
+  AddDownpaymentRows(POp,VIp);
   PastePOInVI = res;
-  RETURN;
-END;
+  return;
+end;
 
 global
 updating function Integer CreateVIFromPO(LongInt PONr,record RcVc RepSpec,var record VIVc VIp)
-BEGIN
+begin
   Integer res;
   record POVc POr;
   record SRBlock SRRec;
@@ -1694,8 +1961,8 @@ BEGIN
   end;
 LCreateVIFromPO:;
   CreateVIFromPO = res;
-  RETURN;
-END;
+  return;
+end;
 
 procedure CreateNewDropSHFromPO(var record DropSHVc DropSHp,record POVc POp,record ORVc ORr)
 begin
@@ -2281,3 +2548,15 @@ L88POSetShipCost:;
 LPOSetShipCost:;
   RETURN;
 END;
+
+global
+procedure PODClassOnOpenWindowRemote(var record POVc POr,var Integer AcceptanceStatusFlag)
+begin
+  record AcceptanceRulesVc Acptr;
+  record ActVc Actr;
+  
+  if (HasApprovals) then begin
+    AcceptanceStatusFlag = POApprovalStatus(POr,Acptr);
+  end;
+  return;
+end;

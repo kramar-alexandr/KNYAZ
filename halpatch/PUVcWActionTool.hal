@@ -1,3 +1,5 @@
+external function Boolean HasApprovals();
+remote function Integer PUApprovalStatus(record PUVc,var record AcceptanceRulesVc);
 external function Boolean BulkSerialNos_CalculateQuantityAndSerialNr(record SerNrTrackBlock,Boolean,string,var string,var val);
 external function Boolean PUDchrsum(record PUVc,Integer);
 external function string 255 FillupTaxMatrix(Integer,string,string,string,string,string,var record TaxMatrixVc);
@@ -9,7 +11,7 @@ external procedure RowCalculateTaxMatrix_VIVc(var record VIVc,Integer,row VIVc,I
 external function Boolean CalculateOPPrepaymentAvgRate(record PUVc,LongInt,val,var val,var val,var val,var val,var val);
 external function roundmode GetCostRoundMode(record RoundBlock);
 external function roundmode DefaultRoundMode();
-external updating function Integer ValidatePORecord(var record POVc,record POVc,LongInt,LongInt,Boolean,var string); //Edit***************************Sasha2,11:25 09.06.2016
+external updating function Integer ValidatePORecord(var record POVc,record POVc,LongInt,LongInt,Boolean,var string); //Edit***************************Sasha2,15:42 25.03.2016
 external procedure DivPIFactor(val,val,var val);
 external procedure RoundVATSum(string,string,string,var val);
 external function string 255 FindINObjects(string,string);
@@ -48,7 +50,7 @@ external procedure GetPurchaseControlAcc(string,Integer,string,record AccBlock,s
 external procedure MulM4ProcVal(val,val,var val);
 external procedure VISumup(record VIVc,var val);
 external procedure VICalcVals(var record VIVc);
-external procedure VICalcEReb(record VIVc);
+external procedure VICalcEReb(var record VIVc);
 external procedure AddExtraCostRow(record AccBlock,record BaseCurBlock,record VIVc,string,val,Integer,Integer,Integer,string,var record SMVc,Integer);
 external function Boolean VIVc_PasteVECode(var record VIVc,Integer,Boolean,Boolean,var string);
 
@@ -77,6 +79,7 @@ LPUVc_PasteSellPrice:;
   PUVc_PasteSellPrice = res;
   RETURN;
 END; //Edit***************************Sasha2,14:12 09.03.2016 }
+
 
 global
 procedure NextNumber(string code,var string next)
@@ -328,36 +331,37 @@ begin
   
   puqtyinvd = blankval;
   if (POSerNr>0) then begin
-  found = true;
-  VIr.POSerNr = POSerNr;
-  while (LoopKey("POSerNr",VIr,1,found)) begin
-    if (VIr.POSerNr!=POSerNr) then begin found = false; end;
-    if (found) then begin
-      testf = true;
-      if (VIr.Invalid!=0) then begin testf = false; end;
-      if (testf) then begin
-        rwcnt = MatRowCnt(VIr);
-        for (i=0;i<rwcnt;i=i+1) begin
-          MatRowGet(VIr,i,VIrw);
-          if (PUNr>0) and (PURow>=0) then begin
-            if (VIrw.PUNr==PUNr) and (VIrw.PURow==PURow) then begin
-              if (VIr.InvType==kInvoiceTypeCredit or VIr.InvType==kInvoiceTypeCreditSpecialSales) then begin
-                puqtyinvd = puqtyinvd - VIrw.qty;
-              end else begin
-                puqtyinvd = puqtyinvd + VIrw.qty;
+    found = true;
+    VIr.POSerNr = POSerNr;
+    while (LoopKey("POSerNr",VIr,1,found)) begin
+      if (VIr.POSerNr!=POSerNr) then begin found = false; end;
+      if (found) then begin
+        testf = true;
+        if (VIr.Invalid!=0) then begin testf = false; end;
+        if (testf) then begin
+          rwcnt = MatRowCnt(VIr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(VIr,i,VIrw);
+            if (PUNr>0) and (PURow>=0) then begin
+              if (VIrw.PUNr==PUNr) and (VIrw.PURow==PURow) then begin
+                if (VIr.InvType==kInvoiceTypeCredit or VIr.InvType==kInvoiceTypeCreditSpecialSales) then begin
+                  puqtyinvd = puqtyinvd - VIrw.qty;
+                end else begin
+                  puqtyinvd = puqtyinvd + VIrw.qty;
+                end;
+                res = true;
               end;
-              res = true;
             end;
           end;
         end;
       end;
     end;
   end;
-  end;
   PUQtyInvoiced = res;
   return;
 end;
 
+/*
 function Boolean POQtyInvoiced(LongInt POSerNr,LongInt RowPOSerNr,LongInt PORow,var val puqtyinvd)
 begin
   Boolean res;
@@ -376,6 +380,58 @@ begin
       puqtyinvd = POrw.Invd;    
       if (POrw.Invd!=0) then begin
         res = true;
+      end;
+    end;
+  end;
+  POQtyInvoiced = res;
+  return;
+end;
+*/
+
+function Boolean POQtyInvoiced(LongInt PUNr,LongInt PURow,LongInt POSerNr,var val puqtyinvd,var val powopuqtyinvd)
+begin
+  Boolean res;
+  record VIVc VIr;
+  row VIVc VIrw;
+  Integer i,rwcnt;
+  Boolean found,testf,purowf;
+  
+  puqtyinvd = blankval;
+  powopuqtyinvd = blankval;
+  if (POSerNr>0) then begin
+    found = true;
+    VIr.POSerNr = POSerNr;
+    while (LoopKey("POSerNr",VIr,1,found)) begin
+      if (VIr.POSerNr!=POSerNr) then begin found = false; end;
+      if (found) then begin
+        testf = true;
+        if (VIr.Invalid!=0) then begin testf = false; end;
+        if (testf) then begin
+          rwcnt = MatRowCnt(VIr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowGet(VIr,i,VIrw);
+            purowf = false;
+            if (PUNr>0) and (PURow>=0) then begin
+              if (VIrw.PUNr==PUNr) and (VIrw.PURow==PURow) then begin
+//              if (VIrw.PUNr>0) and (VIrw.PURow>=0) then begin
+                if (VIr.InvType==kInvoiceTypeCredit or VIr.InvType==kInvoiceTypeCreditSpecialSales) then begin
+                  puqtyinvd = puqtyinvd - VIrw.qty;
+                end else begin
+                  puqtyinvd = puqtyinvd + VIrw.qty;
+                end;
+                res = true;
+                purowf = true;
+              end;
+            end;
+            if (purowf==false) then begin
+              if (VIr.InvType==kInvoiceTypeCredit or VIr.InvType==kInvoiceTypeCreditSpecialSales) then begin
+                powopuqtyinvd = powopuqtyinvd - VIrw.qty;
+              end else begin
+                powopuqtyinvd = powopuqtyinvd + VIrw.qty;
+              end;
+            end;
+          end;
+        end;
       end;
     end;
   end;
@@ -557,12 +613,12 @@ BEGIN
   record CUVc VEr;
   record APAccBlock APb;
   record AccBlock ARb;
-  record CostAccBlock CostAccRec;
+  record CostAccBlock CAb;
   record BaseCurBlock BCb;
   record VITBlock VITb;
   val from,to1,to2,base1,base2;
   string 255 tstr,viitgroup;
-  val purowsum,puqinvd,puqord;
+  val purowsum,puqinvd,puqord,powopuqtyinvd;
   record POVc POr;
   record POVc rPOr;
   record POVc oldPOr;
@@ -578,7 +634,7 @@ BEGIN
   BlockLoad(APb);
   BlockLoad(VITb);
   BlockLoad(CYb);
-  BlockLoad(CostAccRec);  
+  BlockLoad(CAb);  
   VEr.Code = PUp.VECode;
   if (ReadFirstMain(VEr,1,true)==false) then begin 
     res = 1434;
@@ -597,7 +653,6 @@ BEGIN
     end;
   end;
   GetAPAcc(VEr.Code,tstr);
-  VIp.AcceptanceStatus = kAcceptanceStateNotStarted;
   VIp.APAcc = tstr;
   VIp.POCQStatNr = -1;
   VIp.POSerNr = PUp.PONr;
@@ -667,13 +722,14 @@ BEGIN
   ClearRow(VIp,VIrw,1);
   for (i=0;i<rwcnt;i=i+1) begin  
     MatRowGet(PUp,i,PUrw);
+    ClearRow(VIp,VIrw,1);
     POQtyOrdered(PUp.PONr,PUrw.PONr,PUrw.OrdRow,puqord);
-    vifound = PUQtyInvoiced(PUp.SerNr,i,PUp.PONr,puqinvd);
+    vifound = POQtyInvoiced(PUp.SerNr,i,PUp.PONr,puqinvd,powopuqtyinvd);
     if (vifound) then begin
       q = PUrw.Quant - puqinvd;
     end else begin
-      vifound = POQtyInvoiced(PUp.PONr,PUrw.PONr,PUrw.OrdRow,puqinvd);
       if (VITb.VIBasedOnPU==0) then begin
+        vifound = POQtyInvoiced(PUp.PONr,PUrw.PONr,PUrw.OrdRow,puqinvd,powopuqtyinvd);
         if (((PUrw.PONr>0) or (PUp.PONr>0)) and (PUrw.OrdRow>=0)) then begin
           q = puqord - puqinvd;
         end else begin
@@ -784,6 +840,8 @@ BEGIN
             end else begin
               sum = purowsum;
             end;  
+            GetPurchaseControlAcc(PUrw.CredAcc,CAb.ItemGroupAccounts,PUrw.ArtCode,ARb,VEr.AccCost,VIrw.AccNumber,PUp.VECode);
+            GetAccName(VIrw.AccNumber,VIrw.Comment,60);
             virow = VIRowExists(CYb,VIp,VIrw.AccNumber,VIrw.VATCode,VIrw.TaxTemplateCode,sum,q);
             if (virow==-1) then begin
               if (nonblank(VIrw.AccNumber)) then begin 
@@ -808,7 +866,7 @@ BEGIN
       GetItemVATCode(PUrw.ArtCode,VEr.ExportFlag,tstr,false);
       VIrw.VATCode = tstr;
     end;  
-    GetPurchaseControlAcc(PUrw.CredAcc,CostAccRec.ItemGroupAccounts,PUrw.ArtCode,ARb,VEr.AccCost,tstr,PUp.VECode);
+    GetPurchaseControlAcc(PUrw.CredAcc,CAb.ItemGroupAccounts,PUrw.ArtCode,ARb,VEr.AccCost,tstr,PUp.VECode);
     VIrw.AccNumber = tstr;
     if (GetAccName(VIrw.AccNumber,tstr,60)) then begin end;
     VIrw.Comment = tstr;    
@@ -913,7 +971,7 @@ end;
 
 global
 procedure AutoFillPUSerNr(var record PUVc PUp)
-BEGIN
+begin
   Integer i,rwcnt;
   row PUVc PUrw;
   string 255 lastnr,lastitem;
@@ -921,6 +979,8 @@ BEGIN
   record SerNrTrackBlock SNrb;
   Integer extrapad;
   Boolean testf;
+  string 255 lastnrstart,lastnrend;
+  val q;
   
   rwcnt = MatRowCnt(PUp);
   if (rwcnt==0) then begin goto LAutoFillPUSerNr; end;
@@ -939,6 +999,21 @@ BEGIN
         ReadLastINSer(PUrw.ArtCode,lastnr);
       end else begin
         lastnr = PUrw.SerialNr;
+        if (INr.SerNrf==1) then begin
+          if (PUrw.Quant>1) then begin
+            lastnrstart = FirstInRange(lastnr,60);
+            lastnrend = LastInRange(lastnr,60);
+            if (lastnr==lastnrend) then begin
+              q = 1;
+              while (q<PUrw.Quant) begin
+                lastnr = NextSerialNumber(PUrw.ArtCode,lastnr,SNrb);
+                q = q + 1;
+              end;
+            end else begin
+              lastnr = lastnrend;
+            end;
+          end;
+        end;
         goto L33AutoFillPUSerNr;
       end;
     end;
@@ -979,12 +1054,12 @@ BEGIN
 L33AutoFillPUSerNr:;
   end;
 LAutoFillPUSerNr:;
-  RETURN;
-END;
+  return;
+end;
 
 global
-procedure FindPUStockAcc(string vecode,record CostAccBlock CostAccRec,string rowstockacc,string rowcontrolacc,string loccode,record INVc INr,Integer stocktype,var string stockacc,var string purchacc,Boolean findnewf)
-BEGIN
+procedure FindPUStockAcc(string vecode,record CostAccBlock CAb,string rowstockacc,string rowcontrolacc,string loccode,record INVc INr,Integer stocktype,var string stockacc,var string purchacc,Boolean findnewf)
+begin
   record AccBlock ARb;
   string 255 tstr;
   record LocationVc Locr;
@@ -992,16 +1067,16 @@ BEGIN
   BlockLoad(ARb);
   Locr.Code = loccode;
   if (ReadFirstMain(Locr,1,true)) then begin end;
-  if (GetPUStockAcc(CostAccRec.ItemGroupAccounts,rowstockacc,Locr.StockAcc,INr.Group,ARb,stocktype,stockacc,tstr,findnewf)==0) then begin end;  
-  if (GetPUPControlAcc(loccode,vecode,CostAccRec.ItemGroupAccounts,rowcontrolacc,INr.Group,ARb,stocktype,purchacc,tstr,findnewf)==0) then begin end;
-  RETURN;
-END;
+  if (GetPUStockAcc(CAb.ItemGroupAccounts,rowstockacc,Locr.StockAcc,INr.Group,ARb,stocktype,stockacc,tstr,findnewf)==0) then begin end;  
+  if (GetPUPControlAcc(loccode,vecode,CAb.ItemGroupAccounts,rowcontrolacc,INr.Group,ARb,stocktype,purchacc,tstr,findnewf)==0) then begin end;
+  return;
+end;
 
 global
 function Boolean PUVc_PasteArtCode(var record PUVc PUr,Integer rownr,var string warning,var string inwarn)
 BEGIN
   Boolean res;
-  record CostAccBlock CostAccRec;
+  record CostAccBlock CAb;
   record PIVc PIr;
   record INVc INr;
   row PUVc PUrw;
@@ -1034,7 +1109,7 @@ BEGIN
                                    INr,PIr,pifound,price,descstr,reb,vatcode,purchacc,nomoreremotecalls,taxtemplatecode);
   if (infoundf) then begin
     BlockLoad(SFb);
-    BlockLoad(CostAccRec);    
+    BlockLoad(CAb);    
     BlockLoad(Roundb);    
     BlockLoad(MSb);
     Locr.Code = PUr.Location;
@@ -1118,9 +1193,9 @@ BEGIN
     PUrw.VEQuant = t;
     
     if (blank(PUrw.Location)) then begin
-      FindPUStockAcc(PUr.VECode,CostAccRec,PUrw.CostAcc,PUrw.CredAcc,PUr.Location,INr,PUrw.StockType,stockacc,purchacc,true);
+      FindPUStockAcc(PUr.VECode,CAb,PUrw.CostAcc,PUrw.CredAcc,PUr.Location,INr,PUrw.StockType,stockacc,purchacc,true);
     end else begin
-      FindPUStockAcc(PUr.VECode,CostAccRec,PUrw.CostAcc,PUrw.CredAcc,PUrw.Location,INr,PUrw.StockType,stockacc,purchacc,true);
+      FindPUStockAcc(PUr.VECode,CAb,PUrw.CostAcc,PUrw.CredAcc,PUrw.Location,INr,PUrw.StockType,stockacc,purchacc,true);
     end;
     PUrw.CostAcc = stockacc;
     PUrw.CredAcc = purchacc;
@@ -1364,8 +1439,8 @@ LPUVc_PasteQuantAGAIN:;
       PUrw.ToPosCode = FindFreePositionInLocArea_ExcludePositionFromArray(LocRec.Code,INr.LocArea,defposhight,INr,LocRec.WHMHighestPosCodeFirst,askippos,acnt);
     end;
   end;
-  MatRowPut(PUr,lrownr,PUrw);  
-  PUVc_PasteSellPrice(PUr,rownr,false); //Edit***************************Sasha2,10:52 10.03.2016   
+  MatRowPut(PUr,lrownr,PUrw);   
+  PUVc_PasteSellPrice(PUr,rownr,false); //Edit***************************Sasha2,10:52 10.03.2016 
   if (PUDchrsum(PUr,lrownr)) then begin
   end;
   if (LocRec.RequirePos!=0) then begin
@@ -1438,7 +1513,7 @@ BEGIN
           nrwcnt = i;
           remn = PUrw.Quant;
           while (remn>0) begin
-            if (rwcnt>=199) then begin
+            if (rwcnt>=200) then begin
               goto LRefillPURows;
             end;
             CopyRow(PUp,PUrw,newPUrw);
@@ -1482,3 +1557,14 @@ LRefillPURows:;
   RETURN;
 END;
 
+global
+procedure PUDClassOnOpenWindowRemote(var record PUVc PUr,var Integer AcceptanceStatusFlag)
+begin
+  record AcceptanceRulesVc Acptr;
+  record ActVc Actr;
+  
+  if (HasApprovals) then begin
+    AcceptanceStatusFlag = PUApprovalStatus(PUr,Acptr);
+  end;
+  return;
+end;

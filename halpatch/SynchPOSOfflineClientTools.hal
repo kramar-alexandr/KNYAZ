@@ -87,6 +87,8 @@ begin
   record SynkGlobalDBIDRegVc oldSynkGlobalDBIDRegr;
   Integer oldprogmode;
   
+  LogText(0,"Client SetupGlobalSynkMachine");
+  
   oldprogmode = CompanyDefaultProgramMode;
   SetCompanyProgramMode(kProgramModeLiveSync);
   
@@ -226,6 +228,7 @@ begin
     LMb.ActTypePastePerClass = LMSr.ActTypePastePerClass;
     LMb.SkypeInt = LMSr.SkypeInt;
     LMb.ItemPasteSpecial = LMSr.ItemPasteSpecial;
+    LMb.ObjectPasteSpecial = LMSr.ObjectPasteSpecial;
     LMb.PLCode = LMSr.PLCode;
     LMb.SyncRecordforPOS = LMSr.SyncRecordforPOS;
     LMb.SyncINClass = LMSr.SyncINClass;
@@ -681,7 +684,7 @@ begin
   record LocalMachineBlock LMb;
   Integer di,dinvacnt;
   Array LongInt delinvarr;
-  Array Boolean delinvarrf;
+  Array Boolean delinvarrf; LogText(0,"Client POSOffLineToServ_SynchRegisters");
   
   curcomp = CurrentCompany;
   switch (SyncSumPOS) begin
@@ -819,6 +822,7 @@ begin
     LMb.ActTypePastePerClass = LMSr.ActTypePastePerClass;
     LMb.SkypeInt = LMSr.SkypeInt;
     LMb.ItemPasteSpecial = LMSr.ItemPasteSpecial;
+    LMb.ObjectPasteSpecial = LMSr.ObjectPasteSpecial;
     LMb.PLCode = LMSr.PLCode;
     LMb.SyncRecordforPOS = LMSr.SyncRecordforPOS;
     LMb.SyncINClass = LMSr.SyncINClass;
@@ -881,6 +885,7 @@ begin
   
   oldprogmode = CompanyDefaultProgramMode;
   SetCompanyProgramMode(kProgramModeLiveSync);
+  LogText(0,"Client AutosyncUpdateSerialNumbers");
   
   BlockLoad(LMb);
   SynkDBIDRegr.DBIDCode = DatabaseID;

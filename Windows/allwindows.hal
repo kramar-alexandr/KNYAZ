@@ -109,6 +109,65 @@ begin
   EndWindow;
   end;
 
+window CULClass:10
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Контакты",CULClass,CGmlist,-);
+  SpawnClass(CUDClass);
+  if (HasJewelleryInterface) then begin
+    SetWRect(20,80,880,300);
+  end else begin
+  SetWRect(20,80,760,300);
+  end;
+  Sizeable(-1,-1,0,0);
+  UseView(CUVc);
+//  FormName(CustRn);  // Crash in multiuser
+//  h = 20; HalPushButton(h,v=3,h=h+100,v+vs,"VEList","Поставщики");
+//  HalPushButton(h=h+50,v=3,h=h+100,v+vs,"CUList","Customers");
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Код",Code,false,Code);
+  RlColKey(96,96,"Сокр.",SearchKey,false,SearchKey);
+  RlColKey(145,140,"Катег.",CustCat,false,Group);
+  RlColKey(190,190,"Наименование",Name,false,Name);
+  if (HasJewelleryInterface) then begin
+    RlColKey(-480,-480,"Телефон",Phone,false,Phone);
+    RlColKey(-380,-380,"Мобильный",Mobile,false,Mobile);   
+    RlCol(-280,-280,"Электронная почта",eMail,true);  
+    RlCol(-150,-150,"Адрес 1",InvAddr0,false);
+  end else begin
+  RlColKey(-420,-420,"Телефон",Phone,false,Phone);
+  RlColKey(-325,-325,"Контакт",Person,false,Person);
+  RlColKey(-215,-215,"Отдел",Department,false,Department);
+  if (CUVATNrColumn) then begin
+    RlColKey(-125,-125,"ИНН",VATNr,false,VATNr);
+  end else begin
+    RlColKey(-125,-125,"ОКПО",RegNr1,false,RegNr1);
+  end;
+  RlColKey(-50,-50,"Р/с",BankAccount,false,BankAccount);
+  end;
+  SearchField("Поиск");
+  if (HasMetroTestFeatures or GUIType!=kGUIMetro) then begin
+    CommunicateButton;
+  end;
+  if (HasLimitedAccess) then begin
+    BrowseSubsetButton(-40,-15);
+  end;
+  SpecialMenu("Тест",' ',0,"TestFuncDm"); //Edit***************************Sasha2,17:23 03.03.2016
+  if (UserCanReport("CustPSRn","",true)) then begin
+  SpecialMenu("Справка по клиенту",'e',0,"CUStatusCULsm");
+  end;
+  if (UserCanReport("VEPSRn","VendPSRClass",true)) then begin
+  SpecialMenu("Статус поставщика",'u',2,"VEStatusLsm");
+  end;
+  SpecialMenu("Сменить пароль",' ',1,"ChangePasswdCULsm");
+  SpecialMenu("Найти",'F',3,"CUSearchLsm");
+  if (GuiType==kGuiCocoa) then begin
+    SpecialMenu("Импортировать адресную книгу",' ',5,"ImportAddressbooksm");
+  end;
+  SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
+  SpecialMenu("Создать Деятельность",'c',4,"NewActCULsm");         
+  EndWindow;
+end;
 
 window PODClass:1
   wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
@@ -436,7 +495,7 @@ begin
   if (HasApprovals) then begin
     SoftEditField(h3=h+4,v=vm,123,"Approval Status",ViewOnly,"AcceptanceStatusFlag",false,0,M4Str,255);
   end;
-
+/*
 //oldapprovals  
   if (HasApprovals) then begin
     ButtonFrame(h3=h+4,v=vm,123,6,"Статус утверждения");
@@ -447,7 +506,7 @@ begin
     RadioButton(h3,v+=16,kAcceptanceStateApproved,0,"утверждено",AcceptanceStatus);
     RadioButton(h3,v+=16,kAcceptanceStateRejected,0,"отклонено",AcceptanceStatus);
   end;
-
+*/  
   if (HasVATZone) then begin
     v = VATZoneButtonsLabelsRUS(h3=290,v=vm,140,16);
   end;
@@ -496,7 +555,8 @@ begin
     if (HasModIN) then begin
       SpecialMenu("Статус товара",'I',2,"ItemStatusPODsm");
     end;
-    SpecialMenu("Статус заказа поставщику",'r',5,"POStatRnPODsm");    
+    SpecialMenu("Статус заказа поставщику",'r',5,"POStatRnPODsm");
+    SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
     if (HasModIN) then begin
       SpecialMenu("Создать поступление",'L',0,"PUFromPODsm");
     end;
@@ -520,7 +580,8 @@ begin
   if (HasApprovals) then begin
     SpecialMenu("Запросить утверждение",' ',6,"POSendforAcceptancePODsm"); 
     SpecialMenu("Отменить запрос утверждения",' ',2,"CancelApprovalRequestDsm"); 
-  end;         
+  end;
+  SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
   if (HasModCRM) then begin
 //    SpecialMenu("Activity",'c',9,"CreateActFromPODsm");
   end;
@@ -914,7 +975,8 @@ begin
     ButtonFrame(h3=400,v=16,130,2,"Расчет накл. затрат");
     RadioButton(h3,v,0,0,"Стоимость",ExtraCostsCalculation);
     RadioButton(h3,v+=16,1,0,"Вес",ExtraCostsCalculation);
- 
+/*
+//oldapprovals  
     ButtonFrame(h3=-163,v=16,123,6,"Статус утверждения");
     RadioButton(h3,v,kAcceptanceStateNotRequired,0,"не обязательно",AcceptanceStatus);
     RadioButton(h3,v+=16,kAcceptanceStateNotStarted,0,"не начато",AcceptanceStatus);
@@ -922,7 +984,7 @@ begin
     RadioButton(h3,v+=16,kAcceptanceStatePending,0,"в ожидании",AcceptanceStatus);
     RadioButton(h3,v+=16,kAcceptanceStateApproved,0,"утверждено",AcceptanceStatus);
     RadioButton(h3,v+=16,kAcceptanceStateRejected,0,"отклонено",AcceptanceStatus);
-    
+*/    
     Tile(tilenr,130,false,tilenr,FreightCode); tilenr = tilenr + 1;
     EditField(h1,v=6,80,"Трансп. компания",Normal,FreightCode,false,FreightCompanySClass);
     EditField(h1,v+=vs,-20,"Наим.",Normal,FreightCompany,false,0);
@@ -942,7 +1004,8 @@ begin
     SpecialMenu("Генерировать серийные номера",' ',2,"GenSerialNosPUDsm");
     if (HasModNL) then begin
       SpecialMenu("Открыть запись операции",'t',4,"OpenTRFromPU");
-    end;       
+    end;
+    SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
     if (HasModPL) then begin
       SpecialMenu("Создать счет-фактуру поставщика",'F',3,"VIFromPUDsm");
     end;
@@ -975,7 +1038,8 @@ begin
   if (HasApprovals) then begin
     SpecialMenu("Запросить утверждение",' ',6,"PUSendforAcceptancePUDsm"); 
     SpecialMenu("Отменить запрос утверждения",' ',2,"CancelApprovalRequestDsm"); 
-  end;      
+  end;
+  SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
   if (HasModPL) then begin
     SpecialMenu("Создать счет-фактуру поставщика",'F',3,"VIFromPUDsm");
   end;
