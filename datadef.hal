@@ -27,6 +27,12 @@ ArrayField(SumSellPrice,M45Val,0,0);
 ArrayField(rowGP,M4Val,0,0);
 EndRecordAdd;
 
+BlockBegin(FiscalSetLocalBlock,-,"");
+BlockForAllCompanies;
+RecordField(StoragePath,M4Str,255,0);
+RecordField(FileName,M4Str,255,0);
+EndBlock;
+
 return;
 end;
 
