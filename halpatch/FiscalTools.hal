@@ -10,12 +10,12 @@ begin
 	fileName = "forFP_FM_to_C"; //Setting of FP_ConstrolService  (FPRoutes.txt);
 	
 	tick = GetCurTick;
-		//if (DirExists(Fiskalblock.StoragePath))	then begin
-		if (FileExists(Fiskalblock.StoragePath & "\\checkconnect.txt")) then begin
-			WriteAreaToFile(filedata,Fiskalblock.StoragePath & "\\" & fileName & tick & ".txt",0);
-		end else begin
-			MessageBox(50003,"");
+	//if (nonblank(Fiskalblock.StoragePath)) then begin
+		WriteAreaToFile(filedata,Fiskalblock.StoragePath & "\\" & fileName & tick & ".txt",0);
+		if (FileExists(Fiskalblock.StoragePath & "\\" & fileName & tick & ".txt")==false) then begin
+		  MessageBox(50003,"");
 		end;
+	//end;
 end;
 
 
