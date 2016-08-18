@@ -1336,7 +1336,7 @@ begin
       MatRowPut(PUp,i,PUrw);
       LastPUCostPrice[INr.Code] = nextPUrw.CostPrice;
       LastPUUPrice[INr.Code] = nextPUrw.UPrice;
-      //LastPUSellPrice[INr.Code] = nextPUrw.SellPrice; //Edit***************************Sasha2,17:35 16.03.2016
+      LastPUSellPrice[INr.Code] = nextPUrw.SellPrice; //Edit***************************Sasha2,17:35 16.03.2016
       goto LAddToSummaryPU;
     end;
   end;
@@ -1351,7 +1351,7 @@ begin
   ReadFirstItemInclClosed(PUrw.ArtCode,INr,false,false);
   LastPUCostPrice[INr.Code] = nextPUrw.CostPrice;
   LastPUUPrice[INr.Code] = nextPUrw.UPrice;
-  //LastPUSellPrice[INr.Code] = nextPUrw.SellPrice; //Edit***************************Sasha2,17:35 16.03.2016
+  LastPUSellPrice[INr.Code] = nextPUrw.SellPrice; //Edit***************************Sasha2,17:35 16.03.2016
 LAddToSummaryPU:;  
   return;
 end;
@@ -1563,7 +1563,7 @@ rs is already with Price factor included
             end;
             INr.LastPriceChange = CurrentDate;
         end;
-        INr.UPrice1 = LastPUUPrice[INr.Code]; //Edit***************************Sasha2,11:55 21.03.2016
+        INr.UPrice1 = LastPUSellPrice[INr.Code]; //Edit***************************Sasha2,11:55 21.03.2016
         if (RecordUpdate(oldINr,INr,false)==0) then begin
         end;
       end;
