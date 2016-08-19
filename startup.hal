@@ -7,6 +7,8 @@ begin
   Setting("Перепечатать чек",ReprintingFiscalReceiptTClass,modPOS);
   Setting("Печать на фискальном принтере",FiscalPrintingTClass,modPOS);
   Setting("Локальные настройки фискального принтера",FiscalSetLocalTClass,modPOS);
+  
+  Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
 
   SString(50000,"Укажите цену закупки");
   SString(50001,"Укажите себестоимость");
