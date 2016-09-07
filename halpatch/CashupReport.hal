@@ -2114,7 +2114,6 @@ begin
         s = SMrw.CredVal;
         debf = false;      
       end;
-      messagebox(0,SMrw.AccNumber & "_" & SMrw.Objects);
       AddEuroTrRow(TRr,SMrw.AccNumber,SMrw.Objects,SMrw.VATCode,tstr,s,baserate1,baserate2,true,debf,totsum,false,"","","");
       res = true;
     end;
