@@ -962,6 +962,12 @@ u might want to put loyalty card or bagger 1st
     res = -1; 
     goto LIVCashVcRecordCheck;
   end;
+  
+  Locr.Code = IVCashr.Location;
+	readfirstmain(Locr,1,true);
+  IVCashr.Objects = CUr.Objects & "," & Locr.Objects;// Edit ************************** Thursday, 8 September 2016 10:11:17
+  // Edit ************************** Thursday, 8 September 2016 10:10:16
+  
   if (CUr.blockedFlag!=0) then begin
     RecordCheckError(1265,IVCashr.CustCode,-1,"CustCode");      
     res = -1; 
