@@ -1444,12 +1444,12 @@ begin
   switch (GuiType) begin
     case kGuiiPhone: vs = 40; hs = 130; f = 120; fldtyp = M4Val;
     otherwise
-      hs = 100; f = 100;
+      hs = 110; f = 100;
   end;
   
   Modality(kModalityGlobal);
   UseView(RcVc);
-  SetWRect(80,200,950-hs,430+acrncnt*30);
+  SetWRect(80,200,930-hs,430+acrncnt*30);
   
   StaticText(h,v,"Валюта",false);
   StaticText(h+=70,v,"Всего к оплате",false);
@@ -1511,7 +1511,7 @@ begin
   switch (GuiType) begin
     case kGuiiPhone: hm = 480; flv = 50; v4 = 190; v5 = 370; h = 60;
     otherwise
-      hm = 680 - hs; flv = 30; v4 = -550; v5 = -370; h = 40;
+      hm = 660 - hs; flv = 30; v4 = -550; v5 = -370; h = 40;
   end;
   /*if (HasMultiCurrency) then begin
     EditFieldTL(h,v,flv,"База",M4Str,ViewOnly,5,CurncyCode,false,0);
