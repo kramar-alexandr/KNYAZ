@@ -1559,7 +1559,8 @@ begin
     h = h+l; ColourPushButton(h,v,h+h2,v+v3,"NPTSPaymentToolKeyPad0","0_",2);
     h = h+l; ColourPushButton(h,v,h+h2,v+v3,"NPTSPaymentToolKeyPadDecimalSeprator",".",2);  
     v = v+vs;
-    h = hm; ColourPushButton(h,v,h+3*h2,v+v3,"NPTSPaymentToolKeyEnter","Enter",2);
+    h = hm-2; ColourPushButton(h,v,h+h2,v+v3,"NPTSPaymentToolKeyPM","+/-",2);
+    h = h+l; ColourPushButton(h+10,v,h+2*h2,v+v3,"NPTSPaymentToolKeyEnter","Enter",2);
   end;
   EndWindow;
 end;
