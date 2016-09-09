@@ -1444,7 +1444,7 @@ begin
   switch (GuiType) begin
     case kGuiiPhone: vs = 40; hs = 130; f = 120; fldtyp = M4Val;
     otherwise
-      hs = 110; f = 100;
+      hs = 100; f = 100;
   end;
   
   Modality(kModalityGlobal);
