@@ -33,6 +33,14 @@ RecordField(StoragePath,M4Str,255,0);
 RecordField(FileName,M4Str,255,0);
 EndBlock;
 
+RecordAddBegin(IVCashVc,"IVCashVc_Custom");
+RecordField(MakeFiscalReceiptF,M4Mark,0,0);
+EndRecordAdd;
+
+RecordAddBegin(ITVc,"ITVc_Custom");
+RecordField(ChangePrice,M4Int,0,0);
+EndRecordAdd;
+
 return;
 end;
 

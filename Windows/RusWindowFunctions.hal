@@ -1229,7 +1229,7 @@ begin
   if (showlc) and (nonblank(loyaltycardnr)) then begin
     tstr = "Накопительная карта: ";
     tstr = tstr & loyaltycardnr;
-    StaticText(h,v,tstr,false);  v = v + vs;
+    //StaticText(h,v,tstr,false);  v = v + vs;
   end;
 
   if (ShowBaggerSupervisor!=0) then begin

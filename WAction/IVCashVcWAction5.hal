@@ -107,16 +107,23 @@ begin
 	boolean res;
 
   wn = CurWindow;
-  GetWindowRecord(wn,IVCashr);
-  
-  res = MakeFiscalReceipt(IVCashr);
-  if (res==false) then begin
-		MessageBox(50004,"");
-	end;
-  if (IVCashr.FiscalFlag < 1 and res) then begin
-    IVCashr.FiscalFlag = 1;
-    RECORDSTORE(IVCashr,true);
+  if (GetWindowFileName(wn)=="IVCashVc") then begin
+    GetWindowRecord(wn,IVCashr);
+    if (IVCashr.MakeFiscalReceiptF==1) then begin
+      res = MakeFiscalReceipt(IVCashr);  
+    end else begin
+      res = true;
+    end;
+    
+    if (res==false) then begin
+  		MessageBox(50004,"");
+  	end;
+    if (IVCashr.FiscalFlag < 1 and res) then begin
+      IVCashr.FiscalFlag = 1;
+      RECORDSTORE(IVCashr,true);
+    end;
   end;
+  
 end; //Edit***************************Sasha2,16:19 13.06.2016 }
 
 
@@ -129,20 +136,23 @@ begin
 	boolean res;
 	
 	wn = CurWindow;
-	DeselectWindow(wn,false);	
-	GetWindowRecord(wn,RepSpec);
-	
-	IVCashr.SerNr = RepSpec.long1;
-	if (ReadFirstMain(IVCashr,1,true)) then begin
-		res = MakeFiscalReceipt(IVCashr);
-		if (res==false) then begin
-			MessageBox(50004,"");		//Edit----------------------Dima  08.09.2015
-		end;			
-		if (IVCashr.FiscalFlag < 1 and res) then begin
-      IVCashr.FiscalFlag = 1;
-      RECORDSTORE(IVCashr,true);
-    end;
-	end;	
+	if (GetWindowFileName(wn)=="IVCashVc") then begin
+  	DeselectWindow(wn,false);	
+  	GetWindowRecord(wn,RepSpec);
+  	
+  	IVCashr.SerNr = RepSpec.long1;
+  	if (ReadFirstMain(IVCashr,1,true)) then begin
+  		res = MakeFiscalReceipt(IVCashr);
+  		if (res==false) then begin
+  			MessageBox(50004,"");		//Edit----------------------Dima  08.09.2015
+  		end;			
+  		if (IVCashr.FiscalFlag < 1 and res) then begin
+        IVCashr.FiscalFlag = 1;
+        RECORDSTORE(IVCashr,true);
+      end;
+  	end;
+	end;
+		
 end; //Edit***************************Sasha2,16:20 13.06.2016 }
 
 function Integer HashTouchScreenPageCode(string tstr)
@@ -1508,7 +1518,8 @@ begin
   end;
   if (err==0) then begin
     PutWindowRecord(wn,IVCashr);
-    PrintFiscalReceipt; //Edit***************************Sasha2,15:02 17.08.2016
+    PrintFiscalReceipt;
+    
     save_recordf = true;      
     new_recordf = newf;
     if (save_recordf) then begin
@@ -1601,6 +1612,39 @@ begin
   return;
 end;
 
+global //Edit***************************Sasha2,11:04 14.09.2016 {
+function Boolean IfAllowedChangeArtCodePrice(string artCode)
+begin
+  Boolean res;
+  record INVc INr;
+  record ITVc ITr;
+    
+    INr.Code = artCode;
+    if (ReadFirstMain(INr,1,true)) then begin
+      switch (INr.ChangePrice) begin
+        case 0:
+          if (NonBlank(INr.Group)) then begin
+            ITr.Code = INr.Group;
+            if (ReadFirstMain(ITr,1,true)) then begin
+              switch (ITr.ChangePrice) begin
+                case 0:
+                  res = false;
+                case 1:
+                  res = true;
+              end;
+            end;
+          end;
+        case 1:
+          res = false;
+        case 2:
+          res = true;
+      end;
+    end;
+  
+    IfAllowedChangeArtCodePrice = res;
+  return;
+end; //Edit***************************Sasha2,11:04 14.09.2016 }
+
 global
 procedure IVCashDClassTouchScreenAmendLine()
 begin
@@ -1644,7 +1688,11 @@ begin
         RepSpec.f2 = IVCashrw.VATCode;
         RepSpec.f3 = "";
         RepSpec.long2 = IVCashrw.stp;
-        wn = OpenWindow("AmendLineNPTSSClass",0,mwn,"","",RepSpec);
+        if (IfAllowedChangeArtCodePrice(IVCashrw.ArtCode)) then begin //Edit***************************Sasha2,11:21 14.09.2016 {
+          wn = OpenWindow("AmendLineNPTSSClass",0,mwn,"","",RepSpec);
+        end else begin
+          wn = OpenWindow("AmendLineNPTSRestrictedSClass",0,mwn,"","",RepSpec);
+        end; //Edit***************************Sasha2,11:21 14.09.2016 }
         PutWindowString(wn,"BasePrice",IVCashrw.BasePrice);  
         WindowFieldGoto(wn,RepSpec,-1,"vals0",false);    
       end;
@@ -1804,7 +1852,7 @@ BEGIN
       rwcnt = MatRowCnt(IVCashr);      
       for (i=0;i<rwcnt;i=i+1) begin
         MatRowGet(IVCashr,i,IVCashrw);
-        if (IVCashrw.Quant>0) then begin
+        if (IVCashrw.Quant<>0) then begin //Edit***************************Sasha2,16:27 09.09.2016 was ">"
           IVCashrw.Quant = -IVCashrw.Quant;
           IVCashrw.Sum = -IVCashrw.Sum;
           MatRowPut(IVCashr,i,IVCashrw);
@@ -3837,3 +3885,32 @@ begin
   end;
 end;
 
+global
+updating procedure ChangeStatusOfReceiptButton()
+begin
+  Integer wn;
+  record RcVc RepSpec;
+  
+  wn = CurWindow;
+  if (wn!=0) then begin
+    switch (GetWindowFileName(wn)) begin
+      case "RcVc":
+        DeselectWindow(wn,false);
+        GetWindowRecord(wn,RepSpec);
+        if (RepSpec.flags[0]==1) then begin
+          RepSpec.flags[0] = 0;
+        end else begin
+          RepSpec.flags[0] = 1;
+        end;
+        PutWindowRecord(wn,RepSpec);
+        switch (GetWindowClass(wn)) begin
+          case "NPTSCashPaymentTClass":
+            WindowFieldGoto(wn,RepSpec,-1,"NPTSCashPaymentCashReceived0",false);
+          case "CCPayTouchScreenDClass":
+            WindowFieldGoto(wn,RepSpec,-1,"vals0",false);
+        end;
+    end;
+  end;
+
+  return;
+end;

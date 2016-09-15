@@ -65,9 +65,11 @@ global
 function boolean MakeFiscalReceipt(record IVCashVc IVCashr)	//Edit----------------------Dima  11.06.2015
 begin
 	row IVCashVc IVCashrw;
+	record INVc INr;
+	record ITVc ITr;
 	area filedata;
 	integer i,rwcnt;
-	string 5 d,nalogGroup;
+	string 5 d,nalogGroup,curNalogGroup;
 	string 255 rowStr,name;
 	string 10 articul,saleCommand,payCommand,refundCommand,command,rebateCommand,commentCommand;
 	integer printStatus,paymentStatus,quant,discountType;
@@ -84,7 +86,7 @@ begin
   refundCommand  = "PayMoney";
   commentCommand = "Comment";  
   printStatus = 0;
-  nalogGroup = "1";
+  nalogGroup = "0";
   discountType = 0; //absolute value of discount
   totalRebate= 0 ;
   giftSum = 0;
@@ -95,19 +97,30 @@ begin
 	
 	for(i=0;i<rwcnt;i=i+1) begin
 		MatRowGet(IVCashr,i,IVCashrw);
-		if (IVCashrw.stp == kInvoiceRowTypeNormal and nonblank(IVCashrw.ArtCode)) then begin	
-				if (IVCashrw.Quant>0) then begin
-					command = saleCommand;
-					rowSum = IVCashrw.Price * 100;
-				end else begin	
-					command = refundCommand;	
-					rowSum = (IVCashrw.Sum * 100) / IVCashrw.Quant;	
-				end;
-				
-				quant = AbsoluteVal(IVCashrw.Quant);
-				articul = IVCashr.SerNr & i;
-				rowStr = command & d & quant & d & printStatus  & d &  "false" & d &  rowSum & d & nalogGroup & d &  "false" & d & IVCashrw.Spec & d & articul & d; 
-				AddTextToArea(rowStr,filedata);	
+		if (IVCashrw.stp == kInvoiceRowTypeNormal and nonblank(IVCashrw.ArtCode)) then begin
+		  curNalogGroup = nalogGroup;
+		  INr.Code = IVCashrw.ArtCode;
+		  if (ReadFirstMain(INr,1,true)) then begin
+		    if (NonBlank(INr.Group)) then begin
+		      ITr.Code = INr.Group;
+		      if (ReadFirstMain(ITr,1,true) and NonBlank(ITr.VATCodeDom)) then begin
+		        curNalogGroup = ITr.VATCodeDom;
+		      end;
+		    end;
+		  end;
+		  	
+			if (IVCashrw.Quant>0) then begin
+				command = saleCommand;
+				rowSum = IVCashrw.Price * 100;
+			end else begin	
+				command = refundCommand;	
+				rowSum = (IVCashrw.Sum * 100) / IVCashrw.Quant;	
+			end;
+			
+			quant = AbsoluteVal(IVCashrw.Quant);
+			articul = IVCashr.SerNr & i;
+			rowStr = command & d & quant & d & printStatus  & d &  "false" & d &  rowSum & d & curNalogGroup & d &  "false" & d & IVCashrw.Spec & d & articul & d; 
+			AddTextToArea(rowStr,filedata);	
 				
 			if (nonblank(IVCashrw.vRebate) and IVCashrw.Quant>0) then begin
 				rowSum = (AbsoluteVal(IVCashrw.Quant)*IVCashrw.Price - (AbsoluteVal(IVCashrw.Sum)))*100;
