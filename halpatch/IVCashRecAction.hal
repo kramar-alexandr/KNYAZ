@@ -1040,9 +1040,12 @@ u might want to put loyalty card or bagger 1st
 */    
   end;
   if (POSBalanceExistsAfterThis(IVCashr.TransDate,IVCashr.TransTime,IVCashr.LocalMachineCode,IVCashr.DrawerCode)) then begin
-    RecordCheckError(2194,"",-1,"TransDate");      
-    res = -1;
-    goto LIVCashVcRecordCheck;
+    if (ServerMode or SingleUserMode) then begin //Edit***************************Sasha2,16:03 22.09.2016
+    end else begin
+      RecordCheckError(2194,"",-1,"TransDate");      
+      res = -1;
+      goto LIVCashVcRecordCheck;  
+    end;
   end;
   rwcnt = MatRowCnt(IVCashr);
   if ((IVCashr.OKFlag==1) and (rwcnt==0)) then begin
