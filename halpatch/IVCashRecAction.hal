@@ -82,6 +82,7 @@ external procedure GetFullCurncyRate(var string,Date,var val,var val,var val,var
 external procedure GetBaseCurncy(Integer,var string);
 external function Boolean PasteCustInCashInv(var record IVCashVc,string,string,var string);
 external procedure ExtractObj(string,var Integer,var string);
+external procedure GetSalesGroup(string,var string);
 
 // This function is actually not used, but prepared to be and is used by customisation
 
@@ -136,6 +137,9 @@ begin
   end else begin
     IVCashr.SalesMan = CurrentUser;
   end;
+  
+  GetSalesGroup(IVCashr.SalesMan,tstr); //Edit***************************Sasha2,11:11 20.09.2016
+  IVCashr.SalesGroup = tstr; //Edit***************************Sasha2,11:11 20.09.2016
   
   if (ServingClient==false) then begin//offline
     BlockLoad(LastRecNr);
