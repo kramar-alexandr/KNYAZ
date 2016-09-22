@@ -806,7 +806,7 @@ u might want to put loyalty card or bagger 1st
       end;
     end;
   end;
-  if (RequireOpenSession(IVCashr.LocalMachineCode)) then begin
+  if (UserCanAction("UnOKAll",true) == false and RequireOpenSession(IVCashr.LocalMachineCode)) then begin
     if (IVCashr.OKFlag==0) then begin
       IVCashr.TransDate = CurrentDate;
     end;
