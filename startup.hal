@@ -9,6 +9,7 @@ begin
   Setting("Локальные настройки фискального принтера",FiscalSetLocalTClass,modPOS);
   
   Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
+  Maintenance("Удалить все записи",CustomRegisterRemoveVClass,CustomRegisterRemoveMn,modDBMain);
 
   SString(50000,"Укажите цену закупки");
   SString(50001,"Укажите себестоимость");
