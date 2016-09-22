@@ -799,10 +799,12 @@ u might want to put loyalty card or bagger 1st
         if (blank(IVCashr.SalesMan)) then begin
           IVCashr.SalesMan = CurrentUser;
         end;
-        IVCashr.LocalMachineCode = CurMachineName;
-        IVCashr.DrawerCode = CurDrawerCode(IVCashr.LocalMachineCode);
-        IVCashr.BranchID = CurBranchID;
-        IVCashr.TerminalID = CurTerminalID;
+        if (NonBlank(CurMachineName)) then begin
+          IVCashr.LocalMachineCode = CurMachineName;
+          IVCashr.DrawerCode = CurDrawerCode(IVCashr.LocalMachineCode);
+          IVCashr.BranchID = CurBranchID;
+          IVCashr.TerminalID = CurTerminalID;
+        end;
       end;
     end;
   end;
@@ -1039,9 +1041,9 @@ u might want to put loyalty card or bagger 1st
     end;
 */    
   end;
-  if (POSBalanceExistsAfterThis(IVCashr.TransDate,IVCashr.TransTime,IVCashr.LocalMachineCode,IVCashr.DrawerCode)) then begin
-    if (ServerMode or SingleUserMode) then begin //Edit***************************Sasha2,16:03 22.09.2016
-    end else begin
+  if (ServerMode or SingleUserMode) then begin //Edit***************************Sasha2,16:03 22.09.2016
+  end else begin
+    if (POSBalanceExistsAfterThis(IVCashr.TransDate,IVCashr.TransTime,IVCashr.LocalMachineCode,IVCashr.DrawerCode)) then begin
       RecordCheckError(2194,"",-1,"TransDate");      
       res = -1;
       goto LIVCashVcRecordCheck;  
