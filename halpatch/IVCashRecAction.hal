@@ -787,7 +787,7 @@ u might want to put loyalty card or bagger 1st
   BlockLoad(ARAccRec);  
   BlockLoad(SRb);  
   BlockLoad(CYb);
-  if (IVCashr.OKFlag==0) then begin
+  if (UserCanAction("UnOKAll",true) == false and IVCashr.OKFlag==0) then begin
     IVCashr.TransTime = CurrentTime;
   end;
   
