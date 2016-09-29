@@ -477,6 +477,48 @@ RecordAddBegin(ITVc,"ITVc_Custom");
   RecordField(ChangePrice,M4Int,0,0);
 EndRecordAdd;
 
+/*RecordAddBegin(UserDefRepLinesVc,"UserDefRepLinesVc_Custom");
+  RecordField(CustType,M4Int,0,0);
+EndRecordAdd;*/
+
+RecordBegin(UserDefRepLinesVc,-,"");
+  RecordField(shortname,M4Str,20,0);
+  RecordField(IdKey,M4Long,0,0);
+  RecordField(Desc,M4UStr,100,0);
+  RecordField(Comment,M4Str,60,0);
+  RecordField(RsType,M4Int,0,0);
+  RecordField(AccType,M4Int,0,0);
+  RecordField(Sign,M4Code,10,UserVc);
+  RecordField(DCSide,M4Int,0,0);
+  RecordField(DCSaldo,M4Int,0,0);
+  RecordField(Desc2,M4UStr,100,0);
+  RecordField(Desc3,M4UStr,100,0);
+  RecordField(SpecCode,M4Str,60,0);
+  RecordField(Math,M4Matrix,0,0);
+  RecordField(CorspAcc,M4Code,10,AccVc);
+  RecordField(CustType,M4Int,0,0); //Edit***************************Sasha2,15:41 29.09.2016
+  ArrayBegin(Math,-,1);
+  ArrayField(LangCode,M4Code,5,0);
+  ArrayField(Text,M4Str,100,0);
+  EndArray;
+  MainKeyBegin(shortname,0);
+  KeySegment(shortname);
+  KeySegment(IdKey);
+  SubsetKeyBegin2(ShortIDKey);
+  AppendFieldToKeyName(shortname);
+  KeySegment(IdKey);
+  KeySegment(shortname);
+  SubsetKeyBegin2(ShortDesc);
+  AppendFieldToKeyName(shortname);
+  KeySegment(Desc);
+  KeySegment(IdKey);
+  KeySegment(shortname);
+  SubsetKeyBegin2(ShortComment);
+  AppendFieldToKeyName(shortname);
+  KeySegment(Comment);
+  KeySegment(IdKey);
+  KeySegment(shortname);
+EndRecord;
 
 BlockBegin(FiscalSetLocalBlock,-,"");
   BlockForAllCompanies;
@@ -484,9 +526,7 @@ BlockBegin(FiscalSetLocalBlock,-,"");
   RecordField(FileName,M4Str,255,0);
 EndBlock;
 
-RecordAddBegin(UserDefRepLinesVc,"UserDefRepLinesVc_Custom");
-  RecordField(CustType,M4Int,0,0)
-EndRecordAdd;
+
 
 return;
 end;
