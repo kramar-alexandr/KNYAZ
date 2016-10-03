@@ -74,6 +74,7 @@ external procedure PCEftpos_Transaction_Request(Integer,val,val,Boolean,string,s
 external procedure Bambora_Transaction_Request(Integer,val,val,Boolean,string,string,string,string,val,string,val);
 external procedure Bambora_Cancel_Request(Integer);
 remote procedure IVVc_PasteSalesMan(var record IVVc,string);
+external updating function Boolean IVCashFinish(Integer,var record IVCashVc);
 
 global 
 procedure SelectHWStoreWClass()
@@ -166,6 +167,7 @@ begin
   record CCMerchantIDVc CCMerchantIDr;  
   Date blankd;
   integer i,rwcnt,cardholdertype;
+  val paidSum;
 
   wn = CurWindow;
   DeselectWindow(wn,true);
@@ -474,8 +476,31 @@ begin
         case "IVCashVc":
           GetWindowRecord(mwn,IVCashr);
           IVCashDClass_RefreshStringList(mwn,IVCashr);
-          SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
-          OpenCashDrawer_IVCashVc(IVCashr);
+          //SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
+          //OpenCashDrawer_IVCashVc(IVCashr);
+          
+          rwcnt = matrowcnt(IVCashr);	//Edit***************************Sasha2,15:08 30.09.2016
+          for (i=0;i<rwcnt;i=i+1) begin
+						MatRowGet(IVCashr,i,IVCashrw);
+						if (IVCashrw.stp==kInvoiceRowTypeCashPayment)then begin
+							paidSum = paidSum + IVCashrw.Sum;				
+						end; 
+						
+						if (IVCashrw.stp==kInvoiceRowTypeGiftVoucherPayment)then begin
+							paidSum = paidSum + IVCashrw.Sum;				
+						end; 
+						
+						if (IVCashrw.stp==kInvoiceRowTypeCreditCardPayment)then begin
+							paidSum = paidSum + IVCashrw.Sum;							
+						end; 
+					end;
+					
+          if(paidSum >= IVCashr.Sum4)then begin
+	        	if (IVCashr.Invalid==0 and IVCashr.OKFlag==0) then begin
+	        	  IVCashFinish(mwn,IVCashr);
+	        	end;
+						goto LProceedCCPayTouchScreenDClass;
+					end; //Edit***************************Sasha2,15:08 30.09.2016 }
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);
           RestAccDClass_RefreshStringList(mwn,RestAccr);
@@ -1289,7 +1314,7 @@ begin
   row IVCashVc IVCashrw;
   Array string 255 acrncy;
   Array Boolean achangecrncyf;
-  Integer i,acrncnt;
+  Integer i,acrncnt,rwcnt;
   string 255 crncy;
   val fr,to1,to2,br1,br2,sum4;
   record RestAccVc prevRestAccr;
@@ -1298,6 +1323,7 @@ begin
   record IVVc prevIVr;
   record IVVc IVr;
   row IVVc IVrw;
+  val paidSum; //Edit***************************Sasha2,15:05 30.09.2016
   
   wn = CurWindow;
   DeselectWindow(wn,true);
@@ -1474,8 +1500,31 @@ begin
         case "IVCashVc":
           GetWindowRecord(mwn,IVCashr);
           IVCashDClass_RefreshStringList(mwn,IVCashr);
-          SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
-          OpenCashDrawer_IVCashVc(IVCashr);
+          //SetPOSWindowDisplay_PaymentRow(IVCashrw.Spec,IVCashr.RetValue);
+          //OpenCashDrawer_IVCashVc(IVCashr);
+          
+          rwcnt = matrowcnt(IVCashr);	//Edit***************************Sasha2,15:08 30.09.2016
+          for (i=0;i<rwcnt;i=i+1) begin
+						MatRowGet(IVCashr,i,IVCashrw);
+						if (IVCashrw.stp==kInvoiceRowTypeCashPayment)then begin
+							paidSum = paidSum + IVCashrw.Sum;				
+						end; 
+						
+						if (IVCashrw.stp==kInvoiceRowTypeGiftVoucherPayment)then begin
+							paidSum = paidSum + IVCashrw.Sum;				
+						end; 
+						
+						if (IVCashrw.stp==kInvoiceRowTypeCreditCardPayment)then begin
+							paidSum = paidSum + IVCashrw.Sum;							
+						end; 
+					end;
+					
+          if(paidSum >= IVCashr.Sum4)then begin
+	        	if (IVCashr.Invalid==0 and IVCashr.OKFlag==0) then begin
+	        	  IVCashFinish(mwn,IVCashr);
+	        	end;
+						goto LProceedCashPayTouchScreenDClass1;
+					end;//Edit***************************Sasha2,15:08 30.09.2016 }
         case "RestAccVc":
           GetWindowRecord(mwn,RestAccr);
           RestAccDClass_RefreshStringList(mwn,RestAccr);
@@ -1490,6 +1539,7 @@ begin
 LProceedCashPayTouchScreenDClass:;  
   //WindowFieldGoto(mwn,RepSpec,-1,"ivcashcommand",true);
   WindowFieldGotoForTouchScreen(mwn,-1,"ivcashcommand",true); 
+LProceedCashPayTouchScreenDClass1:;  
   return;
 end;
 
@@ -2638,7 +2688,7 @@ begin
   end else begin
     GetWindowRecord(curWin,RepSpec);
     WindowFieldGoto(curWin,RepSpec,-1,"f1",false);
-    if (CurWindow==CurWindow) then begin
+    if (curWin==CurWindow) then begin
       ProceedCCPayTouchScreenDClass;
     end;
   end;

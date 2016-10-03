@@ -2196,9 +2196,9 @@ begin
     if (TestEnablerFile("EnNoFullscreenWindow")==false) then begin
       FullscreenWindow;
     end;
-    BrowseButtons(false);
+    //BrowseButtons(false);
     Sizeable(-1,-1,0,0);
-    BrowseButtons(false);
+    //BrowseButtons(false);
     DynamicWindow;
     UseView(IVCashVc);
     ActiveFieldOnNew("ivcashcommand");
@@ -2259,9 +2259,13 @@ begin
     end;
     switch (LMb.POSButtonsPosition) begin
       case kPOSButtonsPositionLeft:
+        EditField(20+120,-80,20,"Напечатанных чеков:",ViewOnly,PrintFlagCounter,false,0); //Edit***************************Sasha2,12:30 30.09.2016
         CheckBox(20,-60,0,"Печатать чек",MakeFiscalReceiptF); //Edit***************************Sasha2,11:28 13.09.2016
-        SoftEditField(110,-22,200,"Товар/Команда"  ,Normal ,"ivcashcommand",false,INSClass,M4Str,255);
+        SoftEditField(110,-22,200,"Товар/Команда",Normal ,"ivcashcommand",false,INSClass,M4Str,255);
+        ColourPushButton(-300,-45,-170,-5,"GetPrevIVcashInvoice","Пред.",2); //Edit***************************Sasha2,14:11 03.10.2016
+        ColourPushButton(-150,-45,-20,-5,"GetNextIVcashInvoice","След.",2); //Edit***************************Sasha2,14:11 03.10.2016
       case kPOSButtonsPositionRight:
+        EditField(-220,-80,20,"Напечатанных чеков:",ViewOnly,PrintFlagCounter,false,0); //Edit***************************Sasha2,12:30 30.09.2016
         CheckBox(-340,-60,0,"Печатать чек",MakeFiscalReceiptF); //Edit***************************Sasha2,11:28 13.09.2016
         SoftEditField(-260,-22,200,"Товар/Команда"  ,Normal ,"ivcashcommand",false,INSClass,M4Str,255);
     end;

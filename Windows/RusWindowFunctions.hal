@@ -516,6 +516,7 @@ begin
   //v = v - 80;
   v = v + heighttemp + dv;
   h = ah;
+ 
 
   //ButtonFrame(h,v+=82,400,0,"");
   switch (LMb.POSPanelSize) begin
@@ -884,6 +885,9 @@ begin
       h = ah;
     end;
   end;
+  
+  v = v + heighttemp + dv; //Edit***************************Sasha2,13:23 30.09.2016
+  ColourPushButton(h,v,h + 2 * width,v + heighttemp,"ClearUpSalesmanForAllPosInvoices","Синхронизация",1); //Edit***************************Sasha2,13:19 30.09.2016
   
   return;
 end;

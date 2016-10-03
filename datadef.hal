@@ -150,6 +150,7 @@ begin
   RecordField(MakeFiscalReceiptF,M4Mark,0,0); //Edit***************************Sasha2,11:55 22.09.2016
   RecordField(SalesGroup,M4Code,5,SalesGroupVc); //Edit***************************Sasha2,11:55 22.09.2016
   FieldIsGroup(SalesGroup); //Edit***************************Sasha2,11:55 22.09.2016
+  RecordField(PrintFlagCounter,M4Int,0,0);//Edit***************************Sasha2,10:24 30.09.2016
   ArrayBegin(Math,-,1);
   ArrayField(stp,M4Int,0,0);
   ArrayField(ArtCode,M4Code,20,INVc);

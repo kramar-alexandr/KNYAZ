@@ -99,6 +99,8 @@ external updating procedure ProceedChangeAddressNPTSSClass();
 external updating procedure ProceedChangeTermsNPTSSClass();
 external function Boolean MakeFiscalReceipt(record IVCashVc); //Edit***************************Sasha2,16:20 13.06.2016
 
+SetLangMode(LangRussian,"RUS",0); 
+
 global 
 updating procedure PrintFiscalReceipt() //Edit***************************Sasha2,16:19 13.06.2016 {
 begin
@@ -118,9 +120,13 @@ begin
     if (res==false) then begin
   		MessageBox(50004,"");
   	end;
-    if (IVCashr.FiscalFlag < 1 and res) then begin
-      IVCashr.FiscalFlag = 1;
+    if (res) then begin
+      if (IVCashr.FiscalFlag < 1) then begin
+        IVCashr.FiscalFlag = 1;
+      end;
+      IVCashr.PrintFlagCounter = IVCashr.PrintFlagCounter + 1;
       RECORDSTORE(IVCashr,true);
+      PutWindowRecord(wn,IVCashr);
     end;
   end;
   
@@ -146,14 +152,146 @@ begin
   		if (res==false) then begin
   			MessageBox(50004,"");		//Edit----------------------Dima  08.09.2015
   		end;			
-  		if (IVCashr.FiscalFlag < 1 and res) then begin
-        IVCashr.FiscalFlag = 1;
+  		if (res) then begin
+        if (IVCashr.FiscalFlag < 1) then begin
+          IVCashr.FiscalFlag = 1;
+        end;
+        IVCashr.PrintFlagCounter = IVCashr.PrintFlagCounter + 1;
         RECORDSTORE(IVCashr,true);
       end;
   	end;
 	end;
 		
 end; //Edit***************************Sasha2,16:20 13.06.2016 }
+
+global //Edit***************************Sasha2,11:53 30.09.2016 {
+procedure NoProceedMakingFiscalCheckTClass()
+begin
+  Integer wn,mwn;
+  record IVCashVc IVCashr;
+  record RcVc RepSpec;
+  boolean res;
+  
+  wn = CurWindow;
+  CloseWindow(wn);
+
+LProceedMakingFiscalCheckTClass:;
+  return;  
+end; //Edit***************************Sasha2,11:53 30.09.2016 }
+
+global //Edit***************************Sasha2,11:53 30.09.2016 {
+updating procedure YesProceedMakingFiscalCheckTClass()
+begin
+  Integer wn,oldwn;
+  record IVCashVc IVCashr;
+  record RcVc RepSpec;
+  boolean res;
+  
+  wn = CurWindow;
+  oldwn = wn;
+  if (GetWindowFileName(oldwn)!="IVCashVc") then begin
+    oldwn = MotherWindow(wn);
+    CloseWindow(wn);
+  end;
+  if (GetWindowFileName(oldwn)=="IVCashVc") then begin
+    SelectWindow(oldwn);
+    GetWindowRecord(oldwn,IVCashr);
+    
+    res = MakeFiscalReceipt(IVCashr);  
+    
+    if (res==false) then begin
+  		MessageBox(50004,"");
+  	end;
+    if (res) then begin
+      if (IVCashr.FiscalFlag < 1) then begin
+        IVCashr.FiscalFlag = 1;
+      end;
+      IVCashr.PrintFlagCounter = IVCashr.PrintFlagCounter + 1;
+      PutWindowRecord(oldwn,IVCashr);
+      RECORDSTORE(IVCashr,true);
+      WindowDoOK(oldwn,0);
+    end;
+
+  end;
+
+LProceedMakingFiscalCheckTClass:;
+  return;  
+end; //Edit***************************Sasha2,11:53 30.09.2016 }
+
+global //Edit***************************Sasha2,14:39 03.10.2016 {
+updating procedure ClearUpSalesmanForAllPosInvoices()
+begin
+  record IVCashVc IVCashr,IVCashCurr;
+  Boolean TrHs,testf;
+  
+    IVcashr.TransDate = CurrentDate;
+    TrHs = true;
+    while (LoopBackKey("TransDate",IVcashr,1,TrHs)) begin
+      testf = true;
+      if (Blank(IVcashr.SalesMan)) then begin
+        testf = false; 
+      end;
+      if (testf) then begin
+        IVcashr.InvComment = IVcashr.InvComment & " SalesMan:" & IVcashr.SalesMan;
+        IVcashr.SalesMan = "";
+        RECORDSTORE(IVcashr,true);
+      end;
+    end;
+    MessageBox(0,"Готово");
+  
+end; //Edit***************************Sasha2,14:39 03.10.2016 }
+
+global //Edit***************************Sasha2,14:39 03.10.2016 {
+updating procedure GetNextIVcashInvoice()
+begin
+  record IVCashVc IVCashr;
+  Boolean TrHs,testf;
+  Integer wn;
+    
+    wn = CurWindow;
+    if (GetWindowClass(wn)=="NPTSIVCashDClass") then begin
+      testf = true;
+      if (WindowState(wn)==Rs_insert) then begin
+        testf = WindowDoOK(wn,0);
+      end;
+      if (testf) then begin
+        DeselectWindow(wn,false);
+        GetWindowRecord(wn,IVCashr);
+        if (LoopMain(IVCashr,1,true) and LoopMain(IVCashr,1,true)) then begin
+          CloseWindow(wn);
+          OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+        end;
+        WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",true);
+      end;
+    end;
+  
+end; //Edit***************************Sasha2,14:39 03.10.2016 }
+
+global //Edit***************************Sasha2,14:39 03.10.2016 {
+updating procedure GetPrevIVcashInvoice()
+begin
+  record IVCashVc IVCashr;
+  Boolean TrHs,testf;
+  Integer wn;
+    
+    wn = CurWindow;
+    if (GetWindowClass(wn)=="NPTSIVCashDClass") then begin
+      testf = true;
+      if (WindowState(wn)==Rs_insert) then begin
+        testf = WindowDoOK(wn,0);
+      end;
+      if (testf) then begin
+        DeselectWindow(wn,false);
+        GetWindowRecord(wn,IVCashr);
+        if (LoopBackKey("SerNr",IVCashr,1,true) and LoopBackKey("SerNr",IVCashr,1,true)) then begin
+          CloseWindow(wn);
+          OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+        end;
+        WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",true);
+      end;
+    end;
+  
+end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
 function Integer HashTouchScreenPageCode(string tstr)
 begin
@@ -995,12 +1133,27 @@ begin
 end;
 
 global
-procedure IVCashDClassTouchScreenReprint()
+updating procedure IVCashDClassTouchScreenReprint()
 begin
   Integer wn;
   record IVCashVc IVCashr;
   record IVCashVc prevIVCashr;
+  record RcVc RepSpec;
   
+  wn = CurWindow; //Edit***************************Sasha2,11:51 30.09.2016 {
+  if (GetWindowFileName(wn)=="IVCashVc") then begin
+    GetWindowRecord(wn,IVCashr);
+    if (IVCashr.PrintFlagCounter<1) then begin
+      YesProceedMakingFiscalCheckTClass;
+    end else begin
+      RECORDNEW(RepSpec);
+      RepSpec.flags[0] = IVCashr.PrintFlagCounter;
+      OpenWindow("ProceedMakingFiscalCheckTClass",0,wn,"","",RepSpec);
+    end;
+    
+  end; //Edit***************************Sasha2,11:51 30.09.2016 }
+  
+  /* //Edit***************************Sasha2,10:33 30.09.2016
   wn = CurWindow;
   if (UserCanAction("AllowNPTSReprint",IsStandardProduct==true)==false) then begin
     POSManagersAction(wn,"Reprint");
@@ -1012,6 +1165,7 @@ begin
     IVCashPrintReceipt(wn,IVCashr,prevIVCashr,-1,false,false,0,WindowState(wn));
   end;
   OverrideLogout;
+  */
 LIVCashDClassTouchScreenReprint:;
   return;  
 end;
@@ -1150,7 +1304,7 @@ begin
 end;
 
 global
-procedure IVCashDClassTouchScreenPasteButtonDo(integer butnr)
+updating procedure IVCashDClassTouchScreenPasteButtonDo(integer butnr)
 begin
   Integer i,rwcnt,wn,matrowix;
   record POSButtonsVc POSBr;
@@ -1432,7 +1586,7 @@ LIVCashDClassTouchScreenPasteButtonDo:;
 end;
 
 global
-procedure IVCashDClassTouchScreenPasteButton()
+updating procedure IVCashDClassTouchScreenPasteButton()
 begin
   Integer butnr;
   string 255 tagstr;

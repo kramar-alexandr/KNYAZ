@@ -411,6 +411,7 @@ begin
   IVCashr.Points = 0;
   IVCashr.Hash = "";
   IVCashr.HashKeyVersion = 0;
+  IVCashr.PrintFlagCounter = 0; //Edit***************************Sasha2,10:25 30.09.2016
   IVCashVcRecordDuplicate = res;  
   return;
 end;
