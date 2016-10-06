@@ -130,7 +130,7 @@ begin
   posEventTime = AddSeconds(tt,-1);
   POSEr.TransTime = posEventTime;
   POSEr.SerNr = NextSerNr("POSEventVc",POSEr.TransDate,-1,true,"");
-  if (RecordStore(POSEr,true)) then begin 
+  if (RecordInsert(POSEr,true)) then begin 
   end;
   
 end; //Edit***************************Sasha2,17:07 06.10.2016 }
