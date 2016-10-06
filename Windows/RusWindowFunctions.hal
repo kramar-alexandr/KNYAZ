@@ -887,7 +887,7 @@ begin
   end;
   
   v = v + heighttemp + dv; //Edit***************************Sasha2,13:23 30.09.2016
-  ColourPushButton(h,v,h + 2 * width,v + heighttemp,"ClearUpSalesmanForAllPosInvoices","Синхронизация",1); //Edit***************************Sasha2,13:19 30.09.2016
+  ColourPushButton(h,v,h + 2 * width,v + heighttemp,"ClearUpSalesmanForAllPosInvoices",/*"Синхронизация"*/"ENTER",1); //Edit***************************Sasha2,13:19 30.09.2016
   
   return;
 end;

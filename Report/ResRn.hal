@@ -28,6 +28,7 @@ external procedure InitLongArray(Integer,var Array LongInt);
 external procedure SumLine2(record RcVc,Boolean,string,string,string,var val,var val,var val,var val,var val,
                             var val,Boolean,val,Boolean,Date,Integer,LongInt,Boolean);
 
+
 procedure ALPB2ResGr(record RcVc RepSpec,Boolean PLf,record UserDefRepLinesVc UserDefRepLinesr,record AccVc Accp,string anru,
                 var val S3bp,var val Pbp,var val Ebp,var val S4bp,var val S5bp,var val S6bp,
                 Boolean addflag,val goms,var Boolean headflagp,Boolean resUseAccum,Date AccumStartDate,Boolean printf)
@@ -46,7 +47,17 @@ BEGIN
 //  if (AccBlockedTest((AccessView*)appSlotArr[gCurSlot].ast_Accessp,Accp->AccNumber)) then goto LALPB2;
   BlockLoad(CompYear);
   nru = anru;//??
-  nru = RepSpec.ObjStr;//??
+  //nru = RepSpec.ObjStr;//??// Edit ************************** Thursday, 25 September 2014 17:07:20
+	if(nonblank(RepSpec.ObjStr))then begin
+		if(nonblank(nru))then begin
+			if(!setinset(nru,RepSpec.ObjStr))then begin
+			nru = RepSpec.ObjStr & "," & nru;
+			end;
+		end else begin
+			nru = RepSpec.ObjStr;// Edit ************************** Wednesday, 29 October 2014 13:12:10
+		end;
+	end;
+	
   if (blank(UserDefRepLinesr.CorspAcc)) then begin
     usedf = AccRuPerBal(RepSpec,PLf,Accp.AccNumber,nru,S3b1,Pb1,Eb1,S4b1,S5b1,S6b1,UserDefRepLinesr.DCSide,resUseAccum,AccumStartDate,budsd,buded);
   end else begin
@@ -63,7 +74,9 @@ BEGIN
         Pb1 = S3b1;
         Eb1 = S3b1 + Pb1;
     end;
-  end;
+  end; LogText(0,S3b1 & " " & Pb1);
+  S3b1 = 0; //“бран вывод за пред.год Edit***************************Sasha2,15:55 06.10.2016
+  S4b1 = 0; //“бран вывод за пред.год Edit***************************Sasha2,15:55 06.10.2016
 /*  
   if (UserDefRepLinesr.DCSaldo==1) then begin
     if (Eb1<0) then begin goto LALPB2ResGr; end;
@@ -740,7 +753,7 @@ begin
            // Edit Start ---------------------------------------------- Edit Start
 	//Tuesday, 18 November 2014 18:09:40
 					dateflag = true;
-        	switch(UserDefRepLinesr.CustType)begin
+        	switch(UserDefRepLinesr.CustType) begin
 						case 1:	tempsd = RepSpec.sStartDate;
 										RepSpec.sStartDate = stringtodate("1/1/2000");
 										temped = RepSpec.sEndDate;

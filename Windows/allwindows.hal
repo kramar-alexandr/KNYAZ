@@ -58,6 +58,28 @@ external function Boolean HasTREO();
 
 SetLangMode(LangRussian,"RUS",0); //##ii
 
+window APSClass:1
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  WindowBegin("Выберите неоплаченный сч/ф поставщика",APSClass,CGslist,-);
+  SetWRect(20,80,830,355);
+  Sizeable(-1,-1,0,0);
+  UseView(APVc);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,1,    "Номер",SerNr,false,SerNr);
+  RlColKey(71,71,  "№ сч/ф поставщ.",InvoiceNr,false,InvoiceNr);
+  RlCol   (196,196,"Сотр.",RefStr,false);
+  RlColKey(280,280,"Срок оплаты",DueDate,false,DueDate);
+  RlCol   (355,355,"Дата скидки",RebDate,false);
+  RlColKey(430,430,"Поставщик",VECode,false,VECode);
+  RlColKey(500,500,"Наимен.",VEName,false,VEName);
+  CalculatedColumn(-200,-200,"Объект","RetrieveStoreObject",false); //Edit***************************Sasha2,16:31 06.10.2016
+  RlColKey(-120,-108,"Остаток",RVal,false,RVal); //Edit***************************Sasha2,16:16 06.10.2016
+  RlCol   (-30,-20,"Вал.",CurncyCode,false);
+  SearchField("Поиск");
+  EndWindow;
+end;
+
 window IVCashDClass:1
   wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
