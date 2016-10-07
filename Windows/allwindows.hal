@@ -2865,3 +2865,148 @@ begin
   end;
   EndWindow;
 end;
+
+window TRGenTClass:1
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vs;
+  Integer tilenr,fcnt;
+
+  WindowBegin("Подсистемы",TRGenTClass,CGSbl,TRGenType);
+  SetBlid(TRGenBlock);
+  SetWRect(20,80,532,455);
+
+  h=22; v=6; h2=350;
+  if (HasModIN or HasModRent or HasModProd or HasModSVO or HasModCL or HasModCheck or HasModPP) or 
+     (HasModCL or HasModCheck or HasModPP) then begin
+  Tile(0,30,false,"",IVStartDate);
+  end;
+  tilenr = 1;
+  if (HasModIN or HasModRent or HasModProd or HasModSVO or HasModCL or HasModCheck or HasModPP) then begin
+    TileButton(tilenr,"Расчёты"); tilenr = tilenr + 1;
+  end;
+  if (HasModIN or HasModRent or HasModProd or HasModSVO) then begin
+    TileButton(tilenr,"Логистика"); tilenr = tilenr + 1;
+  end;
+  if (HasModCL or HasModCheck or HasModPP) then begin
+    TileButton(tilenr,"Наличные и др."); tilenr = tilenr + 1;
+  end;
+  tilenr = 1;
+  if (HasModExp or HasModPO or HasModAT2 or HasModIN) then begin
+  Tile(tilenr,170,false,tilenr,IVStartDate); tilenr = tilenr + 1;
+  end;
+  if (HasModNL) then begin
+    CheckBox(h,v,0,"Сч/ф клиентам",IVGenTrans);
+    EditField(h2,v,82,"С даты",Normal,IVStartDate,false,0); v = v + 20;
+  end;
+  if (HasModSL) then begin
+    CheckBox(h,v,0,"Платежи клиентов",IPGenTrans);
+    EditField(h2,v,82,"С даты",Normal,IPStartDate,false,0);  v = v + 20;
+  end;
+  if (HasModPL) then begin
+    CheckBox(h,v,0,"Сч/ф поставщиков",VIGenTrans);
+    EditField(h2,v,82,"С даты",Normal,VIStartDate,false,0); v = v + 20;
+    CheckBox(h,v,0,"Платежи поставщикам",OPGenTrans);
+    EditField(h2,v,82,"С даты",Normal,OPStartDate,false,0); v = v + 20;
+  end;
+  if (HasModExp) then begin
+    CheckBox(h,v,0,"Авансовые отчеты",ExpGenTrans);
+    EditField(h2,v,82,"С даты",Normal,ExpStartDate,false,0); v = v + 20;
+    CheckBox(h,v,0,"Выплаты персоналу",PPGenTrans);
+    EditField(h2,v,82,"С даты",Normal,PPStartDate,false,0); v = v + 20;
+  end;
+  if (IsEnterprise) then begin
+    CheckBox(h,v,0,"Внутренние сч/ф",IntIVGenTrans);
+    EditField(h2,v,82,"С даты",Normal,IntIVStartDate,false,0); v = v + 20;
+  end;
+  if (HasModAT2) then begin
+    CheckBox(h,v,0,"Выбытие активов",AT2WrofGenTrans);
+    EditField(h2,v,82,"С даты",Normal,AT2WrofStartDate,false,0); v = v + 20;
+  end;
+  if (HasModIN or HasModRent or HasModProd or HasModSVO) then begin
+    Tile(tilenr,230,false,tilenr,PUStartDate); tilenr = tilenr + 1;
+  end;
+  if (HasModIN) then begin
+    CheckBox(h,v=6,0,"Поступления на склад",PUGenTrans);
+    EditField(h2,v,82,"С даты",Normal,PUStartDate,false,0); v = v + 20;
+    if (HasModSO) then begin
+      CheckBox(h,v,0,"Отгрузка",SHGenTrans);
+      EditField(h2,v,82,"С даты",Normal,SHStartDate,false,0); v = v + 20;
+    end;
+    if (HasAdvancedStock) then begin
+      CheckBox(h,v,0,"Перемещение товаров",StockMovGenTrans);
+      EditField(h2,v,82,"С даты",Normal,StockMovStartDate,false,0); v = v + 20;
+    end;
+    CheckBox(h,v,0,"Списание со склада",SDGenTrans);
+    EditField(h2,v,82,"С даты",Normal,SDStartDate,false,0); v = v + 20;
+    if (HasAdvancedStock) then begin
+      CheckBox(h,v,0,"Переоценка склада",SRGenTrans);
+      EditField(h2,v,82,"С даты",Normal,SRStartDate,false,0); v = v + 20;
+    end;
+  end;
+  if (HasModRent) then begin
+    CheckBox(h,v,0,"Перемещения по складу",INTransferGenTrans);
+    EditField(h2,v,82,"С даты",Normal,INTransferStartDate,false,0); v = v + 20;
+  end;
+  if (HasModProd) then begin
+    CheckBox(h,v,0,"Производство",ProdGenTrans);
+    EditField(h2,v,82,"С даты",Normal,ProdStartDate,false,0); v = v + 20;
+  end;
+  if (HasModIN and (HasAdvancedStock or HasReturnedGoods)) then begin
+    CheckBox(h,v,0,"Возврат товаров от клиентов",RetGenTrans);
+    EditField(h2,v,82,"С даты",Normal,RetStartDate,false,0); v = v + 20;
+    CheckBox(h,v,0,"Возврат товаров поставщикам",RetPUGenTrans);
+    EditField(h2,v,82,"С даты",Normal,RetPUStartDate,false,0); v = v + 20;
+    if (StandardHansa==false) then begin
+      CheckBox(h,v,0,"Увеломл. об отгр.",DropSHGenTrans);
+      EditField(h2,v,82,"С даты",Normal,DropSHStartDate,false,0); v = v + 20;
+    end;
+  end;
+  if (HasModSVO) then begin
+    CheckBox(h,v,0,"Таблицы работ",WSGenTrans);
+    EditField(h2,v,82,"С даты",Normal,WSStartDate,false,0); v = v + 20;
+  end;
+  if (HasModCL or HasModCheck or HasModPP) then begin
+    Tile(tilenr,300,false,tilenr,CLInStartDate); tilenr = tilenr + 1;
+  end;
+  if (HasModCL) then begin
+    CheckBox(h,v=6,0,"Приход в кассу",CLInGenTrans);
+    EditField(h2,v,82,"С даты",Normal,CLInStartDate,false,0); v = v + 20;// Edit ************************** Friday, 7 October 2016 16:05:20
+    CheckBox(h,v,0,"Расход из кассы",CLOutGenTrans);
+    EditField(h2,v,82,"С даты",Normal,CLOutStartDate,false,0); v = v + 20;
+    if (StandardHansa==false) then begin
+      CheckBox(h,v,0,"Операции Forex",ForexTRGenTrans);
+      EditField(h2,v,82,"С даты",Normal,ForexTRStartDate,false,0); v = v + 20;
+    end;
+  end;
+  if (HasModCheck) then begin
+    CheckBox(h,v,0,"Чеки",ChecksGenTrans);
+    EditField(h2,v,82,"С даты",Normal,ChecksStartDate,false,0); v = v + 20;
+    CheckBox(h,v,0,"Собственные чеки",OwnChecksGenTrans);
+    EditField(h2,v,82,"С даты",Normal,OwnChecksStartDate,false,0); v = v + 20;
+  end;
+  if (HasModCredMan) then begin
+    CheckBox(h,v,0,"Управление кредитами",CredManGenTrans);
+    EditField(h2,v,82,"С даты",Normal,CredManStartDate,false,0); v = v + 20;
+  end;
+  if (HasModCRM or HasStandardCRM) then begin
+    CheckBox(h,v,0,"Деятельности",ActGenTrans);
+    EditField(h2,v,82,"С даты",Normal,ActStartDate,false,0); v = v + 20;
+  end;
+  if (HasModPP) then begin
+    if (HasHotelInterface) then begin
+      CheckBox(h,v,0,"Пребывание в комнате",RoomStayGenTrans);
+    end else begin
+      CheckBox(h,v,0,"Использование ресурса",RoomStayGenTrans);
+    end;
+    EditField(h2,v,82,"С даты",Normal,RoomStayStartDate,false,0); v = v + 20;
+  end;
+  //  CheckBox(h,v+=20,0,"Securities",STRGenTrans);
+  //  EditField(h2,v,82,"From Date",Normal,STRStartDate,false,0);
+  /*
+    not approved by KARL
+    CheckBox(h,v+=20,0,"Time Sheets",TSGenTrans);
+    EditField(h2,v,82,"С даты",Normal,TSStartDate,false,0);
+  */
+  EndWindow;
+end;
