@@ -523,7 +523,7 @@ begin
     case kPOSPanelSizeSmall:
       ButtonFrame(h,v+=5,795,0,"");         
     otherwise
-  ButtonFrame(h,v+=5,400,0,"");
+  ButtonFrame(h,v+=5,200,0,""); //400//Edit***************************Sasha2,17:15 10.10.2016
   end;
 
   if (GuiType!=kGuiiPhone ) then begin 
