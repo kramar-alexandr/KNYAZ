@@ -527,6 +527,9 @@ BlockBegin(FiscalSetLocalBlock,-,"");
   RecordField(FileName,M4Str,255,0);
 EndBlock;
 
+RecordAddBegin(ORVc,"ORVc_Custom");
+  ArrayField(TotOrdQuant,M4Val,0,0);
+EndRecordAdd;
 
 
 return;
