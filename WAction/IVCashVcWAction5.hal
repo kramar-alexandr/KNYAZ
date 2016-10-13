@@ -2016,6 +2016,11 @@ BEGIN
       PutWindowRecord(wn,IVCashr);
       IVCashDClass_RefreshStringList(wn,IVCashr);
     otherwise
+      if (GetWindowString(wn,"ReturnMode")=="false") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
+        PutWindowString(wn,"ReturnMode","true");
+      end else begin
+        PutWindowString(wn,"ReturnMode","false");
+      end; //Edit***************************Sasha2,14:27 13.10.2016 }
       GetWindowRecord(wn,IVCashr);
       if (IVCashr.Invalid!=0) then begin goto LIVCashDClassToolIVReturn; end;
       
