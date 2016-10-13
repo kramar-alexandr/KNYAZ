@@ -1998,7 +1998,12 @@ BEGIN
   DeselectWindow(wn,true);
   switch (WindowState(wn)) begin
     case Rs_insert:
-      PutWindowString(wn,"ReturnMode","true");
+      //PutWindowString(wn,"ReturnMode","true");
+      if (GetWindowString(wn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
+        PutWindowString(wn,"ReturnMode","false");
+      end else begin
+        PutWindowString(wn,"ReturnMode","true");
+      end; //Edit***************************Sasha2,14:27 13.10.2016 }
       GetWindowRecord(wn,IVCashr);
       if (HasLocalization("POL")) then begin
         IVCashr.FiscalFlag = 0;
@@ -2016,10 +2021,10 @@ BEGIN
       PutWindowRecord(wn,IVCashr);
       IVCashDClass_RefreshStringList(wn,IVCashr);
     otherwise
-      if (GetWindowString(wn,"ReturnMode")=="false") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
-        PutWindowString(wn,"ReturnMode","true");
-      end else begin
+      if (GetWindowString(wn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
         PutWindowString(wn,"ReturnMode","false");
+      end else begin
+        PutWindowString(wn,"ReturnMode","true");
       end; //Edit***************************Sasha2,14:27 13.10.2016 }
       GetWindowRecord(wn,IVCashr);
       if (IVCashr.Invalid!=0) then begin goto LIVCashDClassToolIVReturn; end;

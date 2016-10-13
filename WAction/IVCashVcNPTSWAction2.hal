@@ -89,9 +89,9 @@ begin
         //IVCashr.SerNr = sernr;
         //if (ReadFirstMain(IVCashr,1,true)) then begin
           RepSpec.flags[0] = IVCashr.MakeFiscalReceiptF;
-          if (IVCashr.Sum4<0) then begin
-            PutWindowString(nwn,"NPTSCashPaymentCashReceived" & 0,IVCashr.Sum4);
-          end;
+          //if (IVCashr.Sum4<0) then begin
+            //PutWindowString(nwn,"NPTSCashPaymentCashReceived" & 0,IVCashr.Sum4);
+          //end;
         //end;
       end; //Edit***************************Sasha2,15:46 13.09.2016 }
       PutWindowRecord(nwn,RepSpec);
