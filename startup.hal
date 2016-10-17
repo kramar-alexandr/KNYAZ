@@ -7,6 +7,7 @@ begin
   Setting("Перепечатать чек",ReprintingFiscalReceiptTClass,modPOS);
   Setting("Печать на фискальном принтере",FiscalPrintingTClass,modPOS);
   Setting("Локальные настройки фискального принтера",FiscalSetLocalTClass,modPOS);
+  Setting("Локальная машина - ящик",LocMachDrawerTCLass,modPOS);
   
   Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
   Maintenance("Удалить все записи",CustomRegisterRemoveVClass,CustomRegisterRemoveMn,modDBMain);

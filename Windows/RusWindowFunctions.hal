@@ -1146,7 +1146,7 @@ procedure DisplayRecordDetails_RUS(LongInt ah,LongInt av,string compname,date td
                                string sessiondesc,Boolean showlc,string OfficialNum,string taxseal)
 begin
   real h,h2,h3,h4,v,vs,vj,v2,v3,v4;
-  string 255 tstr;
+  string 255 tstr,path;
   Integer icn;
 
   h = ah;
@@ -1210,7 +1210,9 @@ begin
     AddBic(icn,icn,110,30,ToolHomepage,0,""); 
   end else begin
     //PictureButton(h-1,6,310,126,icn,icn,icn,"","",ToolHomepage);
-    PictureButton(h-1,6,h-1+195,6+44,icn,icn,icn,"","",ToolHomepage);
+    //PictureButton(h-1,6,h-1+195,6+44,icn,icn,icn,"","",ToolHomepage); 
+    path = "file:///" & UrlEncode(CURRENTPATH) & "/halcust/WAction/Clock.html"; //Edit***************************Sasha2,13:34 17.10.2016 {
+    WebPage(h-1,6,h-1+195,6+52,path,""); //Edit***************************Sasha2,11:58 17.10.2016 }
   end;
 
   //StaticText(h,v,Left(compname,20),false); v = v + vs;

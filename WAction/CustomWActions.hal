@@ -1,3 +1,5 @@
+external procedure FindRepDefHeader(string,string,var string);
+
 global
 procedure INRClassReportDefaults(Integer wn)
 begin
@@ -12,5 +14,51 @@ begin
   RepSpec.flags[22] = Varb.AutoVarietyDef;
   PutWindowRecord(wn,RepSpec);
   SelectWindow(wn);
+  return;
+end;
+
+global
+procedure BalRClassReportDefaults(Integer wn)
+BEGIN
+  record RcVc RepSpec;
+  string 255 tstr;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"BalRClass");  
+  FindRepDefHeader(RepSpec.repname,RepSpec.shortname,tstr);
+  RepSpec.f1 = tstr;
+  RepSpec.AccSpec = 2; //Edit***************************Sasha2,11:12 17.10.2016
+  if (HasLocalization("HRV")) then begin
+    RepSpec.flags[20] = 1;
+  end;
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  RETURN;
+END;
+
+procedure DoResRClassReportDefaults(Integer wn)
+begin
+  record RcVc RepSpec;
+  string 255 tstr;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"ResRClass");  
+  FindRepDefHeader(RepSpec.repname,RepSpec.shortname,tstr);
+  RepSpec.f1 = tstr;
+  RepSpec.flags[1] = 1;
+  RepSpec.Stext = RepSpec.Period2Str;
+  RepSpec.AccSpec = 2; //Edit***************************Sasha2,11:15 17.10.2016
+  RepSpec.Comparison = 1; //Edit***************************Sasha2,11:15 17.10.2016
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  return;
+end;
+
+global
+procedure ResRClassReportDefaults(Integer wn)
+begin
+  DoResRClassReportDefaults(wn);
   return;
 end;

@@ -3590,3 +3590,30 @@ email not working yet
   end;
   EndWindow;
 end;
+
+window CashupVClass:1
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm,vs;
+  WindowBegin("Определите снятие кассы",CashupVClass,CGMnt,RcType);
+  SetWRect(20,80,400,275);
+  vs = 20; h=150; h2=250;
+  EditFieldTL(h,v=6,80,"До даты",M4Date,Normal,0,d1,false,PasteCurDate);
+  EditFieldTL(h,v+=20,80,"До времени",M4STime,Normal,0,sStartTime,false,PasteCurTime);
+  //EditFieldTL(h,v+=20,80,"Касса",M4UStr,Normal,30,f1,false,LocalMachineSClass); //Edit***************************Sasha2,10:18 17.10.2016
+  //EditFieldTL(h,v+=20,80,"Секция",M4UStr,Normal,5,f4,false,DrawerSClass); //Edit***************************Sasha2,10:18 17.10.2016
+  v = v + 40; vm = v;
+  ButtonFrame(h=110,v+=10,170,4,"Включать");
+  if (HasModRest) then begin
+  CheckBox(h,v,0,"Наличные ресторана",flags[1]);
+  end;
+  if (HasModPOS) then begin
+  CheckBox(h,v+=16,0,"Сч/ф кас. терм.",flags[2]);
+  end;
+  if (HasModSL) then begin
+  CheckBox(h,v+=16,0,"Наличные сч/ф",flags[3]);
+  CheckBox(h,v+=16,0,"Платежи кл.",flags[8]);
+  end;
+  EndWindow;
+end;
+
