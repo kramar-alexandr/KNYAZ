@@ -1633,7 +1633,7 @@ begin
             tstr = USetStr(10550 + CAb.PrimaryCostModel);
         end;      
       case 1: tstr = USetStr(10550+RepSpec.flags[11]);
-      case 2: tstr = USetStr(10550+RepSpec.flags[11]);
+      case 2: tstr = USetStr(/*10550+RepSpec.flags[11]*/ 50005); //Edit***************************Sasha2,13:52 17.10.2016
       case 3: tstr = USetStr(10550+RepSpec.flags[11]);
       otherwise 
 /*wierd      
@@ -1697,7 +1697,7 @@ begin
       end;  
       switch (RepSpec.flags[11]) begin
         case 1: OutStringAdjust(4,0,USetStr(10551),true,M4Val);
-        case 2: OutStringAdjust(4,0,USetStr(10552),true,M4Val);
+        case 2: OutStringAdjust(4,0,USetStr(/*10552*/ 50005),true,M4Val); //Edit***************************Sasha2,13:51 17.10.2016
         otherwise OutStringAdjust(4,0,USetStr(2331),true,M4Val);
       end;
       OutStringAdjust(6,0,USetStr(2332),true,M4Val);
