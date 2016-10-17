@@ -446,6 +446,7 @@ begin
   end;
   //RunTheCashupMn(RepSpec.f1,RepSpec.f4,RepSpec.f5,RepSpec.d1,RepSpec.sStartTime,RepSpec.ArtMode,RepSpec.flags[1],RepSpec.flags[2],RepSpec.flags[3],RepSpec.flags[4],RepSpec.flags[8]); //Edit***************************Sasha2,10:22 17.10.2016
   
+  BlockLoad(LMDB);
   rwcnt = MatRowCnt(LMDB); //Edit***************************Sasha2,10:23 17.10.2016 {
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(LMDB,i,LMDBw);
