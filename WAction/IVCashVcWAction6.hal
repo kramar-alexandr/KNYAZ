@@ -167,7 +167,7 @@ begin
   record CCMerchantIDVc CCMerchantIDr;  
   Date blankd;
   integer i,rwcnt,cardholdertype;
-  val paidSum;
+  val paidSum,ivSum;
 
   wn = CurWindow;
   DeselectWindow(wn,true);
@@ -495,7 +495,13 @@ begin
 						end; 
 					end;
 					
-          if(AbsoluteVal(paidSum) >= AbsoluteVal(IVCashr.Sum4))then begin
+					ivSum = IVCashr.Sum4;
+					if (paidSum<0 and IVCashr.Sum4<0) then begin
+					  paidSum = AbsoluteVal(paidSum);
+					  ivSum = AbsoluteVal(IVCashr.Sum4);
+					end;
+					
+          if (paidSum>=ivSum and paidSum>=0 and ivSum>=0) then begin
 	        	if (IVCashr.Invalid==0 and IVCashr.OKFlag==0) then begin
 	        	  IVCashFinish(mwn,IVCashr);
 	        	end;
@@ -1323,7 +1329,7 @@ begin
   record IVVc prevIVr;
   record IVVc IVr;
   row IVVc IVrw;
-  val paidSum; //Edit***************************Sasha2,15:05 30.09.2016
+  val paidSum,ivSum; //Edit***************************Sasha2,15:05 30.09.2016
   
   wn = CurWindow;
   DeselectWindow(wn,true);
@@ -1519,7 +1525,13 @@ begin
 						end; 
 					end;
 					
-          if(AbsoluteVal(paidSum) >= AbsoluteVal(IVCashr.Sum4))then begin
+					ivSum = IVCashr.Sum4;
+					if (paidSum<0 and IVCashr.Sum4<0) then begin
+					  paidSum = AbsoluteVal(paidSum);
+					  ivSum = AbsoluteVal(IVCashr.Sum4);
+					end;
+					
+          if (paidSum>=ivSum and paidSum>=0 and ivSum>=0) then begin
 	        	if (IVCashr.Invalid==0 and IVCashr.OKFlag==0) then begin
 	        	  IVCashFinish(mwn,IVCashr);
 	        	end;

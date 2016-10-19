@@ -1,4 +1,5 @@
 external procedure FindRepDefHeader(string,string,var string);
+remote updating function Integer CreateOPFromVI(record VIVc,var record OPVc);
 
 global
 procedure INRClassReportDefaults(Integer wn)
@@ -62,3 +63,38 @@ begin
   DoResRClassReportDefaults(wn);
   return;
 end;
+
+global
+updating procedure CreateOPFromVIDsm()
+BEGIN
+  record VIVc VIr; 
+  record OPVc OPr;
+  Integer wn,nwn,err;
+  Integer acclevel;
+
+  wn = CurWindow;
+  acclevel = UserRegisterAccess("VIVc");
+  //if (acclevel==kAccessLevelFull) or (acclevel==kAccessLevelReadNew) or (acclevel==kAccessLevelBrowseNew) then begin
+    if (WindowState(wn)==Rs_normal) then begin
+      GetWindowRecord(wn,VIr);     
+      if (VIr.OKFlag!=0) then begin      
+        err = CreateOPFromVI(VIr,OPr);
+        if  (err==0) then begin
+          nwn = OpenWindow("OPDClass",1,0,"","",OPr);
+          /*if (WindowDoOK(nwn,0)) then begin
+            CreateRecordLink(VIr,CurrentCompany,OPr,CurrentCompany);  
+            CreateRecordLink(OPr,CurrentCompany,VIr,CurrentCompany);  
+            UpdateBrowses("VIVc");
+          end;*/      
+        end else begin
+          MessageBox(20802," " & USetStr(err));
+        end;
+      end else begin
+        MessageBox(0,USetStr(50006));
+      end;
+    end else begin
+      MessageBox(0,USetStr(1356));
+    end;
+  //end;
+  RETURN;
+END;
