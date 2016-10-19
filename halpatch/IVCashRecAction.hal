@@ -1685,11 +1685,11 @@ u might want to put loyalty card or bagger 1st
           goto LIVCashVcRecordCheck;   
         end;
       end else begin
-        if (IVCashr.RetValue!=0) then begin           // No reason to have this check in the first place.
+        /*if (IVCashr.RetValue!=0) then begin           // No reason to have this check in the first place.
           RecordCheckError(24197,"",-1,"CashValue");  // As when doing a return, invoice is aways negative and change is always positive.    
           res = -1;                                   // the reason is to make sure not to return more than total amount is
           goto LIVCashVcRecordCheck;   
-        end;
+        end;*/ //Edit***************************Sasha2,14:45 19.10.2016
       end;
       if ((IVCashr.CashValue==0) and (IVCashr.RecValue==0) and (IVCashr.RecValue2==0) and (IVCashr.TendValue==0) and (IVCashr.Sum4!=0)) then begin
         RecordCheckError(24177,"",-1,"CashValue");      
