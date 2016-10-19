@@ -118,7 +118,7 @@ BEGIN
           ((objects==TRrw.Objects) or (objs=="NIL")) and
           ((comment==TRrw.Comment) or (comm=="NIL")) and
           (vatcod==TRrw.VATCode) and (TRrw.ovst==0)) then begin 
-        //rowfoundf = true; //Edit***************************Sasha2,14:05 19.10.2016
+        //rowfoundf = true;  //Edit***************************Sasha2,14:05 19.10.2016
         //goto L22TR; //Edit***************************Sasha2,14:05 19.10.2016
       end;
 L11:;
