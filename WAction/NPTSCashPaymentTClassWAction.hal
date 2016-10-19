@@ -136,13 +136,13 @@ begin
     changedue = StringToVal(GetWindowString(wn,"NPTSCashPaymentChangeDueTotal"),M4Val);
 
     if (RepSpec.vals1>=0) then begin
-      if (amountduetotal<=0) and (changedue<=0) then begin
+      //if (amountduetotal<=0) and (changedue<=0) then begin //Edit***************************Sasha2,11:58 19.10.2016
         SelectButton(wn,"ProceedNPTSCashPaymentTClass");
-      end;
+      //end;
     end else begin
-      if (amountduetotal>=0) and (changedue>=0) then begin
+      //if (amountduetotal>=0) and (changedue>=0) then begin //Edit***************************Sasha2,11:58 19.10.2016
         SelectButton(wn,"ProceedNPTSCashPaymentTClass");
-      end;
+      //end;
     end;
     res = false;
   end;
@@ -159,13 +159,13 @@ begin
     amountduetotal = StringToVal(GetWindowString(wn,"NPTSCashPaymentCashAmountDueTotal"),M4Val);
     changedue = StringToVal(GetWindowString(wn,"NPTSCashPaymentChangeDueTotal"),M4Val);
     if (RepSpec.vals1>=0) then begin
-      if (amountduetotal<=0) and (changedue<=0) then begin
+      //if (amountduetotal<=0) and (changedue<=0) then begin //Edit***************************Sasha2,11:58 19.10.2016
         SelectButton(wn,"ProceedNPTSCashPaymentTClass");
-      end;
+      //end;
     end else begin
-      if (amountduetotal>=0) and (changedue>=0) then begin
+      //if (amountduetotal>=0) and (changedue>=0) then begin //Edit***************************Sasha2,11:58 19.10.2016
         SelectButton(wn,"ProceedNPTSCashPaymentTClass");
-      end;
+      //end;
     end;
     res = false;
   end;

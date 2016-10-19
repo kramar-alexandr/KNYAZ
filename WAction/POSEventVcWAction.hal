@@ -147,7 +147,7 @@ begin
   RecordNew(POSEr);
   POSEr.Drawer = CurDrawerCode(CurMachineName);
   POSEr.Event = 1;
-  if (blank(POSEr.Drawer)) then begin //Edit***************************Sasha2,11:23 19.10.2016 {
+  /*if (blank(POSEr.Drawer)) then begin //Edit***************************Sasha2,11:23 19.10.2016 {
     BlockLoad(LMDB);
     rwcnt = MatRowCnt(LMDB);
     for (i=0;i<rwcnt;i=i+1) begin
@@ -159,7 +159,7 @@ begin
         end;
       end;
     end;
-  end; //Edit***************************Sasha2,11:24 19.10.2016 }
+  end;*/ //Edit***************************Sasha2,11:24 19.10.2016 }
   if (blank(POSEr.Drawer)) then begin
     nwn = OpenWindow("POSEventDClass",1,mwn,"","",POSEr);
     WindowFieldGoto(nwn,POSEr,-1,"Drawer",true);
