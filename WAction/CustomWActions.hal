@@ -80,12 +80,16 @@ BEGIN
       if (VIr.OKFlag!=0) then begin      
         err = CreateOPFromVI(VIr,OPr);
         if  (err==0) then begin
-          nwn = OpenWindow("OPDClass",1,0,"","",OPr);
-          /*if (WindowDoOK(nwn,0)) then begin
-            CreateRecordLink(VIr,CurrentCompany,OPr,CurrentCompany);  
-            CreateRecordLink(OPr,CurrentCompany,VIr,CurrentCompany);  
-            UpdateBrowses("VIVc");
-          end;*/      
+          if (MatRowCnt(OPr)>0) then begin
+            nwn = OpenWindow("OPDClass",1,0,"","",OPr);
+            /*if (WindowDoOK(nwn,0)) then begin
+              CreateRecordLink(VIr,CurrentCompany,OPr,CurrentCompany);  
+              CreateRecordLink(OPr,CurrentCompany,VIr,CurrentCompany);  
+              UpdateBrowses("VIVc");
+            end;*/    
+          end else begin
+            MessageBox(0,USetStr(22058) & " " & USetStr(50007) & " "  & USetStr(20102));
+          end;   
         end else begin
           MessageBox(20802," " & USetStr(err));
         end;

@@ -393,12 +393,49 @@ global
 updating function Integer CreateOPFromVI(record VIVc VIr,var record OPVc OPr)
 begin
   Integer res;
-  Boolean TrHs;
-  row OPVc OPrw;
+  record OPVc OP2r;
+  record OPrsVc OPrsr;
+  row OPVc OPrw,OP2rw;
+  row VIVc VIrw;
   string 255 warning,objs;
-  Boolean installmentf;
-  val chk;
-  Integer rownr;
+  Boolean installmentf,TrHs,testf;
+  val chk,bal;
+  Integer rownr,rwcnt,i;
+  
+  rwcnt = MatRowCnt(VIr);
+  for (i=0;i<rwcnt;i=i+1) begin
+    MatRowGet(VIr,i,VIrw);
+    if (VIrw.stp==kInvoiceRowTypePrepayment) then begin
+      bal = bal + VIrw.PrepayAmount;
+    end;
+  end;
+  
+  OPrsr.VINr = VIr.SerNr;
+  OPrsr.TransType = 1;
+  TrHs = true;
+  while (LoopKey("VIKey",OPrsr,2,TrHs)) begin
+    testf = true;
+    if (OPrsr.VINr!=VIr.SerNr or OPrsr.TransType!=1) then begin TrHs = false; testf = false; end;
+    if (OPrsr.VECode!=VIr.VECode) then begin testf = false; end;
+    if (testf) then begin
+      OP2r.SerNr = OPrsr.TransNr;
+      if (ReadFirstMain(OP2r,1,true)) then begin
+        rwcnt = MatRowCnt(OP2r);
+        for (i=0;i<rwcnt;i=i+1) begin
+          MatRowGet(OP2r,i,OP2rw);
+          if (OP2rw.VISerNr==VIr.SerNr) then begin
+            bal = bal + OP2rw.RecVal;
+            i = rwcnt;
+          end;
+        end;
+      end;
+    end;
+  end;
+  
+  bal = VIr.PayVal - bal;
+  if (bal<=0) then begin
+    goto LCreateOPFromVI;
+  end;
   
   RECORDNEW(OPr);
   rownr = 0;
@@ -418,7 +455,7 @@ begin
   MatRowPut(OPr,rownr,OPrw);
   OPVc_PasteVECode(OPr,rownr);
   MatRowGet(OPr,rownr,OPrw);
-  OPrw.RecVal = VIr.PayVal;
+  OPrw.RecVal = bal;
   MatRowPut(OPr,rownr,OPrw);
   OPVc_PasteRecVal(OPr,rownr);
   MatRowGet(OPr,rownr,OPrw);
