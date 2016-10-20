@@ -531,6 +531,10 @@ RecordAddBegin(ORVc,"ORVc_Custom");
   ArrayField(TotOrdQuant,M4Val,0,0);
 EndRecordAdd;
 
+RecordAddBegin(VIVc,"VIVc_Custom");
+  RecordField(PaidFlag,M4Mark,0,0);
+EndRecordAdd;
+
 BlockBegin(LocMachDrawerBlock,-,"");
   NewAutosyncHBlock(kSyncDirectionToClient);
   RecordField(Math,M4Matrix,0,0);

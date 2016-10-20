@@ -389,10 +389,8 @@ LGetItemStatusInfoForOrder:;
   RETURN;
 END;
 
-global
-updating function Integer CreateOPFromVI(record VIVc VIr,var record OPVc OPr)
+procedure GenerateOPVcFromVI(record VIVc VIr,var record OPVc OPr,var Integer result,var boolean createf)
 begin
-  Integer res;
   record OPVc OP2r;
   record OPrsVc OPrsr;
   row OPVc OPrw,OP2rw;
@@ -434,7 +432,8 @@ begin
   
   bal = VIr.PayVal - bal;
   if (bal<=0) then begin
-    goto LCreateOPFromVI;
+    createf = false;
+    goto LGenerateOPVcFromVI;
   end;
   
   RECORDNEW(OPr);
@@ -443,12 +442,12 @@ begin
   OPrw.VISerNr = VIr.SerNr;
   MatRowPut(OPr,rownr,OPrw);
   if (PasteInvIn2OPr(OPr,rownr,OPr.TransDate,1,chk,warning,false,installmentf)==false) then begin
-    res = -1;
-    goto LCreateOPFromVI;
+    result = -1;
+    goto LGenerateOPVcFromVI;
   end;
   if (installmentf) then begin
-    res = 20772;
-    goto LCreateOPFromVI;
+    result = 20772;
+    goto LGenerateOPVcFromVI;
   end;
   MatRowGet(OPr,rownr,OPrw);
   OPrw.VECode = VIr.VECode;
@@ -464,17 +463,128 @@ begin
   OPrw.Objects = objs;
   MatRowPut(OPr,rownr,OPrw);
   
-  if (OPr.SerNr==-1) then begin
-    OPr.SerNr = NextSerNr("OPVc",OPr.TransDate,-1,false,"");
+LGenerateOPVcFromVI:;
+  return;
+end;
+
+global
+updating function Integer CreateOPFromVI(record VIVc VIr,var record OPVc OPr)
+begin
+  Integer res;
+  boolean createf;
+  
+  createf = true;
+  GenerateOPVcFromVI(VIr,OPr,res,createf);
+  
+  if (createf) then begin
+    if (OPr.SerNr==-1) then begin
+      OPr.SerNr = NextSerNr("OPVc",OPr.TransDate,-1,false,"");
+    end;
+    if (RecordInsert(OPr,true)) then begin
+      CreateRecordLink(VIr,CurrentCompany,OPr,CurrentCompany);  
+      CreateRecordLink(OPr,CurrentCompany,VIr,CurrentCompany);
+    end else begin
+      res = -1;
+    end;
   end;
-  if (RecordInsert(OPr,true)) then begin
-    CreateRecordLink(VIr,CurrentCompany,OPr,CurrentCompany);  
-    CreateRecordLink(OPr,CurrentCompany,VIr,CurrentCompany);
-  end else begin
-    res = -1;
-  end;
-    
+ 
 LCreateOPFromVI:;  
   CreateOPFromVI = res;
+  return;
+end;
+
+global
+updating function Integer CreateAutoPaidOPFromVI(record VIVc VIr)
+begin
+  record OPVc OPr,OP2r;
+  record ObjVc Objr; 
+  Integer res,pos;
+  boolean createf;
+  string 20 pmcode,curObj;
+  
+  createf = true;
+  GenerateOPVcFromVI(VIr,OPr,res,createf);
+  
+  if (createf) then begin
+    pos = 0;
+    ExtractObj(VIr.Objects,pos,curObj);
+    while (nonblank(curObj)) begin
+      Objr.Code = curObj;
+      if (ReadFirstMain(Objr,1,true) and Objr.OTCode=="STORE") then begin
+        switch (Objr.Code) begin
+          case "PEROVA":
+            pmcode = "C1";
+            pos = len(VIr.Objects);
+          case "STALSKOGO":
+            pmcode = "C2";
+            pos = len(VIr.Objects);
+        end;
+      end;
+      ExtractObj(VIr.Objects,pos,curObj);
+    end;
+    if (NonBlank(pmcode)) then begin
+      OPr.PayMode = pmcode;
+      if (OPr.SerNr==-1) then begin
+        OPr.SerNr = NextSerNr("OPVc",OPr.TransDate,-1,false,"");
+      end;
+      OPr.OrderedFlag = 1;
+      if (RecordInsert(OPr,true)) then begin
+        CreateRecordLink(VIr,CurrentCompany,OPr,CurrentCompany);  
+        CreateRecordLink(OPr,CurrentCompany,VIr,CurrentCompany);
+        RecordCopy(OP2r,OPr);
+        OPr.DoneFlag = 1;
+        if (RecordUpdate(OP2r,OPr,true)!=0) then begin
+          res = -1;
+        end;
+      end else begin
+        res = -1;
+      end;
+    end;
+  end;
+ 
+LCreateAutoPaidOPFromVI:;  
+  CreateAutoPaidOPFromVI = res;
+  return;
+end;
+
+global
+updating function Integer DeleteAutoPaidOPFromVI(record VIVc VIr)
+begin
+  record OPVc OPr,OP2r;
+  record OPrsVc OPrsr;
+  Integer res,rwcnt;
+  Boolean TrHs,testf;
+  
+  res = 0;
+  
+  OPrsr.VINr = VIr.SerNr;
+  OPrsr.TransType = 1;
+  TrHs = true;
+  while (LoopKey("VIKey",OPrsr,2,TrHs)) begin
+    testf = true;
+    if (OPrsr.VINr!=VIr.SerNr or OPrsr.TransType!=1) then begin TrHs = false; testf = false; end;
+    if (OPrsr.VECode!=VIr.VECode) then begin testf = false; end;
+    if (testf) then begin
+      OPr.SerNr = OPrsr.TransNr;
+      if (ReadFirstMain(OPr,1,true)) then begin
+        rwcnt = MatRowCnt(OPr);
+        if (rwcnt==1) then begin
+          RecordCopy(OP2r,OPr);
+          OPr.DoneFlag = 0;
+          if (RecordUpdate(OP2r,OPr,true)==0) then begin
+            RecordCopy(OP2r,OPr);
+            OPr.OrderedFlag = 0;
+            if (RecordUpdate(OP2r,OPr,true)==0) then begin
+              RecordDelete(OPr);
+              StepBack(OPrsr);
+            end;
+          end;
+        end;
+      end;
+    end;
+  end;
+ 
+LDeleteAutoPaidOPFromVI:;  
+  DeleteAutoPaidOPFromVI = res;
   return;
 end;

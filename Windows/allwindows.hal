@@ -3796,6 +3796,7 @@ begin
     EditField(h,vm=(v+=20),80,"Поставщик",Normal,VECode,false,VESClass);
     EditField(h2,v,80,"Дата сч/ф пост.",Normal,InvDate,false,PasteCurDate);  
     CheckBox(-80,v,0,"OK",OKFlag);
+    CheckBox(-80,v+20,0,"Авт.оплачено",PaidFlag); //Edit***************************Sasha2,11:10 20.10.2016
     if (HasModNL) then begin
       EditField(h3,v,-100,"Ссылка",Normal,RefStr,false,0);         
     end;
@@ -4031,6 +4032,7 @@ begin
       EditField(h3,v,90,"Ссылка",Normal,RefStr,false,0);
     end;
     CheckBox(h4=-100,v,0,"ОК",OKFlag);
+    CheckBox(h4,v+20,0,"Авт.оплачено",PaidFlag); //Edit***************************Sasha2,11:10 20.10.2016
     if (IsEnterprise) then begin
       EditField(h,v+=vs,95,"ИТОГО",Normal,PayVal,true,0);
       EditField(h2,v,95,"НДС",Normal,VATVal,true,0);
