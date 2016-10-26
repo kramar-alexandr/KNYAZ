@@ -4,6 +4,26 @@ external procedure OPVc_PasteVECode(var record OPVc,Integer);
 external procedure OPVc_PasteRecVal(var record OPVc,Integer);
 external procedure NoDupObjs(string,var string);
 
+global 
+function Boolean LocMachDrawerVcRecordShouldBeSynchronised(record LocMachDrawerVc LocMachDrawerr,string tagstr)
+begin
+  Boolean res;
+  
+  res = true; LogText(0,"LocMachDrawerVcRecordShouldBeSynchronised");
+  LocMachDrawerVcRecordShouldBeSynchronised = res;
+  return;
+end;
+
+global 
+function Boolean LocMachDrawerVcRecordSync(record LocMachDrawerVc LocMachDrawerr,string tagstr)
+begin
+  Boolean res;
+  
+  res = true; LogText(0,"LocMachDrawerVcRecordSync");
+  LocMachDrawerVcRecordSync = res;
+  return;
+end;
+
 global //Edit***************************Sasha2,11:22 22.09.2016 {
 updating procedure CustomRegisterRemoveMn(record RcVc RepSpec)
 begin

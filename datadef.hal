@@ -544,6 +544,13 @@ BlockBegin(LocMachDrawerBlock,-,"");
   EndArray;
 EndBlock;
 
+RecordBegin(LocMachDrawerVc,-,"");
+  NewAutosyncRegister(kSyncDirectionToClient,true);
+  RecordField(MachineCode,M4Str,20,0);
+  RecordField(DrawerCode,M4Str,20,0);
+  MainKeyBegin(MachineCode,0);
+  KeySegment(MachineCode);
+EndRecord;
 
 return;
 end;

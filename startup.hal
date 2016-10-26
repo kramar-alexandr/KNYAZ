@@ -3,13 +3,16 @@ event startup
 begin
   SetLangMode(LangRussian,"RUS",0);
   
-  Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
   Setting("Перепечатать чек",ReprintingFiscalReceiptTClass,modPOS);
   Setting("Печать на фискальном принтере",FiscalPrintingTClass,modPOS);
   Setting("Локальные настройки фискального принтера",FiscalSetLocalTClass,modPOS);
   Setting("Локальная машина - ящик",LocMachDrawerTCLass,modPOS);
+  Setting("Локальная машина - ящик_vc",LocMachDrawerLClass,modPOS);
+  
+  Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
   
   Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
+  
   Maintenance("Удалить все записи",CustomRegisterRemoveVClass,CustomRegisterRemoveMn,modDBMain);
   Maintenance("Удалить все записи по POS",POSRegistersRemoveVClass,POSRegistersRemoveMn,modDBMain);
 
