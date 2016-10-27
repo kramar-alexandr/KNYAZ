@@ -614,7 +614,7 @@ not ready yet
 			RecordNew(IVCashr);
 	//      IVCashr.CustCode = LMb.DefCustCode;
 			//IVCashVcRecordDefaultsClientRemote(IVCashr,LMb);
-			nwn = OpenWindow("IVCashLClass",1,0,"","",IVCashr);
+			nwn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
 			nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);    
 			//DeselectWindow(nwn,false);
 			//WindowFieldGoto(nwn,IVCashr,-1,"ivcashcommand",false);
