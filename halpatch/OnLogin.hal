@@ -500,6 +500,8 @@ LOtherwise01:;
       reshot = false;
     end;
   end;*/
+  
+	
   if (forcestockmaint>0) then begin
     if ((ProgramType!=typFirstOffice) and 
         (IsBooks==false)) then begin
@@ -602,6 +604,25 @@ not ready yet
 */
   
 //  OnLogin2;
+
+// Edit Start ---------------------------------------------- Edit Start
+	//Thursday, 27 October 2016 16:37:01
+	
+  //if(SingleUserMode)then begin
+  	if(currentuser=="PER1" or currentuser=="PER2" or currentuser=="STA1" or currentuser=="STA2")then begin
+			BlockLoad(LMb);
+			RecordNew(IVCashr);
+	//      IVCashr.CustCode = LMb.DefCustCode;
+			//IVCashVcRecordDefaultsClientRemote(IVCashr,LMb);
+			nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);    
+			//DeselectWindow(nwn,false);
+			//WindowFieldGoto(nwn,IVCashr,-1,"ivcashcommand",false);
+			WindowFieldGotoForTouchScreen(nwn,-1,"ivcashcommand",false);
+		end;
+  //end;
+  
+	// Edit End ---------------------------------------------- Edit End
+
 LOnLogin:;
   OnLogin = res/* and (forcestockmaint==0)*/;//when offline records it should not open Master Control
   RETURN;
