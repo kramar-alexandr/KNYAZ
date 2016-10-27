@@ -7,7 +7,7 @@ begin
   Setting("Печать на фискальном принтере",FiscalPrintingTClass,modPOS);
   Setting("Локальные настройки фискального принтера",FiscalSetLocalTClass,modPOS);
   Setting("Локальная машина - ящик",LocMachDrawerTCLass,modPOS);
-  Setting("Локальная машина - ящик_vc",LocMachDrawerLClass,modPOS);
+  //Setting("Локальная машина - ящик_vc",LocMachDrawerLClass,modPOS);
   
   Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
   

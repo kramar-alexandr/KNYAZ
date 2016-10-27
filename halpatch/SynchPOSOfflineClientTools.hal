@@ -18,6 +18,7 @@ remote updating procedure POSServToOffLine_SynchBefSettings(Integer,Integer,
                         var LongInt,var LongInt,var LongInt,var LongInt,var LongInt,
                         var LongInt,var LongInt,var LongInt,var LongInt,var LongInt,
                         var LongInt);
+remote updating procedure GetCustomBlocksFromServer(string); //Edit***************************Sasha2,16:42 26.10.2016
 
 procedure SetupSynkLastNumber(var record SynkDBIDRegVc SynkDBIDRegr)
 begin
@@ -684,7 +685,7 @@ begin
   record LocalMachineBlock LMb;
   Integer di,dinvacnt;
   Array LongInt delinvarr;
-  Array Boolean delinvarrf; LogText(0,"Client POSOffLineToServ_SynchRegisters");
+  Array Boolean delinvarrf;
   
   curcomp = CurrentCompany;
   switch (SyncSumPOS) begin
@@ -906,6 +907,7 @@ begin
   
   asyncremote.SynkMachineRegister(CurrentUser,SynkDBIDRegr,LMb.LocalMachineCode);
   asyncremote.SynkGlobalMachineRegister(CurrentUser,SynkGlobalDBIDRegr,LMb.LocalMachineCode);
+  asyncremote.GetCustomBlocksFromServer(CurrentUser); //Edit***************************Sasha2,16:29 26.10.2016
   
   SetCompanyProgramMode(oldprogmode);
   
@@ -936,3 +938,35 @@ begin
     SetupGlobalSynkMachine(SynkGlobalDBIDRegr);
   end;
 end;
+
+global //Edit***************************Sasha2,16:36 26.10.2016 {
+updating procedure GetCustomBlocksFromServerCallback(record LocMachDrawerBlock sourceLMDB)
+begin
+  record LocMachDrawerBlock LMDB;
+  row LocMachDrawerBlock LMDBw,sourceLMDBw;
+  integer i,rwcnt,sourceRwcnt;
+  Boolean savef;
+  
+  BlockLoad(LMDB);
+  rwcnt = MatRowCnt(LMDB);
+  sourceRwcnt = MatRowCnt(sourceLMDB);
+  if (rwcnt!=sourceRwcnt) then begin
+    savef = true;
+  end;
+  if (savef==false) then begin
+    for (i=0;i<rwcnt;i=i+1) begin
+      MatRowGet(LMDB,i,LMDBw);
+      MatRowGet(sourceLMDB,i,sourceLMDBw);
+      if (LMDBw.MachineCode!=sourceLMDBw.MachineCode or LMDBw.DrawerCode!=sourceLMDBw.DrawerCode) then begin
+        savef = true;
+        i = rwcnt;
+      end;
+    end;  
+  end;
+  
+  if (savef) then begin
+    BlockStore(sourceLMDB);
+  end;
+  
+  return;
+end; //Edit***************************Sasha2,16:36 26.10.2016 }

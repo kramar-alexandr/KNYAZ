@@ -536,7 +536,7 @@ RecordAddBegin(VIVc,"VIVc_Custom");
 EndRecordAdd;
 
 BlockBegin(LocMachDrawerBlock,-,"");
-  NewAutosyncHBlock(kSyncDirectionToClient);
+  //NewAutosyncHBlock(kSyncDirectionToClient);
   RecordField(Math,M4Matrix,0,0);
   ArrayBegin(Math,-,1);
   ArrayField(MachineCode,M4Str,20,0);
@@ -544,13 +544,13 @@ BlockBegin(LocMachDrawerBlock,-,"");
   EndArray;
 EndBlock;
 
-RecordBegin(LocMachDrawerVc,-,"");
+/*RecordBegin(LocMachDrawerVc,-,"");
   NewAutosyncRegister(kSyncDirectionToClient,true);
   RecordField(MachineCode,M4Str,20,0);
   RecordField(DrawerCode,M4Str,20,0);
   MainKeyBegin(MachineCode,0);
   KeySegment(MachineCode);
-EndRecord;
+EndRecord;*/
 
 return;
 end;

@@ -10,6 +10,7 @@ external function Boolean PUVc_PasteVECode(var record PUVc);
 external procedure IVDchsum(var record IVVc,Integer);
 external updating procedure SynkMachineRegisterCallback(Boolean,record SynkDBIDRegVc,record LocalMachineSetVc,record LocalMachineLoginVc);
 external updating procedure SynkGlobalMachineRegisterCallback(Boolean,record SynkGlobalDBIDRegVc);
+external updating procedure GetCustomBlocksFromServerCallback(record LocMachDrawerBlock); //Edit***************************Sasha2,16:28 26.10.2016
 
 global 
 function Boolean CTypeVcRecordShouldBeSynchronised(record CTypeVc CTyper,string tagstr)
@@ -863,3 +864,14 @@ begin
   end;
   return;
 end;
+
+global //Edit***************************Sasha2,16:24 26.10.2016 {
+updating procedure GetCustomBlocksFromServer(string usercode)
+begin
+  record LocMachDrawerBlock LMDB;
+  
+    BlockLoad(LMDB);
+    clientremoteasync.GetCustomBlocksFromServerCallback(LMDB);
+    
+  return;
+end; //Edit***************************Sasha2,16:24 26.10.2016 }
