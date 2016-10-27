@@ -612,8 +612,8 @@ not ready yet
   	if(currentuser=="PER1" or currentuser=="PER2" or currentuser=="STA1" or currentuser=="STA2")then begin
 			BlockLoad(LMb);
 			RecordNew(IVCashr);
-	//      IVCashr.CustCode = LMb.DefCustCode;
-			//IVCashVcRecordDefaultsClientRemote(IVCashr,LMb);
+	//      IVCashr.CustCode = LMb.DefCustCode;		
+			IVCashVcRecordDefaultsClientRemote(IVCashr,LMb);
 			nwn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
 			nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);    
 			//DeselectWindow(nwn,false);
