@@ -609,17 +609,17 @@ not ready yet
 	//Thursday, 27 October 2016 16:37:01
 	
   //if(SingleUserMode)then begin
-  	if(currentuser=="PER1" or currentuser=="PER2" or currentuser=="STA1" or currentuser=="STA2")then begin
-			BlockLoad(LMb);
-			RecordNew(IVCashr);
+  	//if(currentuser=="PER1" or currentuser=="PER2" or currentuser=="STA1" or currentuser=="STA2")then begin
+			//BlockLoad(LMb);
+			//RecordNew(IVCashr);
 	//      IVCashr.CustCode = LMb.DefCustCode;		
-			IVCashVcRecordDefaultsClientRemote(IVCashr,LMb);
-			nwn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
-			nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);    
+			//IVCashVcRecordDefaultsClientRemote(IVCashr,LMb);
+			//nwn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
+			//nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);    
 			//DeselectWindow(nwn,false);
 			//WindowFieldGoto(nwn,IVCashr,-1,"ivcashcommand",false);
-			WindowFieldGotoForTouchScreen(nwn,-1,"ivcashcommand",false);
-		end;
+			//WindowFieldGotoForTouchScreen(nwn,-1,"ivcashcommand",false);
+		//end;
   //end;
   
 	// Edit End ---------------------------------------------- Edit End

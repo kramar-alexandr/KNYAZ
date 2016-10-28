@@ -301,7 +301,21 @@ begin
   Integer wn;
     
     RECORDNEW(IVCashr);
-    OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+    wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
+    WindowDoNew(wn,0);
+    //OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
+  
+end; //Edit***************************Sasha2,14:39 03.10.2016 }
+
+global //Edit***************************Sasha2,14:39 03.10.2016 {
+updating procedure OpenFiscalPrintingSetting()
+begin
+  record RcVc RepSpec;
+  Boolean TrHs,testf;
+  Integer wn;
+    
+    RECORDNEW(RepSpec);
+    OpenWindow("FiscalPrintingTClass",1,0,"","",RepSpec);
   
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
