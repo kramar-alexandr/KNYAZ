@@ -293,6 +293,18 @@ begin
   
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
+global //Edit***************************Sasha2,14:39 03.10.2016 {
+updating procedure OpenNewIVcashInvoice()
+begin
+  record IVCashVc IVCashr;
+  Boolean TrHs,testf;
+  Integer wn;
+    
+    RECORDNEW(IVCashr);
+    OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+  
+end; //Edit***************************Sasha2,14:39 03.10.2016 }
+
 function Integer HashTouchScreenPageCode(string tstr)
 begin
   LongInt sum;
