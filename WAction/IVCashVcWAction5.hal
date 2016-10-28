@@ -304,7 +304,7 @@ begin
   Boolean TrHs,testf;
   Integer wn;
     
-    RECORDNEW(IVCashr);
+    //RECORDNEW(IVCashr);
     wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
     SetWindowSubset(wn,CurMachineName);
     WindowDoNew(wn,0);
