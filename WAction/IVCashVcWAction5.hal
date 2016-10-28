@@ -306,6 +306,7 @@ begin
     
     RECORDNEW(IVCashr);
     wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
+    SetWindowSubset(wn,CurMachineName);
     WindowDoNew(wn,0);
     //OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
   
