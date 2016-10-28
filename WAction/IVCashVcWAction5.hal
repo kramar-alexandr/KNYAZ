@@ -258,8 +258,10 @@ begin
         DeselectWindow(wn,false);
         GetWindowRecord(wn,IVCashr);
         if (LoopMain(IVCashr,1,true) and LoopMain(IVCashr,1,true)) then begin
-          CloseWindow(wn);
-          OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+          if (NonBlank(IVcashr.SalesMan)) then begin
+            CloseWindow(wn);
+            OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+          end;
         end;
         WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",true);
       end;
@@ -284,8 +286,10 @@ begin
         DeselectWindow(wn,false);
         GetWindowRecord(wn,IVCashr);
         if (LoopBackKey("SerNr",IVCashr,1,true) and LoopBackKey("SerNr",IVCashr,1,true)) then begin
-          CloseWindow(wn);
-          OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+          if (NonBlank(IVcashr.SalesMan)) then begin
+            CloseWindow(wn);
+            OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+          end;
         end;
         WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",true);
       end;
