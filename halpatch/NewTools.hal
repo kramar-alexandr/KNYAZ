@@ -526,7 +526,7 @@ begin
   GenerateOPVcFromVI(VIr,OPr,res,createf);
   
   if (createf) then begin
-    pos = 0;
+    /*pos = 0;
     ExtractObj(VIr.Objects,pos,curObj);
     while (nonblank(curObj)) begin
       Objr.Code = curObj;
@@ -541,6 +541,10 @@ begin
         end;
       end;
       ExtractObj(VIr.Objects,pos,curObj);
+    end;*/
+    switch (CurrentCompany) begin
+      case 1: pmcode = "C1";
+      case 3: pmcode = "C2";
     end;
     if (NonBlank(pmcode)) then begin
       OPr.PayMode = pmcode;
