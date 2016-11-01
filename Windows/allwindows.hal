@@ -270,6 +270,7 @@ begin
 
     v = v + es + vs;
     ColourPushButton(h-150,v,h,v+80,"OpenNewIVcashInvoice","Новая счет/фактура",10);
+    //HalPushButton(h-150,v,h,v+80,"OpenNewIVcashInvoice","Новая счет/фактура");
     ColourPushButton(h+10,v,h+160,v+80,"OpenFiscalPrintingSetting","Печать на фиск.принтере",10);
     
     if (nonblank(USetStr(915)) or WhiteLabel==false) then begin

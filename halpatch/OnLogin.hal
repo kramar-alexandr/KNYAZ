@@ -673,7 +673,7 @@ begin
   end;
   
 LOnLoginAfterMaster99:;
-  OnLoginAutomatedSales;
+  //OnLoginAutomatedSales; //Edit***************************Sasha2,12:51 31.10.2016
 end;
 
 global
