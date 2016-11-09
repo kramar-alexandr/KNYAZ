@@ -1071,6 +1071,15 @@ begin
     if (mwn!=0) then begin
       switch (GetWindowFileName(mwn)) begin
         case "IVCashVc":
+          if (GetWindowString(mwn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,16:23 09.11.2016 {
+            if (RepSpec.vals0>0) then begin
+              RepSpec.vals0 = -RepSpec.vals0;
+            end;
+          end else begin
+            if (RepSpec.vals0<0) then begin
+              RepSpec.vals0 = -RepSpec.vals0;
+            end;
+          end; //Edit***************************Sasha2,16:23 09.11.2016 }
           rownr = RepSpec.long1;
           DeselectWindow(mwn,false);
           GetWindowRecord(mwn,IVCashr);
@@ -1093,23 +1102,48 @@ begin
   return;
 end;
 
-global
-function Boolean AmendLineNPTSSClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+//_____________________________________
+//Edit***************************Sasha2,15:58 09.11.2016 {
+function Boolean AmendLineNPTSSClassAfterEditFieldExecute(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 begin
   Boolean res;
-
+  
   switch (fieldname) begin
     case "vals0": res = AmendLineNPTSSClassQuantEFAfter(wn,changed!=0);
     case "vals1": res = AmendLineNPTSSClassPriceEFAfter(wn,rownr,changed!=0);
     case "vals2": res = AmendLineNPTSSClassvRebateEFAfter(wn,rownr,changed!=0);
     case "vals3": res = AmendLineNPTSSClassSumEFAfter(wn,rownr,changed!=0);
   end;
+  
+  AmendLineNPTSSClassAfterEditFieldExecute = res;
+  return;
+end; //Edit***************************Sasha2,15:58 09.11.2016 }
+
+global
+function Boolean AmendLineNPTSSClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+    res = AmendLineNPTSSClassAfterEditFieldExecute(wn,fieldname,fn, rownr,changed);
+  
   AmendLineNPTSSClassAfterEditField = res;
   return;
 end;
 
-global
-function Boolean AmendLineNPTSSClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+global //Edit***************************Sasha2,16:00 09.11.2016 {
+function Boolean AmendLineNPTSRestrictedSClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+    res = AmendLineNPTSSClassAfterEditFieldExecute(wn,fieldname,fn, rownr,changed);
+  
+  AmendLineNPTSRestrictedSClassAfterEditField = res;
+  return;
+end; //Edit***************************Sasha2,16:00 09.11.2016 }
+
+//_____________________________________
+//Edit***************************Sasha2,15:58 09.11.2016 {
+function Boolean AmendLineNPTSSClassActiveEditFieldExecute(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 begin
   Boolean res;
   Integer mwn;
@@ -1142,10 +1176,33 @@ begin
       res = RepSpec.long2!=kInvoiceRowTypeDownpayment;
   end;
   
+  AmendLineNPTSSClassActiveEditFieldExecute = res;
+  return;
+end; //Edit***************************Sasha2,15:58 09.11.2016 }
+
+global
+function Boolean AmendLineNPTSSClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+    res = AmendLineNPTSSClassActiveEditFieldExecute(wn,fieldname,fn,rownr,changed);
+  
   AmendLineNPTSSClassActiveEditField = res;
   return;
 end;
 
+global //Edit***************************Sasha2,16:04 09.11.2016 {
+function Boolean AmendLineNPTSRestrictedSClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+    res = AmendLineNPTSSClassActiveEditFieldExecute(wn,fieldname,fn,rownr,changed);
+  
+  AmendLineNPTSRestrictedSClassActiveEditField = res;
+  return;
+end; //Edit***************************Sasha2,16:04 09.11.2016 }
+
+//_____________________________________
 global
 updating function boolean AmendLineNPTSSClassOnOKWindow(integer wn)
 begin
@@ -1153,20 +1210,48 @@ begin
   return;
 end;
 
+global //Edit***************************Sasha2,16:04 09.11.2016 {
+updating function boolean AmendLineNPTSRestrictedSClassOnOKWindow(integer wn)
+begin
+  ProceedAmendLineNPTSSClassExecute(wn);
+  return;
+end; //Edit***************************Sasha2,16:04 09.11.2016 }
+
+//_____________________________________
+//Edit***************************Sasha2,16:10 09.11.2016 {
+function Boolean AmendLineNPTSRestrictedSClassOnEnterKeyExecute(Integer wn,string fieldname,Integer fn,Integer rownr)
+begin
+  Boolean res;
+    
+    res = true;
+    switch (fieldname) begin
+      case "vals2":
+        SelectButton(wn,"ProceedAmendLineNPTSSClass");
+        res = false;
+    end;
+    AmendLineNPTSRestrictedSClassOnEnterKeyExecute = res;
+  return;
+end; //Edit***************************Sasha2,16:10 09.11.2016 }
+
 global
 function Boolean AmendLineNPTSSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
 begin
   Boolean res;
   
-  res = true;
-  switch (fieldname) begin
-    case "vals2":
-      SelectButton(wn,"ProceedAmendLineNPTSSClass");
-      res = false;
-  end;
-  AmendLineNPTSSClassOnEnterKey = res;
+    res = AmendLineNPTSRestrictedSClassOnEnterKeyExecute(wn,fieldname,fn,rownr);
+    AmendLineNPTSSClassOnEnterKey = res;
   return;
 end;
+
+global //Edit***************************Sasha2,16:05 09.11.2016 {
+function Boolean AmendLineNPTSRestrictedSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
+begin
+  Boolean res;
+    
+    res = AmendLineNPTSRestrictedSClassOnEnterKeyExecute(wn,fieldname,fn,rownr);
+    AmendLineNPTSRestrictedSClassOnEnterKey = res;
+  return;
+end; //Edit***************************Sasha2,16:05 09.11.2016 }
 
 global
 function Boolean LoyalCardNPTSSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
