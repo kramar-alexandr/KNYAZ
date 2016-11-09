@@ -12,6 +12,7 @@ begin
   Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
   
   Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
+  Import("Импорт остатков",ImportStockRemains2IClass,ImportStockRemains2In,modIN);
   
   Maintenance("Удалить все записи",CustomRegisterRemoveVClass,CustomRegisterRemoveMn,modDBMain);
   Maintenance("Удалить все записи по POS",POSRegistersRemoveVClass,POSRegistersRemoveMn,modDBMain);

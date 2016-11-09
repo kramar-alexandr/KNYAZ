@@ -809,15 +809,15 @@ u might want to put loyalty card or bagger 1st
       end;
     end;
   end;
-  if (UserCanAction("UnOKAll",true) == false and RequireOpenSession(IVCashr.LocalMachineCode)) then begin
+  if (UserCanAction("UnOKAll",true) == false /*and RequireOpenSession(IVCashr.LocalMachineCode)*/) then begin //Edit***************************Sasha2,9:56 07.11.2016
     if (IVCashr.OKFlag==0) then begin
       IVCashr.TransDate = CurrentDate;
     end;
-    if (IsSessionOpen(IVCashr.LocalMachineCode,IVCashr.DrawerCode,IVCashr.TransDate,IVCashr.TransTime)==false) then begin
+    /*if (IsSessionOpen(IVCashr.LocalMachineCode,IVCashr.DrawerCode,IVCashr.TransDate,IVCashr.TransTime)==false) then begin //Edit***************************Sasha2,9:56 07.11.2016
       RecordCheckError(2195,"",-1,"SerNr");      
       res = -1;
       goto LIVCashVcRecordCheck;
-    end;
+    end;*/
   end;
   
   if (CLb.IVSave==1) then begin  
