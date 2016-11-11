@@ -49,7 +49,7 @@ BEGIN
   RETURN;
 END;
 
-// Same as RecordCheck function, minus the Serial Number
+// Same as RecordCheck function, just without the Serial Number
 function LongInt POSEventVcCheck(var record POSEventVc POSEventr,record POSEventVc POSEvent2r,LongInt stat,LongInt long4)
 begin
   LongInt res;
@@ -133,7 +133,7 @@ LPOSEventVcRecordCheck:;
 end;
 
 global
-updating procedure OpenPOSSessionsm()
+updating procedure OpenPOSSessionsm(string locMach,time eventTm)
 begin
   record POSEventVc POSEr;
   record IVCashVc IVCashr;
@@ -142,11 +142,16 @@ begin
   record LocMachDrawerBlock LMDB; //Edit***************************Sasha2,10:49 17.10.2016
   row LocMachDrawerBlock LMDBw; //Edit***************************Sasha2,10:49 17.10.2016
   integer rwcnt,i; //Edit***************************Sasha2,10:49 17.10.2016
+  time blankt;
   
   mwn = CurWindow;
   RecordNew(POSEr);
-  POSEr.Drawer = CurDrawerCode(CurMachineName);
+  POSEr.MachineName = locMach;
+  POSEr.Drawer = CurDrawerCode(locMach);
   POSEr.Event = 1;
+  if (eventTm!=blankt) then begin
+    POSEr.TransTime = eventTm;
+  end;
   BlockLoad(LMDB);  //Edit***************************Sasha2,11:23 19.10.2016 {
   rwcnt = MatRowCnt(LMDB);
   for (i=0;i<rwcnt;i=i+1) begin

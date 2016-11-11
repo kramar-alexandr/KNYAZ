@@ -10,7 +10,7 @@ external procedure DoTheCashup(Integer,Integer,Integer,Integer,Integer,Integer,I
                       var array string,var array string,var array val,var array val,var array val,var array val,var array val,var array val,var array val,var Integer,
                       var array string,var array string,var array val,var array val,var array val,var array val,var array val,var array val,var array val,var Integer,
                       var record SMVc,var vector val,var Date);
-
+external updating procedure OpenPOSSessionsm(string,time); //Edit***************************Sasha2,14:51 08.09.2016
 
 function Boolean FindStartTimeOfLastPOSSession(var Date dfr,var Time tfr,string machine,string drawer)
 begin
@@ -245,7 +245,7 @@ BEGIN
   Time tfr;
   string 30 machine,drawer;
   val t;
-  Boolean addposbalf,storef;
+  Boolean addposbalf,storef,sessionIsOpenedF;
   vector val vstatussum;
   record CashierDefBlock CDb;
   
@@ -304,6 +304,7 @@ BEGIN
       end;
       if (storef) then begin
         if (RecordInsert(PEr,true)) then begin
+          sessionIsOpenedF = true; //Edit***************************Sasha2,11:30 11.11.2016
         end;
       end;
     end;
@@ -429,6 +430,10 @@ BEGIN
       end;
     end;
   end;
+  
+  if (sessionIsOpenedF and IsSessionOpen(machine,drawer,pdat,ptim)==false) then begin //Edit***************************Sasha2,11:31 11.11.2016
+    OpenPOSSessionsm(machine,ptim);
+  end;
 
   RETURN;
 END;
@@ -450,7 +455,7 @@ begin
   rwcnt = MatRowCnt(LMDB); //Edit***************************Sasha2,10:23 17.10.2016 {
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(LMDB,i,LMDBw);
-    if (NonBlank(LMDBw.MachineCode) and NonBlank(LMDBw.DrawerCode)) then begin
+    if (NonBlank(LMDBw.MachineCode) and NonBlank(LMDBw.DrawerCode)) then begin 
       RunTheCashupMn(LMDBw.MachineCode,LMDBw.DrawerCode,RepSpec.f5,RepSpec.d1,RepSpec.sStartTime,RepSpec.ArtMode,RepSpec.flags[1],RepSpec.flags[2],RepSpec.flags[3],RepSpec.flags[4],RepSpec.flags[8]);
     end;
   end; //Edit***************************Sasha2,10:23 17.10.2016 }

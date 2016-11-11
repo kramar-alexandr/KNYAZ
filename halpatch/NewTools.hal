@@ -612,3 +612,21 @@ LDeleteAutoPaidOPFromVI:;
   DeleteAutoPaidOPFromVI = res;
   return;
 end;
+
+global //Edit***************************Sasha2,11:22 22.09.2016 {
+updating procedure SetUnitTextInItemIfNeededMn(record RcVc RepSpec)
+begin
+  record INVc INr;	
+
+	 if (NonBlank(RepSpec.f1)) then begin
+	   INr.Code = "";
+	   while (LoopMain(INr,1,true)) begin
+  		if (Blank(INr.Unittext)) then begin
+  		  INr.Unittext = RepSpec.f1;
+  		  RECORDSTORE(INr,true);
+  		end;
+  	end;
+	 end;
+
+return;
+end; //Edit***************************Sasha2,11:22 22.09.2016 }

@@ -171,15 +171,24 @@ begin
 	string 255 code, var1,var2,collection;
 	Boolean datewarnf,warnoldrecordsf,warnfutdatef;
 	string 255 warning,inwarn;
-	integer rownr,qty;
+	integer rownr,qty,i,l;
 	val cost;
+	string 1 c;
 	
-	location = ImportField;
+	var1 = ImportField;
 	NextImportLine(true);
 	
-	if (blank(location)) then begin
+	if (blank(var1)) then begin
 		goto LImportStockRemains2In;
 	end;
+	
+	l = len(var1);  
+  for (i=0;i<l;i=i+1) begin
+    c = Mid(var1,i,1);
+    if (asc(c)>=32) then begin
+      location = location & c;
+    end;
+  end;
 	
 	RecordNew(PUr);
 	PUr.SerNr = NextSerNr("PUVc",PUr.TransDate,-1,false,"");
@@ -207,7 +216,7 @@ begin
 			PUrw.Location = location;
       MatRowPut(PUr,rownr,PUrw);
 			rownr = rownr + 1;
-			if(rownr>999)then begin
+			if(rownr>998)then begin
 				PUSumUp(PUr);
 				RecordInsert(PUr,true);
 				logtext(0,"PU Imported " & PUr.SerNr);
