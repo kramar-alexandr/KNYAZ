@@ -50,6 +50,7 @@ begin
 	record FBVc FBr;
 	record ItemHistVc IHr;
 	record ItemStatusVc ISr;
+	record SerBalVc SerBalr;
 	record PPVc PPr;
 	record CUVc CUr;
 	record INVc INr;
@@ -248,7 +249,14 @@ begin
 	    StepBack(ISr);
 	  end;
 	end;
-
+	
+	TrHs = true;
+	while (LoopMain(SerBalr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SerBalr);
+	    StepBack(SerBalr);
+	  end;
+	end; 
 
 	TrHs = true;
 	while (LoopMain(PPr,1,TrHs)) begin
@@ -293,14 +301,6 @@ begin
 	  if (TrHs) then begin
 	    RecordDelete(IPrsr);
 	    StepBack(IPrsr);
-	  end;
-	end; 
-	
-	TrHs = true;
-	while (LoopMain(SerBalr,1,TrHs)) begin
-	  if (TrHs) then begin
-	    RecordDelete(SerBalr);
-	    StepBack(SerBalr);
 	  end;
 	end; 
 	
