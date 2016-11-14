@@ -57,6 +57,7 @@ begin
 	record ARVc ARr;
 	record OPrsVc OPrsr;
 	record IPrsVc IPrsr;
+	record SerBalVc SerBalr;
 	
 	record SynkDBIDRegVc SynkDBIDRegr;
 	record SynkGlobalDBIDRegVc SynkGlobalDBIDRegr;
@@ -292,6 +293,14 @@ begin
 	  if (TrHs) then begin
 	    RecordDelete(IPrsr);
 	    StepBack(IPrsr);
+	  end;
+	end; 
+	
+	TrHs = true;
+	while (LoopMain(SerBalr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SerBalr);
+	    StepBack(SerBalr);
 	  end;
 	end; 
 	
