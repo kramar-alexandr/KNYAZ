@@ -314,6 +314,9 @@ BEGIN
   LongInt res;
 
   res = 0;
+  if (left(CurrentUser,2)=="SA") then begin //Edit***************************Sasha2,15:28 14.11.2016
+    res = 1;
+  end;
   POSEventVcRecordRemoveTest = res; 
   RETURN;
 END;

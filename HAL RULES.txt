@@ -1,2 +1,3 @@
 halpatch/IVCashVcWActionTool.hal
+halpatch/Tools25.hal
 RAction/IVCashRecAction.hal
