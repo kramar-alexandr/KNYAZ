@@ -199,7 +199,7 @@ begin
     res = -1; 
     goto LPOSEventVcRecordCheck;  
   end;  
-  if (blank(CurMachineName)) then begin
+  if (UserCanAction("UnOKAll",false) == false and blank(CurMachineName)) then begin //Edit***************************Sasha2,10:06 14.11.2016 UserCanAction("UnOKAll",true) == false
     RecordCheckError(1757,"",-1,"MachineName");   
     res = -1; 
     goto LPOSEventVcRecordCheck;  
