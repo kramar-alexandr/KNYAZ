@@ -58,6 +58,12 @@ begin
 	record OPrsVc OPrsr;
 	record IPrsVc IPrsr;
 	
+	record SynkDBIDRegVc SynkDBIDRegr;
+	record SynkGlobalDBIDRegVc SynkGlobalDBIDRegr;
+	record SynkDBIDTakenSerVc SynkDBIDTakenSerr;
+	record SynkGlobalDBIDTakenSerVc SynkGlobalDBIDTakenSerr;
+	record SynkGlobalAutoSerVc SynkGlobalAutoSerr;
+
 	Boolean TrHs;
 	
 
@@ -288,6 +294,47 @@ begin
 	    StepBack(IPrsr);
 	  end;
 	end; 
+	
+	//Clear up allocated serial numbers 
+	TrHs = true;
+	while (LoopMain(SynkDBIDRegr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SynkDBIDRegr);
+	    StepBack(SynkDBIDRegr);
+	  end;
+	end; 
+	
+	TrHs = true;
+	while (LoopMain(SynkGlobalDBIDRegr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SynkGlobalDBIDRegr);
+	    StepBack(SynkGlobalDBIDRegr);
+	  end;
+	end; 
+	
+	TrHs = true;
+	while (LoopMain(SynkDBIDTakenSerr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SynkDBIDTakenSerr);
+	    StepBack(SynkDBIDTakenSerr);
+	  end;
+	end;
+	
+	TrHs = true;
+	while (LoopMain(SynkGlobalDBIDTakenSerr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SynkGlobalDBIDTakenSerr);
+	    StepBack(SynkGlobalDBIDTakenSerr);
+	  end;
+	end;
+	
+	TrHs = true;
+	while (LoopMain(SynkGlobalAutoSerr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SynkGlobalAutoSerr);
+	    StepBack(SynkGlobalAutoSerr);
+	  end;
+	end;
 
 return;
 end; //Edit***************************Sasha2,11:22 22.09.2016 }
