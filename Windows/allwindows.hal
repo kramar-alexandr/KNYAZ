@@ -2707,7 +2707,7 @@ begin
         CheckBox(20,-60,0,"Печатать чек",MakeFiscalReceiptF); //Edit***************************Sasha2,11:28 13.09.2016
         //SoftEditField(110,-22,200,"Товар/Команда",Normal ,"ivcashcommand",false,INSClass,M4Str,255);
         SoftEditFieldTLX(110,-27,250,"Товар",M4Str,Normal,100,20,patM4black,"ivcashcommand",false,INSClass);
-        ColourPushButton(-420,-45,-300,-5,"OpenNewIVcashInvoice","Новая",2);
+        ColourPushButton(-420,-45,-300,-5,"OpenNewIVcashInvoice","Новая",4);
         ColourPushButton(-280,-45,-150,-5,"GetPrevIVcashInvoice","Пред.",2); //Edit***************************Sasha2,14:11 03.10.2016
         ColourPushButton(-130,-45,-20,-5,"GetNextIVcashInvoice","След.",2); //Edit***************************Sasha2,14:11 03.10.2016
       case kPOSButtonsPositionRight:
