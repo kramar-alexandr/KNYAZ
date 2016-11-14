@@ -45,6 +45,8 @@ begin
 	record StockMovVc StockMovr;
 	record RetVc Retr;
 	record RetPUVc RetPUr;
+	record StockTakeVc StockTaker;
+	record SRVc SRr;
 	record ORVc ORr;
 	record TRVc TRr;
 	record FBVc FBr;
@@ -58,7 +60,6 @@ begin
 	record ARVc ARr;
 	record OPrsVc OPrsr;
 	record IPrsVc IPrsr;
-	record SerBalVc SerBalr;
 	
 	record SynkDBIDRegVc SynkDBIDRegr;
 	record SynkGlobalDBIDRegVc SynkGlobalDBIDRegr;
@@ -301,6 +302,22 @@ begin
 	  if (TrHs) then begin
 	    RecordDelete(IPrsr);
 	    StepBack(IPrsr);
+	  end;
+	end; 
+	
+	TrHs = true;
+	while (LoopMain(StockTaker,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(StockTaker);
+	    StepBack(StockTaker);
+	  end;
+	end; 
+	
+	TrHs = true;
+	while (LoopMain(SRr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(SRr);
+	    StepBack(SRr);
 	  end;
 	end; 
 	

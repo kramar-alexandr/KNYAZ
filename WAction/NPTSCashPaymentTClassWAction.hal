@@ -1225,6 +1225,9 @@ begin
     
     res = true;
     switch (fieldname) begin
+      case "vals1":
+        SelectButton(wn,"ProceedAmendLineNPTSSClass");
+        res = false;
       case "vals2":
         SelectButton(wn,"ProceedAmendLineNPTSSClass");
         res = false;

@@ -190,8 +190,18 @@ begin
   Integer wn;
     
     //RECORDNEW(IVCashr);
-    wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
-    WindowDoNew(wn,0);
+    wn = CurWindow;
+    switch (GetWindowClass(wn)) begin
+      case "NPTSIVCashDClass":
+        testf = true;
+        //if (WindowState(wn)==Rs_insert) then begin
+          //testf = WindowDoOK(wn,0);
+        //end;
+        WINDOWDONEW(wn,0);
+      otherwise
+        wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
+        WindowDoNew(wn,0);
+    end;
     //OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
   
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
