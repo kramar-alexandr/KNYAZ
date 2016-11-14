@@ -194,10 +194,12 @@ begin
     switch (GetWindowClass(wn)) begin
       case "NPTSIVCashDClass":
         testf = true;
-        //if (WindowState(wn)==Rs_insert) then begin
-          //testf = WindowDoOK(wn,0);
-        //end;
-        WINDOWDONEW(wn,0);
+        if (WindowState(wn)==Rs_insert) then begin
+          testf = false; /*WindowDoOK(wn,0)*/
+        end;
+        if (testf) then begin
+          WINDOWDONEW(wn,0);
+        end;
       otherwise
         wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
         WindowDoNew(wn,0);
