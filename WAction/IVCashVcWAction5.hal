@@ -103,7 +103,7 @@ forward procedure IVCashDClassTouchScreenAmendLine(); //Edit********************
 SetLangMode(LangRussian,"RUS",0); 
 
 global 
-updating procedure PrintFiscalReceipt() //Edit***************************Sasha2,16:19 13.06.2016 {
+updating procedure PrintIVCashFiscalReceiptAndUpdatePrintFlag() //Edit***************************Sasha2,16:19 13.06.2016 {
 begin
 	record IVCashVc IVCashr;
 	integer wn;
@@ -128,8 +128,8 @@ begin
         IVCashr.FiscalFlag = 1;
       end;
       IVCashr.PrintFlagCounter = IVCashr.PrintFlagCounter + 1;
-      //RECORDSTORE(IVCashr,true);
       PutWindowRecord(wn,IVCashr);
+      RECORDSTORE(IVCashr,true);
     end;
   end;
   
@@ -137,7 +137,7 @@ end; //Edit***************************Sasha2,16:19 13.06.2016 }
 
 
 global 
-updating procedure ReprintFiscalReceipt()	//Edit***************************Sasha2,16:20 13.06.2016 {
+updating procedure RePrintIVCashFiscalReceiptAndUpdatePrintFlag()	//Edit***************************Sasha2,16:20 13.06.2016 {
 begin
 	integer wn;
 	record RcVc RepSpec;
@@ -1601,7 +1601,6 @@ begin
   end;
   if (err==0) then begin
     PutWindowRecord(wn,IVCashr);
-    PrintFiscalReceipt;
     
     save_recordf = true;      
     new_recordf = newf;
@@ -1610,6 +1609,8 @@ begin
         IVCashr.OKFlag = 0;
         PutWindowRecord(wn,IVCashr);
         new_recordf = false;
+      end else begin
+        PrintIVCashFiscalReceiptAndUpdatePrintFlag; //Edit***************************Sasha2,13:34 15.11.2016
       end;
     end;
   end;
