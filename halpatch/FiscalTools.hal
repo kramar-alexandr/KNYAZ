@@ -14,6 +14,8 @@ begin
 		WriteAreaToFile(filedata,Fiskalblock.StoragePath & "\\" & fileName & tick & ".txt",0);
 		if (FileExists(Fiskalblock.StoragePath & "\\" & fileName & tick & ".txt")==false) then begin
 		  MessageBox(50003,"");
+		end else begin
+		  CreateFile(Fiskalblock.StoragePath & "\\" & "FMCommandFlag.txt");
 		end;
 	//end;
 end;
