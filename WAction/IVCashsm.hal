@@ -18,6 +18,8 @@ remote procedure IVCashSumup(var record IVCashVc,Boolean);
 external procedure WindowFieldGotoForTouchScreen(Integer,Integer,string,Boolean);
 external procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
 external updating function LongInt IVCashVcRecordDefaultsClient(LongInt,var record IVCashVc,record IVCashVc,LongInt,LongInt);
+external updating procedure PrintFiscalReceipt();
+remote updating function LongInt IVCashVcRecordCheck(var record IVCashVc,record IVCashVc,LongInt,LongInt);
 
 global
 updating procedure IVCashToORsm()
@@ -524,6 +526,15 @@ begin
   IVCashr.OKFlag = 1;
   prevRetValue = IVCashr.RetValue;
   PutWindowRecord(wn,IVCashr);
+  if (IVCashr.MakeFiscalReceiptF==1) then begin
+    GetPrevWindowRecord(wn,IVcashDummy);
+    if (RecordValid(IVcashDummy)==false) or (IVcashDummy.SerNr<=0) then begin
+      RecordCopy(IVcashDummy,IVCashr);
+    end;
+    if (IVCashVcRecordCheck(IVCashr,IVcashDummy,WindowState(wn),1)==0) then begin
+      PrintFiscalReceipt;
+    end;
+  end;
   if (WindowDoOK(wn,0)) then begin
     DeselectWindow(wn,false);
     //GetWindowRecord(wn,IVCashr); {native code //Edit***************************Sasha2,18:33 01.10.2016

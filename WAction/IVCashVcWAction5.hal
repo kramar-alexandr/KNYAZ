@@ -107,26 +107,28 @@ updating procedure PrintFiscalReceipt() //Edit***************************Sasha2,
 begin
 	record IVCashVc IVCashr;
 	integer wn;
-	boolean res;
+	boolean res,increasePrintCount;
 
   wn = CurWindow;
   if (GetWindowFileName(wn)=="IVCashVc") then begin
     GetWindowRecord(wn,IVCashr);
     if (IVCashr.MakeFiscalReceiptF==1) then begin
       res = MakeFiscalReceipt(IVCashr);  
+      increasePrintCount = res;
     end else begin
       res = true;
+      increasePrintCount = false;
     end;
     
     if (res==false) then begin
   		MessageBox(50004,"");
   	end;
-    if (res) then begin
+    if (res and increasePrintCount) then begin
       if (IVCashr.FiscalFlag < 1) then begin
         IVCashr.FiscalFlag = 1;
       end;
       IVCashr.PrintFlagCounter = IVCashr.PrintFlagCounter + 1;
-      RECORDSTORE(IVCashr,true);
+      //RECORDSTORE(IVCashr,true);
       PutWindowRecord(wn,IVCashr);
     end;
   end;
