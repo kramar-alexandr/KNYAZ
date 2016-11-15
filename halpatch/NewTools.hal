@@ -427,6 +427,21 @@ begin
 
 return;
 end; //Edit***************************Sasha2,11:22 22.09.2016 }
+global //Edit***************************Sasha2,11:22 22.09.2016 {
+updating procedure RegistersRemoveOptionallyMn(record RcVc RepSpec)
+begin
+  record INVc INr;
+	Boolean TrHs;
+	
+  if (RepSpec.flags[0]==1) then begin
+  	while (LoopMain(INr,1,true)) begin
+  		recorddelete(INr);
+  		StepBack(INr);
+  	end;
+  end;
+
+return;
+end; //Edit***************************Sasha2,11:22 22.09.2016 }
 
 
 global
