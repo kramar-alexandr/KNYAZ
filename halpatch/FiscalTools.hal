@@ -5,6 +5,7 @@ begin
 	record FiscalSetLocalBlock Fiskalblock;
 	longint tick;
 	string 30 fileName;
+	area emptyArea;
 	
 	BlockLoad(Fiskalblock);
 	fileName = "forFP_FM_to_C"; //Setting of FP_ConstrolService  (FPRoutes.txt);
@@ -15,7 +16,7 @@ begin
 		if (FileExists(Fiskalblock.StoragePath & "\\" & fileName & tick & ".txt")==false) then begin
 		  MessageBox(50003,"");
 		end else begin
-		  CreateFile(Fiskalblock.StoragePath & "\\" & "FMCommandFlag.txt");
+		  WriteAreaToFile(emptyArea,Fiskalblock.StoragePath & "\\" & "FMCommandFlag.txt",0);
 		end;
 	//end;
 end;
