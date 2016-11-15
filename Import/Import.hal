@@ -34,10 +34,13 @@ begin
 		code9 = ImportField;
 		code10 = ImportField;
 
-		INr.Code = artcode;
-		if (nonblank(artcode) and ReadFirstMain(INr,1,true)==false) then begin
-
-			RecordNew(INr);
+		if (nonblank(artcode)) then begin
+		  INr.Code = artcode;
+		  if (ReadFirstMain(INr,1,true)) then begin
+		  end else begin
+		    RecordNew(INr);
+		  end;
+			
 			INr.Code = artcode;
 			INr.Name = name;
 			if (itemStocked==0) then begin
