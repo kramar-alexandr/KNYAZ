@@ -39,9 +39,9 @@ begin
 		  if (ReadFirstMain(INr,1,true)) then begin
 		  end else begin
 		    RecordNew(INr);
-		  end;
+		    INr.Code = artcode;
+		  end;	
 			
-			INr.Code = artcode;
 			INr.Name = name;
 			if (itemStocked==0) then begin
 			  INr.ItemType = kItemTypePlain;
