@@ -204,7 +204,7 @@ begin
 	
 	while (TestEOF()==false) begin
 		code = ImportField;
-		qty = StringToInt(ImportField);
+		qty = StringToVal(ImportField,M45Val);
 		cost = StringToVal(ImportField,M45Val);
 
 
