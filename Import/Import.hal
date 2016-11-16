@@ -3,6 +3,8 @@ external procedure PUSumUp(var record PUVc);
 external function Boolean PUVc_PasteArtCode(var record PUVc,Integer,var string,var string);
 external function string 255 StrReplace(string,string,string);
 external procedure ExtractObjWithSeparator(string,string,Boolean,var Integer,var string);
+external function Integer PUVc_PasteQuant(var record PUVc,Integer);
+external procedure PUVc_PasteCostPrice(var record PUVc,Integer);
 
 global updating procedure INImportFromFMFormatIn()	//Edit***************************Sasha2,14:18 19.08.2016
 begin
@@ -207,15 +209,22 @@ begin
 
 
 		if (nonblank(code)) then begin
-
 			PUrw.ArtCode = code;
 			MatRowPut(PUr,rownr,PUrw);
 			PUVc_PasteArtCode(PUr,rownr,warning,inwarn);
 			MatRowGet(PUr,rownr,PUrw);
 			PUrw.Quant = qty;
-			PUrw.UPrice = cost;
-    	PUrw.CostPrice = cost;
-    	PUrw.Sum = cost*qty;		
+			MatRowPut(PUr,rownr,PUrw);
+      PUVc_PasteQuant(PUr,rownr);
+      MatRowGet(PUr,rownr,PUrw);
+      if (cost>0) then begin
+        //PUrw.UPrice = cost;
+      	PUrw.CostPrice = cost;
+      	MatRowPut(PUr,rownr,PUrw);
+      	PUVc_PasteCostPrice(PUr,rownr);
+      	MatRowGet(PUr,rownr,PUrw);
+      	//PUrw.Sum = cost*qty;	
+      end;
 			PUrw.Location = location;
       MatRowPut(PUr,rownr,PUrw);
 			rownr = rownr + 1;
