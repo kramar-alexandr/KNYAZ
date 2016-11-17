@@ -545,6 +545,8 @@ begin
   end;
   
   RECORDNEW(OPr);
+  OPr.PayDate = VIr.InvDate;
+  OPr.TransDate = VIr.InvDate;
   rownr = 0;
   ClearRow(OPr,OPrw,kPaymentRowTypeNormal);
   OPrw.VISerNr = VIr.SerNr;
