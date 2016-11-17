@@ -10,7 +10,7 @@ external updating procedure IVCashVc_SendToSerialPortDevices(Integer,LongInt,rec
 external updating procedure RecordActionIVCash_Print(var record IVCashVc,string,Boolean);
 external procedure RemoveOldCustObjects(string,var string);
 external function Boolean IsSessionOpen(string,string,Date,Time); //Edit***************************Sasha2,14:44 08.09.2016
-external updating procedure OpenPOSSessionsm(string,time); //Edit***************************Sasha2,14:51 08.09.2016
+external updating procedure OpenPOSSessionsm(string,date,time); //Edit***************************Sasha2,14:51 08.09.2016
 external procedure ShowMoneyInBoxForIVCash(); //Edit***************************Sasha2,13:58 17.11.2016
 
 updating procedure SaveOffLineLastIVCashNr(LongInt sernr)
@@ -94,6 +94,7 @@ begin
   LongInt res;
   record LocalMachineBlock LMb;
   time blankt;
+  date blankd;
 
   BlockLoad(LMb);
 
@@ -107,7 +108,7 @@ begin
   end;
   
   /*if (IsSessionOpen(IVCashr.LocalMachineCode,IVCashr.DrawerCode,CurrentDate,CurrentTime)==false) then begin //Added than commented  Edit***************************Sasha2,15:41 08.09.2016
-    OpenPOSSessionsm(CurMachineName,blankt);
+    OpenPOSSessionsm(CurMachineName,blankd,blankt);
   end;*/
   
   IVCashVcRecordDefaultsClient = res;

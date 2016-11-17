@@ -10,7 +10,7 @@ external procedure DoTheCashup(Integer,Integer,Integer,Integer,Integer,Integer,I
                       var array string,var array string,var array val,var array val,var array val,var array val,var array val,var array val,var array val,var Integer,
                       var array string,var array string,var array val,var array val,var array val,var array val,var array val,var array val,var array val,var Integer,
                       var record SMVc,var vector val,var Date);
-external updating procedure OpenPOSSessionsm(string,time); //Edit***************************Sasha2,14:51 08.09.2016
+external updating procedure OpenPOSSessionsm(string,date,time); //Edit***************************Sasha2,14:51 08.09.2016
 
 function Boolean FindStartTimeOfLastPOSSession(var Date dfr,var Time tfr,string machine,string drawer)
 begin
@@ -432,7 +432,7 @@ BEGIN
   end;
   
   if (sessionIsOpenedF and IsSessionOpen(machine,drawer,pdat,ptim)==false) then begin //Edit***************************Sasha2,11:31 11.11.2016
-    OpenPOSSessionsm(machine,ptim);
+    OpenPOSSessionsm(machine,pdat,ptim);
   end;
 
   RETURN;

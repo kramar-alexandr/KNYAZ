@@ -133,7 +133,7 @@ LPOSEventVcRecordCheck:;
 end;
 
 global
-updating procedure OpenPOSSessionsm(string locMach,time eventTm)
+updating procedure OpenPOSSessionsm(string locMach,date eventDate,time eventTm)
 begin
   record POSEventVc POSEr;
   record IVCashVc IVCashr;
@@ -143,6 +143,7 @@ begin
   row LocMachDrawerBlock LMDBw; //Edit***************************Sasha2,10:49 17.10.2016
   integer rwcnt,i; //Edit***************************Sasha2,10:49 17.10.2016
   time blankt;
+  date blankd;
   
   mwn = CurWindow;
   RecordNew(POSEr);
@@ -151,6 +152,9 @@ begin
   POSEr.Event = 1;
   if (eventTm!=blankt) then begin
     POSEr.TransTime = eventTm;
+  end;
+  if (eventDate!=blankd) then begin
+    POSEr.TransDate = eventDate;
   end;
   BlockLoad(LMDB);  //Edit***************************Sasha2,11:23 19.10.2016 {
   rwcnt = MatRowCnt(LMDB);

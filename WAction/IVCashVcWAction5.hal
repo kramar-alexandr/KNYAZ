@@ -88,7 +88,7 @@ external function Boolean IVCashDClasstouchscreenitemEFAfter(Integer,Integer,Boo
 external procedure ExtractObj(string,var Integer,var string);
 external procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
 external procedure OpenCashDrawer_IVCashVc(record IVCashVc);
-external updating procedure OpenPOSSessionsm;
+external updating procedure OpenPOSSessionsm(string,date,time); //Edit***************************Sasha2,17:41 17.11.2016
 external updating procedure ClosePOSSessionsm;
 external procedure POSMoneyInsm;
 external procedure POSMoneyOutsm;
@@ -3165,10 +3165,12 @@ global
 updating procedure IVCashDClassTouchScreenSpecialMenu()
 begin
   string 255 tagstr;
+  time blankt;
+  date blankd;
   
   tagstr = PushButtonTag;
   switch (tagstr) begin
-    case "OpenPOSSessionsm": OpenPOSSessionsm;
+    case "OpenPOSSessionsm": OpenPOSSessionsm(CurMachineName,blankd,blankt);
     case "ClosePOSSessionsm": ClosePOSSessionsm;
     case "POSMoneyInsm": POSMoneyInsm;
     case "POSMoneyOutsm": POSMoneyOutsm;
@@ -3181,7 +3183,10 @@ end;
 global
 updating procedure IVCashDClassTouchScreenOpenSession()
 begin
-  OpenPOSSessionsm;
+  time blankt;
+  date blankd;
+  
+  OpenPOSSessionsm(CurMachineName,blankd,blankt);
   return;
 end;
 
