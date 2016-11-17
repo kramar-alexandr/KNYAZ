@@ -123,7 +123,7 @@ begin
       end;
     end;
     MessageBox(0,"Готово");
-  
+  return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
 global //Edit***************************Sasha2,14:39 03.10.2016 {
@@ -151,7 +151,7 @@ begin
         WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",true);
       end;
     end;
-  
+  return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
 global //Edit***************************Sasha2,14:39 03.10.2016 {
@@ -179,7 +179,7 @@ begin
         WindowFieldGoto(wn,IVCashr,-1,"ivcashcommand",true);
       end;
     end;
-  
+  return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
 global //Edit***************************Sasha2,14:39 03.10.2016 {
@@ -205,7 +205,7 @@ begin
         WindowDoNew(wn,0);
     end;
     //OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
-  
+  return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
 global //Edit***************************Sasha2,14:39 03.10.2016 {
@@ -217,7 +217,31 @@ begin
     
     RECORDNEW(RepSpec);
     OpenWindow("FiscalPrintingTClass",1,0,"","",RepSpec);
-  
+  return;
+end; //Edit***************************Sasha2,14:39 03.10.2016 }
+
+global //Edit***************************Sasha2,14:39 03.10.2016 {
+procedure ShowMoneyInBoxForIVCash()
+begin
+  record FiscalSetLocalBlock Fiskalblock;
+  Integer wn;
+  string 30 inBoxFilePath;
+  area inBoxArea;
+  val money;
+    
+    BlockLoad(Fiskalblock);
+    inBoxFilePath = Fiskalblock.StoragePath & "\\" & "InBox.txt";
+    
+    wn = CurWindow;
+    if (GetWindowClass(wn)=="NPTSIVCashDClass") then begin
+      money = -1;
+      if (FileExists(inBoxFilePath)) then begin
+        AddFileToArea(inBoxFilePath,inBoxArea,false);
+        money = StringToVal(GetStringFromArea(inBoxArea,0,255),M4Val);
+      end;
+      PutWindowString(wn,"DisplayMoneyInBox",money); 
+    end;
+  return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
 global

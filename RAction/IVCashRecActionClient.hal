@@ -11,6 +11,7 @@ external updating procedure RecordActionIVCash_Print(var record IVCashVc,string,
 external procedure RemoveOldCustObjects(string,var string);
 external function Boolean IsSessionOpen(string,string,Date,Time); //Edit***************************Sasha2,14:44 08.09.2016
 external updating procedure OpenPOSSessionsm(string,time); //Edit***************************Sasha2,14:51 08.09.2016
+external procedure ShowMoneyInBoxForIVCash(); //Edit***************************Sasha2,13:58 17.11.2016
 
 updating procedure SaveOffLineLastIVCashNr(LongInt sernr)
 begin
@@ -101,6 +102,7 @@ begin
     case "NPTSIVCashDClass":
       NPTSIVCashDClassOnOpenWindowExecute(wn);
       ResetDisplayDsm;
+      ShowMoneyInBoxForIVCash; //Edit***************************Sasha2,13:58 17.11.2016
 //      ReRunWindowDef(wn);//in NPTSIVCashDClassOnOpenWindowExecute
   end;
   
