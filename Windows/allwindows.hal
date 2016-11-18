@@ -6,6 +6,7 @@ external procedure DrawPOSInterface_RUS(string,string,record POSButtonsVc,Intege
 remote procedure CntPOSCurrencies(var Array string,var Array Boolean,var Integer);
 external function boolean AddBicToMasterWindow(integer,var real,var real,real,real,real,real);
 external procedure GetCurUser(var record UserVc);
+external function Boolean AcceptanceStatusColumnTest(string);
 external function string 255 VATZoneNameRUS();
 external function string 255 VATZoneEditFieldLabelRUS(Integer);
 external function Boolean HasMultiLocations();
@@ -1965,6 +1966,113 @@ begin
   if (HasRetGoodsToSupp and HasModIN) then begin
     SpecialMenu("Возврат товаров",'B',6,"RetPUFromPODsm");
   end;
+  end;
+  EndWindow;
+end;
+
+window POLClass:2
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","*")
+begin
+  Integer pos,rn;
+
+  WindowBegin("Заказы поставщикам",POLClass,CGmlist,POView);
+  SpawnClass(PODClass);
+  SetWRect(20,80,900,298);
+  Sizeable(-1,-1,0,0);
+  UseView(POVc);
+  FormName(PrintPOL);
+  RecordList(4,17,-21,-39);
+/*
+old design
+  if (GUIType==kGuiiPhone) then begin
+    RlCellKey(10,6,70,19,SerNr,false,12,patM4black,SerNr);
+    RlCellKey(80,6,90,19,OKFlag,false,12,patM4black,OKFlag);
+    RlCellKey(100,6,130,19,PUFlag,false,12,patM4black,PUFlag);
+    RlCellKey(140,6,150,19,PIFlag,false,12,patM4black,InvFlag);
+    RlCellKey(155,6,165,19,Closed,false,12,patM4black,Closed);
+    RlCellKey(170,6,280,19,TransDate,false,12,patM4black,TransDate);
+    RlCellKey(290,6,320,19,Location,false,12,patM4black,Location);
+    RlCellKey(10,26,90,39,Reference,false,12,patM4black,Reference);
+    RlCellKey(100,26,160,39,VECode,false,12,patM4black,VECode);
+    RlCellKey(170,26,-180,39,Addr0,false,12,patM4black,Name);
+    RlCellKey(-170,26,-105,39,POClass,false,12,patM4black,POClass);
+    RlCellKey(-100,26,-40,39,Sum4,true,12,patM4black,Sum4);
+  end else begin
+*/
+    RlColKey(4,4,"Номер",SerNr,false,SerNr);
+    RlColKey(79,79,"ОК",OKFlag,false,OKFlag);
+    pos = 111;
+    if (HasModIN) then begin
+      RlColKey(pos,pos,"Пост.",PUFlag,false,PUFlag);
+      pos = 143;
+    end;
+    if (HasModPL) then begin
+      RlColKey(pos,pos,"Сч/ф",PIFlag,false,InvFlag);
+      pos = 175;
+    end;
+    RlColKeyTL(pos,pos,"Закр",M4Mark,Closed,false,Closed);
+    pos = pos + 32;
+    RlColKeyTL(pos,pos,"Налог",M4Mark,TaxFlag,false,0); //Edit***************************Sasha2,9:56 18.11.2016
+    pos = pos + 32; //Edit***************************Sasha2,9:59 18.11.2016
+    RlColKey(pos,pos,"Дата",TransDate,false,TransDate); 
+    pos = pos + 80;
+    if (HasMultiLocations) then begin
+      RlColKey(pos,pos,"Местопол.",Location,false,Location);
+      pos = pos + 80;
+    end;
+    if (IsEnterprise) then begin
+      RlColKey(pos,pos,"Ссылка",Reference,false,Reference);
+      pos = pos + 80;
+    end;
+    RlColKey(pos,pos,"Поставщик",VECode,false,VECode);
+    pos = pos + 60;
+    RlColKey(pos,pos,"Наименование",Addr0,false,Name);
+    if (IsEnterprise) then begin
+      RlCol(-190,-190,"Класс",POClass,false); 
+      if (AcceptanceStatusColumnTest("POVc")) then begin 
+        CalculatedColumn(-160,-160,"Подтв.","POLClassAcceptanceStatus",false); 
+      end;
+      RlCol(-125,-125,"Итого",Sum4,true); 
+      RlCol(-65,-65,"Предоплата",DownPaySent,true); 
+    end else begin
+      RlCol(-80,-80,"Итого",Sum4,true);
+    end;
+//  end;
+  if (GUIType!=kGuiiPhone) then begin
+    SearchField("Поиск");
+    if (HasLimitedAccess) then begin
+      BrowseSubsetButton(-40,-15);
+    end;
+    if (GuiType==kGuiMetro) then begin
+      RowMenuBegin("");
+      RowMenuItem(0,"OK",'G','G',4312,"OKPOLsm");  
+      RowMenuItem(0,"Закрыт",' ',' ',4300,"ClosePOLsm");
+      if (HasModIN) then begin
+        RowMenuItem(0,"Создать приём товаров",' ',' ',4300,"PUFromPOLsm");         
+      end;
+      if (HasModPO) then begin
+        if (IsEnterprise) then begin
+          RowMenuItem(0,"Создать заказы поставщикам",' ',' ',4300,"POCreatePOLsm");
+        end;
+        RowMenuItem(0,"Статус заказа поставщику",'r','r',4300,"POStatusORLsm");         
+      end;
+      EndRowMenu;
+    end else begin
+      SpecialMenu("ОК",'G',0,"OKPOLsm");
+      SpecialMenu("Закрыть",' ',1,"ClosePOLsm");
+      if (HasModPO) then begin
+        SpecialMenu("Статус заказа поставщику",'r',4,"POStatusORLsm");         
+      end;
+      SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
+      if (HasModIN) then begin
+        SpecialMenu("Создать поступление",' ',2,"PUFromPOLsm");
+      end;
+      if (HasModPO) then begin
+        if (IsEnterprise) then begin
+        SpecialMenu("Создать заказы поставщикам",' ',3,"POCreatePOLsm");
+        end; 
+      end;
+    end;
   end;
   EndWindow;
 end;
