@@ -80,7 +80,6 @@ begin
 	array longint VoucherNumbers;
 	array longint VoucherSum;
 	boolean res;
-	val ;
 	
   d = "!===!"; 	//divider
 
