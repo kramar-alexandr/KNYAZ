@@ -76,11 +76,11 @@ begin
 	string 255 rowStr,name;
 	string 10 articul,saleCommand,payCommand,refundCommand,command,rebateCommand,commentCommand;
 	integer printStatus,paymentStatus,discountType;
-	longint rowSum,totalRebate,cashSum,cardSum,giftSum, giftBalance,prepaymentSum,totSum;
+	longint rowSum,totalRebate,cashSum,cardSum,giftSum,quant,giftBalance,prepaymentSum,totSum;
 	array longint VoucherNumbers;
 	array longint VoucherSum;
 	boolean res;
-	val quant;
+	val ;
 	
   d = "!===!"; 	//divider
 
