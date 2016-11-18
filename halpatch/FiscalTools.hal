@@ -71,15 +71,16 @@ begin
 	record INVc INr;
 	record ITVc ITr;
 	area filedata;
-	integer i,rwcnt;
+	integer i,rwcnt,tempInt;
 	string 5 d,nalogGroup,curNalogGroup;
 	string 255 rowStr,name;
 	string 10 articul,saleCommand,payCommand,refundCommand,command,rebateCommand,commentCommand;
-	integer printStatus,paymentStatus,quant,discountType;
+	integer printStatus,paymentStatus,discountType;
 	longint rowSum,totalRebate,cashSum,cardSum,giftSum, giftBalance,prepaymentSum,totSum;
 	array longint VoucherNumbers;
 	array longint VoucherSum;
 	boolean res;
+	val quant;
 	
   d = "!===!"; 	//divider
 
@@ -88,7 +89,6 @@ begin
   rebateCommand = "Discount";
   refundCommand  = "PayMoney";
   commentCommand = "Comment";  
-  printStatus = 0;
   nalogGroup = "0";
   discountType = 0; //absolute value of discount
   totalRebate= 0 ;
@@ -100,6 +100,7 @@ begin
 	
 	for(i=0;i<rwcnt;i=i+1) begin
 		MatRowGet(IVCashr,i,IVCashrw);
+		printStatus = 0;
 		if (IVCashrw.stp == kInvoiceRowTypeNormal and nonblank(IVCashrw.ArtCode)) then begin
 		  curNalogGroup = nalogGroup;
 		  INr.Code = IVCashrw.ArtCode;
@@ -120,7 +121,14 @@ begin
 				rowSum = (IVCashrw.Sum * 100) / IVCashrw.Quant;	
 			end;
 			
-			quant = AbsoluteVal(IVCashrw.Quant);
+			tempInt = IVCashrw.Quant;
+			if (tempInt!=IVCashrw.Quant) then begin
+			  quant = AbsoluteVal(IVCashrw.Quant)*1000;
+			  printStatus = 3;
+			end else begin
+			  quant = AbsoluteVal(IVCashrw.Quant);
+			end;
+			
 			articul = IVCashr.SerNr & i;
 			rowStr = command & d & quant & d & printStatus  & d &  "false" & d &  rowSum & d & curNalogGroup & d &  "false" & d & IVCashrw.Spec & d & articul & d; 
 			AddTextToArea(rowStr,filedata);	
