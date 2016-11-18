@@ -63,7 +63,7 @@ begin
   
   if (MatRowCnt(SDr)>0) then begin
     Location = SDr.Location;
-    SDr.TransDate = CurrentDate;
+    SDr.TransDate = RepSpec.RegDate; //Edit***************************Sasha2,9:52 18.11.2016
     SDr.SerNr = NextSerNr("SDVc",SDr.TransDate,-1,false,"");  
     SDr.Comment = USetStr(17810) & " ";
     SDr.Comment = SDr.Comment & USetStr(17811) & " ";
@@ -275,7 +275,7 @@ begin
   end;
   rownr = MatRowCnt(SDr);
 
-  if (rownr>=200) then begin
+  if (rownr>=1000) then begin // 200 //Edit***************************Sasha2,9:52 18.11.2016
     SaveSD(RepSpec,SDr);
     rownr = 0;
   end;
