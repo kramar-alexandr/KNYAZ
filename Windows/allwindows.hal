@@ -1543,7 +1543,7 @@ begin
   vs = 20;
   BlockLoad(CYb);
   WindowBegin("Заказ поставщику",PODClass,CGview,-);
-  SetWRect(20,80,800,460);
+  SetWRect(20,80,850,460);
   Sizeable(-1,-1,0,0);
   UseView(POVc);
   CommunicateButton;
@@ -1645,16 +1645,16 @@ begin
 //  MatCol(1,84,"Var",0,VARList,true,VARSClass);
 //  MatCol(1,144,"Qty",0,Quant,true,0);
   if (HasVarieties) then begin
-    MatCol(1,94,"К-во",0,Quant,true,MATVARINSClass);
+    MatCol(1,150,"К-во",0,Quant,true,MATVARINSClass);
   end else begin
-    MatCol(1,94,"К-во",0,Quant,true,0);
+    MatCol(1,150,"К-во",0,Quant,true,0);
   end;
   EnterSkip(ArtCode);
 //  MatCol(1,194,"Описание",0,Spec,false,0);
   flipnr = 1;
   Flip(flipnr); flipnr = flipnr + 1;
-  MatColTL(1,134,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
-  MatCol(1,164,"Наименование",0,Spec,false,0);
+  MatColTL(1,190,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
+  MatCol(1,220,"Наименование",0,Spec,false,0);
   MatCol(1,-350,"В пост.",0,Shipd1,true,0);
   MatCol(1,-310,"Поступ.",0,Shipd2,true,0);
   if (HasJewelleryInterface) then begin
@@ -1674,7 +1674,7 @@ begin
   end;*/
   if (HasObjects) then begin
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,164,"Наименование",0,Spec,false,0);
+    MatCol(1,220,"Наименование",0,Spec,false,0);
     MatCol(1,-370,"Группа тов.",0,ItemGroup,false,0); //Edit***************************Sasha2,12:35 17.03.2016
     if (IsEnterprise) then begin
       MatCol(1,-310,"Счёт опр.",0,CostAcc,false,AccSClass);
@@ -1688,7 +1688,7 @@ begin
   end;
   if (HasModIN) then begin
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,164,"Наименование",0,Spec,false,0);
+    MatCol(1,220,"Наименование",0,Spec,false,0);
     MatCol(1,-330,"Пост. 1",0,Shipd1,true,0);
     MatCol(1,-270,"Пост. 2",0,Shipd2,true,0);
     if (HasModPL) then begin
@@ -1707,7 +1707,7 @@ begin
   if (IsEnterprise) then begin
     Flip(flipnr); flipnr = flipnr + 1;
     if (StandardHansa==false) then begin
-      MatCol(1,164,"Тип заказа",0,OrderType,false,0);
+      MatCol(1,220,"Тип заказа",0,OrderType,false,0);
       MatCol(1,-400,"Тип склада",0,StockType,false,SetSClass);
     end else begin
       MatCol(1,164,"Наименование",0,Spec,false,0);
@@ -1719,7 +1719,7 @@ begin
     MatCol(1,-100,"Комментарий",0,Comment,true,0);
     if (StandardHansa==false) then begin
       Flip(flipnr); flipnr = flipnr + 1;
-      MatCol(1,164,"Наименование",0,Spec,false,0);
+      MatCol(1,220,"Наименование",0,Spec,false,0);
       MatCol(1,-420,"Фрахт",0,ShipCost,true,0);
       MatCol(1,-360,"Таможня",0,CustomsCost,true,0);
       label = UserDefined("AccBlock","PUCost1");
@@ -2091,7 +2091,7 @@ begin
   if (HasJewelleryInterface) then begin
     SetWRect(20,80,870,620);
   end else begin
-    SetWRect(20,80,750,360);
+    SetWRect(20,80,850,360);
   end;
   if (HasMultiCurrency or IsEnterprise or HasObjects) then begin
   Sizeable(-1,-1,0,0);
@@ -2194,9 +2194,9 @@ begin
 //  MatCol(1,84,"Var",0,VARList,true,VARSClass);
 //  MatCol(1,144,"Qty",0,Quant,true,0);
   if (HasVarieties) then begin
-    MatCol(1,94,"К-во",0,Quant,true,MATVARINSClass);
+    MatCol(1,150,"К-во",0,Quant,true,MATVARINSClass);
   end else begin
-    MatCol(1,94,"К-во",0,Quant,true,0);
+    MatCol(1,150,"К-во",0,Quant,true,0);
   end;
   EnterSkip(Spec);
   MatText(t=3,28,"Подпись",true);
@@ -2206,21 +2206,21 @@ begin
   flipnr = 1;
   Flip(flipnr); flipnr = flipnr + 1;
   if (HasJewelleryInterface) then begin
-    MatColTL(1,144,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
-    MatCol(1,184,"Описание",0,Spec,false,0);
+    MatColTL(1,200,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
+    MatCol(1,234,"Описание",0,Spec,false,0);
     MatCol(1,-485,"Склад",0,Location,false,LocationSClass);
     MatCol(1,-430,"Серийный номер",0,SerialNr,false,SerialNrSClass);
     MatCol(1,-320,"Тип склада",0,StockType,false,SetSClass);
   end else begin
-    MatColTL(1,164,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
-    MatCol(1,204,"Наим.",0,Spec,false,0);
+    MatColTL(1,204,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
+    MatCol(1,244,"Наим.",0,Spec,false,0);
   end;
-  MatCol(1,-240,"Цена",0,UPrice,true,0);
+  MatCol(1,-200,"Цена",0,UPrice,true,0);
   MatCol(1,-160,"Себест.",0,CostPrice,true,0);
   MatCol(1,-80,"Сумма",0,Sum,true,0);
   if (IsEnterprise) then begin
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,144,"Наим.",0,Spec,false,0);
+    MatCol(1,204,"Наим.",0,Spec,false,0);
     MatCol(1,-350,"Склад",0,Location,false,LocationSClass);
     MatCol(1,-280,"Серийный номер",0,SerialNr,false,SerialNrSClass);
     //MatCol(1,-150,"Срок годности",0,BestBefore,false,0); //Edit***************************Sasha2,10:33 22.09.2016
@@ -2228,7 +2228,7 @@ begin
     //MatCol(1,-60,"Ст. партии",0,BatchStatus,false,BatchStatusSClass); //Edit***************************Sasha2,10:42 22.09.2016
     MatColTL(1,-60,"№ стр. сч/ф",0,-1,ViewOnly,-1,IVCashDisplayRowNr,false,0);  //Edit***************************Sasha2,10:33 22.09.2016
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,144,"Наим.",0,Spec,false,0);
+    MatCol(1,204,"Наим.",0,Spec,false,0);
     //MatColTL(1,-404,"Стоимость товара",0,-1,ViewOnly,-1,InPrice,false,0); //Edit***************************Sasha2,13:16 09.03.2016
     MatCol(1,-404,"Группа тов.",0,ItemGroup,false,ITSClass); //Edit***************************Sasha2,13:16 09.03.2016
     //MatColTL(1,-404,"Группа товара",0,M4Code,ViewOnly,20,ItemGroup,false,0); //Edit***************************Sasha2,13:16 09.03.2016
@@ -2251,7 +2251,7 @@ begin
       MatCol(1,-34,"НДС",0,VATCode,false,VATCodeSClass);
     end;*/ //Edit***************************Sasha2,13:02 09.03.2016 }
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,144,"Наим.",0,Spec,false,0);
+    MatCol(1,204,"Наим.",0,Spec,false,0);
     MatCol(1,-350,"Товар пост.",0,VEItemCode,false,PISClass);
     MatColTL(1,-270,"Ед. пост.",0,M4Code,ViewOnly,5,VEUnit,false,UnitSCLass);
     MatCol(1,-200,"Кол-во пост.",0,VEQuant,true,0);
@@ -2260,7 +2260,7 @@ begin
     end;
     MatCol(1,-90,"Отпускная цена",0,BasePrice,false,0);
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,144,"Наим.",0,Spec,false,0);
+    MatCol(1,204,"Наим.",0,Spec,false,0);
     if (StandardHansa==false) then begin
       MatCol(1,-400,"Тип склада",0,StockType,false,SetSClass);
     end;
@@ -2272,21 +2272,21 @@ begin
     MatCol(1,-90,"Объекты",0,Objects,false,ObjSClass);
     if (StandardHansa==false) then begin
       Flip(flipnr); flipnr = flipnr + 1;
-      MatCol(1,144,"ГТД.",0,CustomsNr,false,0);
+      MatCol(1,204,"ГТД.",0,CustomsNr,false,0);
       MatCol(1,-340,"Дата ГТД",0,CustomsDate,false,PasteCurDate);
       MatCol(1,-240,"Страна",0,CountryOfOrg,false,CountrySClass);
       MatCol(1,-140,"С места",0,PosCode,false,PosSClass);
       MatCol(1,-70,"На место",0,ToPosCode,false,FreePosSClass);
     end;
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,144,"Наим.",0,Spec,false,0);
+    MatCol(1,204,"Наим.",0,Spec,false,0);
     MatCol(1,-250,"Сер. номер",0,SerialNr,false,SerialNrSClass);
     MatCol(1,-135,"Ширина",0,UnitXval,true,0);
     MatCol(1,-90,"Высота",0,UnitYval,true,0);
     MatCol(1,-45,"Глубина",0,UnitZval,true,0);
     if (StandardHansa==false) then begin
       Flip(flipnr); flipnr = flipnr + 1;
-      MatCol(1,144,"Доб.стоимость",0,Extra,true,0);
+      MatCol(1,204,"Доб.стоимость",0,Extra,true,0);
     MatCol(1,-420,"Фрахт",0,ShipCost,true,0);
     MatCol(1,-360,"Таможня",0,CustomsCost,true,0);
       label = UserDefined("AccBlock","PUCost1");
@@ -2306,8 +2306,8 @@ begin
       MatCol(1,-60,label,0,RowCost5,false,0);
     end;
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(1,144,"№ заказа",0,PONr,false,POSClass);
-    MatCol(1,194,"Строка заказа",0,OrdRow,false,0);
+    MatCol(1,204,"№ заказа",0,PONr,false,POSClass);
+    MatCol(1,244,"Строка заказа",0,OrdRow,false,0);
     MatCol(1,-370,"Свер.зак.",0,PORecon,false,0);
     MatCol(1,-310,"Коммен.",0,POReconComment,false,0);
     MatCol(1,-200,"Свер.сч/ф",0,VIRecon,false,0);
@@ -2315,7 +2315,7 @@ begin
   end else begin
     if (HasSerialNumbers) then begin
       Flip(flipnr); flipnr = flipnr + 1;
-      MatCol(1,144,"Описание",0,Spec,false,0);
+      MatCol(1,204,"Описание",0,Spec,false,0);
       MatCol(1,-150,"Сер. номер",0,SerialNr,false,SerialNrSClass);
     end;
 /*
@@ -2327,32 +2327,32 @@ begin
   end;
   if (HasLocalization("ARG,MEX,USA")) then begin
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(t=1,144,"Описание",0,Spec,false,0);
+    MatCol(t=1,204,"Описание",0,Spec,false,0);
     MatCol(t,-250,"Номер отправки",0,DispatchNumber,false,0);
   end;
   if (HasJewelleryInterface) then begin
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(t=1,144,"Описание",0,Spec,false,0);
+    MatCol(t=1,204,"Описание",0,Spec,false,0);
     MatCol(t,-350,"Пост. сер. номер",0,SuppSerialNr,true,0);
     MatCol(t,-200,"Метал",0,Metal,true,0);
     MatCol(t,-150,"Вес",0,RowWeight,true,0);
     MatCol(t,-100,"Размер",0,Size,true,0);
     MatCol(t,-50,"Длина",0,Length,true,0);
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(t=1,144,"Описание",0,Spec,false,0);
+    MatCol(t=1,204,"Описание",0,Spec,false,0);
     MatCol(t,-350,"Осн. камень",0,MajStoneDet,true,0);
     MatCol(t,-250,"Цвет",0,Colour,true,0);
     MatCol(t,-200,"Прозрачность",0,Clarity,true,0);
     MatCol(t,-150,"Серт.",0,Cert,true,0);
     MatCol(t,-100,"Мин. камень",0,MinStoneDet,true,0);
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(t=1,144,"Описание",0,Spec,false,0);
+    MatCol(t=1,204,"Описание",0,Spec,false,0);
     MatCol(t,-400,"Марка часов",0,WatchBrand,true,0);
     MatCol(t,-300,"Наим. стиля",0,StyleName,true,0);
     MatCol(t,-200,"Метал часов",0,WatchMetal,true,0);
     MatCol(t,-100,"Движение",0,Movement,true,0);
     Flip(flipnr); flipnr = flipnr + 1;
-    MatCol(t=1,144,"Описание",0,Spec,false,0);
+    MatCol(t=1,204,"Описание",0,Spec,false,0);
     MatCol(t,-400,"Брк/Стр",0,BrcStr,true,0);
     MatCol(t,-300,"Род",0,Gender,true,0);
     MatCol(t,-200,"Проч.",0,Other,true,0);
