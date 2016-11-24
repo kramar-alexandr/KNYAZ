@@ -94,7 +94,8 @@ begin
   
   if (MatRowCnt(PUr)>0) then begin
     Location = PUr.Location;
-    PUr.TransDate = RepSpec.RegDate;
+    //PUr.TransDate = RepSpec.RegDate; //Edit***************************Sasha2,17:37 24.11.2016
+    PUr.TransDate = RepSpec.sStartDate; //Edit***************************Sasha2,17:37 24.11.2016
     PUr.SerNr = NextSerNr("PUVc",PUr.TransDate,-1,false,"");  
     PUr.Comment = USetStr(17810) & " ";
     PUr.Comment = PUr.Comment & USetStr(17811) & " ";
