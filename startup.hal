@@ -19,7 +19,7 @@ begin
   Maintenance("Удалить записи выборочно",RegistersRemoveOptionallyVClass,RegistersRemoveOptionallyMn,modDBMain);
   Maintenance("Прописать ед.измерения в товаре, где её нет",SetUnitTextInItemIfNeededVClass,SetUnitTextInItemIfNeededMn,modIN);
 
-  SString(50000,"Укажите цену закупки");
+  SString(50000,"Укажите цену закупки"); 
   SString(50001,"Укажите себестоимость");
   SString(50002,"Укажите розничную цену");
   SString(50003,"Указанная, в настройках фискального принтера, папка недоступна");
