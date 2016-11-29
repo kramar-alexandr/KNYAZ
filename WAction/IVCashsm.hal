@@ -546,20 +546,23 @@ begin
     //WindowFieldGoto(nwn,IVCash2r,-1,"CustCode",true); } native code //Edit***************************Sasha2,18:33 01.10.2016
     
     WindowDoNew(wn,0);
-
-    /*GetWindowRecord(wn,IVCash2r);
-    IVCash2r.RetValue = prevRetValue;
-    PutWindowString(wn,"touchscreenwindowpage",1);
-    PutWindowString(wn,"touchscreenwindowpagestack","1");
-    PutWindowString(wn,"touchscreenwindowprinterstack","*");
-    PutWindowString(wn,"CustomerDisplayData_Line1","");
-    PutWindowString(wn,"CustomerDisplayData_Line2","");    
-    PutWindowString(wn,"touchscreenitemlastrownr",-1);
-    PutWindowString(wn,"ReturnMode","false");
-    tstr = USetStr(24172) & "  ";
-    tstr = tstr & ValToString(prevRetValue,M4Val,ThousandSeparator,DecimalSeparator,0);
-    PutWindowRecord(wn,IVCash2r);
-    IVCashDClass_RefreshStringList(wn,IVCash2r);*/
+    switch (GetWindowClass(wn)) begin
+    case "NPTSIVCashDClass":
+      GetWindowRecord(wn,IVCash2r);
+      IVCash2r.RetValue = prevRetValue;
+      PutWindowString(wn,"touchscreenwindowpage",1);
+      PutWindowString(wn,"touchscreenwindowpagestack","1");
+      PutWindowString(wn,"touchscreenwindowprinterstack","*");
+      PutWindowString(wn,"CustomerDisplayData_Line1","");
+      PutWindowString(wn,"CustomerDisplayData_Line2","");    
+      PutWindowString(wn,"touchscreenitemlastrownr",-1);
+      PutWindowString(wn,"ReturnMode","false");
+      tstr = USetStr(24172) & "  ";
+      tstr = tstr & ValToString(prevRetValue,M4Val,ThousandSeparator,DecimalSeparator,0);
+      PutWindowRecord(wn,IVCash2r);
+      IVCashDClass_RefreshStringList(wn,IVCash2r);
+      WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",true);
+    end;
     
     /*CloseWindow(wn);
     RecordNew(IVCash2r);
