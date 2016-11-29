@@ -146,6 +146,7 @@ begin
   POSBalancer.TransTime = tfr;
   foundf = true;
   while (LoopBackKey("MachineName",POSBalancer,4,foundf))  begin
+  	logtext(0,"POSBalancer find " & POSBalancer.SerNr);
     if (POSBalancer.MachineName!=machine) then begin
       foundf = false;
     end;
