@@ -308,6 +308,8 @@ BEGIN
       if (storef) then begin
         if (RecordInsert(PEr,true)) then begin
           sessionIsOpenedF = true; //Edit***************************Sasha2,11:30 11.11.2016
+        end else begin
+        	logtext(0,"RecordInsert(PEr,true) false ");
         end;
       end;
     end;
