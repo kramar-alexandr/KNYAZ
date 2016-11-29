@@ -326,6 +326,10 @@ BEGIN
       end;
     end;
 		
+		logtext(0,"machine " & machine);
+		logtext(0,"drawer " & drawer);
+		logtext(0,"bal " & bal);
+		logtext(0,"accsales " & accsales);
 		logtext(0,"FindTimeOfLastPOSBalance " & dfr & tfr);
 		
     DoTheCashup(pdetail,prestcash,pposcash,pslcash,pinclroomtabs,pinclrecpts,0,dfr,pdat,tfr,ptim,
