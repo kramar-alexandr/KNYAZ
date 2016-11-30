@@ -279,9 +279,7 @@ BEGIN
       aitvattot[i] = 0;
     end;
     aitcnttot = 0;
-		
-		logtext(0,"IsSessionOpen " & IsSessionOpen(machine,drawer,pdat,ptim));
-		
+				
     if (IsSessionOpen(machine,drawer,pdat,ptim)) then begin
       RecordNew(PEr);
       PEr.MachineName = machine;
@@ -309,7 +307,6 @@ BEGIN
         if (RecordInsert(PEr,true)) then begin
           sessionIsOpenedF = true; //Edit***************************Sasha2,11:30 11.11.2016
         end else begin
-        	logtext(0,"RecordInsert(PEr,true) false ");
         end;
       end;
     end;
@@ -325,12 +322,6 @@ BEGIN
         FindTimeOfLastPOSBalance(dfr,tfr,machine,drawer,bal,accsales);
       end;
     end;
-		
-		logtext(0,"machine " & machine);
-		logtext(0,"drawer " & drawer);
-		logtext(0,"bal " & bal);
-		logtext(0,"accsales " & accsales);
-		logtext(0,"FindTimeOfLastPOSBalance " & dfr & tfr);
 		
     DoTheCashup(pdetail,prestcash,pposcash,pslcash,pinclroomtabs,pinclrecpts,0,dfr,pdat,tfr,ptim,
                 machine,drawer,ppmcode,0,false,false,bal,totin,totout,aitcode,aitsum,aitvat,aitqty,aitcnt,totsum,totvat,avatcode,avatsum,avatcnt,SMr,

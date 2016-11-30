@@ -83,6 +83,8 @@ external procedure GetBaseCurncy(Integer,var string);
 external function Boolean PasteCustInCashInv(var record IVCashVc,string,string,var string);
 external procedure ExtractObj(string,var Integer,var string);
 external procedure GetSalesGroup(string,var string);
+external updating procedure IVCash_To_IV(longint);// Edit ************************** Wednesday, 30 November 2016 10:11:00
+external updating procedure IVCash_To_IVUnOk(longint);// Edit ************************** Wednesday, 30 November 2016 10:55:44
 
 // This function is actually not used, but prepared to be and is used by customisation
 
@@ -1784,6 +1786,9 @@ LIVCashVcRecordCheck:;
       LogText(0,"Record Check failed for POS Invoice " & IVCashr.SerNr " error " & RecordCheckLastErrorNo);
     end;
   end;
+  
+  logtext(0,"IVCASHRECORDCHECK");
+  
   IVCashVcRecordCheck = res;
   RETURN;
 END;
@@ -2187,6 +2192,8 @@ BEGIN
   if (blank(IVCashp.OfficialSerNr)) then begin
     FindNextIVCashVcOfficialSerialNr(IVCashp);
   end;
+  
+  logtext(0,"IVCashVcRecordSave");
   IVCashVcRecordSave = res;
   RETURN;
 END;
@@ -2315,6 +2322,12 @@ global
 updating function LongInt IVCashVcRecordSaveAfter(var record IVCashVc IVCashp,record IVCashVc IVCash2p,LongInt stat,LongInt long4)
 BEGIN
   LongInt res;
+  
+  if (CompanyProgramMode!=kProgramModeLiveSync)then begin 
+		if ((IVCashp.OKFlag!=0)) then begin
+			IVCash_To_IV(IVCashp.SerNr);
+		end;
+	end;
   
   if (IVCashp.Invalid==0) then begin
     if (IVCashp.OKFlag!=0) then begin
@@ -2450,7 +2463,16 @@ global
 updating function LongInt IVCashVcRecordUpdateAfter(var record IVCashVc IVCashp,record IVCashVc IVCash2p,LongInt stat,LongInt long4)
 BEGIN
   LongInt res;
-
+		
+	if (CompanyProgramMode!=kProgramModeLiveSync)then begin 
+		if ((IVCash2p.OKFlag==0) and (IVCashp.OKFlag!=0)) then begin
+			IVCash_To_IV(IVCashp.SerNr);
+		end;
+		if ((IVCash2p.OKFlag!=0) and (IVCashp.OKFlag==0)) then begin
+			IVCash_To_IVUnOk(IVCashp.SerNr);
+		end;
+	end;
+	
   if ((IVCash2p.Invalid==0) and (IVCashp.Invalid==0)) then begin
     if ((IVCash2p.OKFlag==0) and (IVCashp.OKFlag!=0)) then begin
       IVCashVcCreateSoldGiftCert(IVCashp);
@@ -2458,6 +2480,7 @@ BEGIN
       SalesmanStats_IVCashVc(IVCashp,IVCash2p,true);
       IVCashUpdateSerialNr(IVCashp);
       IVCashUpdateItemHist(IVCashp,0);
+      logtext(0,"IVCashVcRecordUpdateAfter");
       IVCashUpdateReservation(IVCashp,false);
       IVCashUpdateCashupHist(IVCashp);
     end;

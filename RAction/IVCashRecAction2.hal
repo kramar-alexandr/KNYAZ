@@ -12,6 +12,7 @@ external updating procedure DeletePointsHist(LongInt,string);
 external updating procedure AddPointsHist(LongInt,string,integer);
 external updating procedure IVCashVc_LoyaltyCardPointsRedemption(record IVCashVc,Boolean);
 external updating procedure IVCashVcCreateSoldGiftCert(record IVCashVc);
+external updating procedure IVCash_To_IV(longint);// Edit ************************** Wednesday, 30 November 2016 10:11:00
 
 global 
 function Boolean IVCashVcRecordShouldBeSynchronised(record IVCashVc IVCashr,string tagstr)
@@ -198,7 +199,9 @@ function LongInt IVCashVcRecordSyncServer(var record IVCashVc IVCashr,record IVC
 begin
   LongInt res;
   Boolean transf;
-
+	
+	logtext(0,"IVCashVcRecordSyncServer");
+	logtext(0,RecordValid(IVCash2r));
   if (RecordValid(IVCash2r)) then begin
     transf = false;
     if (IVCashr.OKFlag==1) then begin
@@ -225,9 +228,13 @@ function LongInt IVCashVcRecordSyncServerAfter(var record IVCashVc IVCashr,recor
 begin
   LongInt res;
   
+  logtext(0,"IVCashVcRecordSyncServerAfter");
+  logtext(0,RecordValid(IVCash2r));
+  
   if (RecordValid(IVCash2r)) then begin
     if ((IVCash2r.Invalid==0) and (IVCashr.Invalid==0)) then begin
       if ((IVCash2r.OKFlag==0) and (IVCashr.OKFlag!=0)) then begin
+      	IVCash_To_IV(IVCashr.SerNr);// Edit ************************** Wednesday, 30 November 2016 10:11:23
         IVCashVcCreateSoldGiftCert(IVCashr);
         IVCashArtStats(IVCashr,false);
         SalesmanStats_IVCashVc(IVCashr,IVCash2r,true);
