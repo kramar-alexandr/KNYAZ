@@ -87,7 +87,9 @@ begin
 	IVr.TransDate = IVCashr.TransDate;
 	IVVc_PasteTransDate(IVr,err1,err2);
 	IVVc_PasteInvDate(IVr,LMb,err1,err2);	
-		
+	
+	IVr.MachineName = IVCashr.LocalMachineCode;	
+	
 	IVr.CustCode = IVCashr.CustCode;
 	PasteCust2InInv(IVr,LMb,IVCashr.CustCode,true,warning,errstr,prepstr,invdatewarn,transdatewarn);
 	IVr.Objects = "";// Edit ************************** Tuesday, 7 April 2015 10:34:05
@@ -125,16 +127,6 @@ begin
 				MatRowPut(IVr,i,IVrw);
 				IVSumup(IVr,true); 
 			end;
-			/*if(IVCashrw.stp==kInvoiceRowTypeCashPayment)then begin				
-				ClearRow(IVr,IVrw,kInvoiceRowTypeCashPayment);
-				IVrw.stp = kInvoiceRowTypeCashPayment;
-				IVrw.Sum = IVCashrw.Sum;
-				IVrw.CurncyCode = IVr.CurncyCode;
-				IVrw.PayMode = IVCashrw.PayMode;
-				IVrw.Spec = IVCashrw.Spec;           
-				MatRowPut(IVr,i,IVrw);
-				IVSumup(IVr,true); 
-			end;*/
 			if(IVCashrw.stp==kInvoiceRowTypeCreditCardPayment)then begin
 				ClearRow(IVr,IVrw,kInvoiceRowTypeCreditCardPayment);
 				IVrw.stp = kInvoiceRowTypeCreditCardPayment;
