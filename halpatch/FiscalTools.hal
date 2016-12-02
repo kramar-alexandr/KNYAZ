@@ -453,6 +453,12 @@ begin
 	newdate = RepSpec.f1;
 	newtime = RepSpec.f2;
 	
+	//newdate = RepSpec.f1;
+	//newtime = RepSpec.f2;
+	
+	newdate = DateToString(CurrentDate,"DD.MM.YYYY");;
+	newtime = CurrentTime;
+	
 	if (blank(newdate)) then begin newdate="0"; end;
 	if (blank(newtime)) then begin newtime="0"; end;
 	
