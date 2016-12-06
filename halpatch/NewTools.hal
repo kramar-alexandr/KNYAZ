@@ -3,6 +3,7 @@ external function Boolean PasteInvIn2OPr(var record OPVc,Integer,Date,Integer,va
 external procedure OPVc_PasteVECode(var record OPVc,Integer);
 external procedure OPVc_PasteRecVal(var record OPVc,Integer);
 external procedure NoDupObjs(string,var string);
+external updating procedure RemoveEmptyIVCashCallback(array LongInt);
 
 /*global 
 function Boolean LocMachDrawerVcRecordShouldBeSynchronised(record LocMachDrawerVc LocMachDrawerr,string tagstr)
@@ -720,3 +721,35 @@ begin
 
 return;
 end; //Edit***************************Sasha2,11:22 22.09.2016 }
+
+global //Edit***************************Sasha2,11:47 05.12.2016 {
+updating procedure RemoveEmptyIVCash(array LongInt IVCashNrsToDelete,string locMach)
+begin
+  record IVCashVc IVCashr;
+  boolean testf;
+  Integer cnt,i;
+  array LongInt DeletedIVCashNrs;
+  
+    cnt = IVCashNrsToDelete.length;
+    for (i=0;i<cnt;i=i+1) begin
+      IVCashr.SerNr = IVCashNrsToDelete[i];
+      if (ReadFirstMain(IVCashr,1,true)) then begin
+        testf = true;
+        if (IVCashr.OKFlag!=0 or MatRowCnt(IVCashr)>0) then begin testf = false; end;
+        if (testf) then begin
+          DeletedIVCashNrs[DeletedIVCashNrs.length] = IVCashr.SerNr;
+          RecordDelete(IVCashr);
+        end else begin
+          LogText(0,"Cann't remove IVCash #" & IVCashr.SerNr & ". Record mismatch between Server and Client.");
+        end;
+      end else begin
+        DeletedIVCashNrs[DeletedIVCashNrs.length] = IVCashNrsToDelete[i];
+      end;
+    end;
+
+    if (DeletedIVCashNrs.length>0) then begin
+      clientremoteasync.RemoveEmptyIVCashCallback(DeletedIVCashNrs);
+    end;
+    
+  return;
+end; //Edit***************************Sasha2,11:47 05.12.2016 }

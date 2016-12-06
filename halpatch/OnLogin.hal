@@ -1,4 +1,3 @@
-external procedure OnLoginAutomatedSales();
 external updating procedure LiveDBBlessWClass();
 external procedure OpenHWStore();
 external updating function Integer MarketplacePaymentFailed();

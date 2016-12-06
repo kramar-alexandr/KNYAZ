@@ -182,10 +182,6 @@ external function Boolean HasModWHM();
 external function Boolean HasModDI();
 external function Boolean UsePostOKButton();
 external function Boolean HasBankImport();
-external function Boolean HasPLIntegratedWithNL();
-external function Boolean HasSLIntegratedWithNL();
-external function Boolean HasIntegratedNL();
-external function Boolean HasConsStockMoveInvoices();
 external function Boolean StandardHansa();
 
 
