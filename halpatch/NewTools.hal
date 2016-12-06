@@ -738,6 +738,7 @@ begin
         if (IVCashr.OKFlag!=0 or MatRowCnt(IVCashr)>0) then begin testf = false; end;
         if (testf) then begin
           DeletedIVCashNrs[DeletedIVCashNrs.length] = IVCashr.SerNr;
+          LogText(0,"IVCash #" & IVCashr.SerNr & " was removed.");
           RecordDelete(IVCashr);
         end else begin
           LogText(0,"Cann't remove IVCash #" & IVCashr.SerNr & ". Record mismatch between Server and Client.");
