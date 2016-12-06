@@ -780,6 +780,24 @@ begin
   res = 0;
   insertmode = 1;
   updatemode = 2;
+  
+  switch(CurrentCompany)begin //Edit***************************Sasha2,16:00 06.12.2016 {
+    case 1:
+      objstr = "STALSKOGO";
+    case 3:
+      objstr = "PEROVA";
+  end;  
+  if (NonBlank(objstr)) then begin
+    if (SetInSet(objstr,POr.Objects)==false) then begin
+      if (Blank(POr.Objects)) then begin
+        POr.Objects = objstr;
+      end else begin
+        POr.Objects = POr.Objects & "," & objstr;
+      end;
+    end;
+    objstr = "";
+  end;//Edit***************************Sasha2,16:00 06.12.2016 }
+  
   BlockLoad(SRb);
   if (long4>0) then begin
     check = true;
