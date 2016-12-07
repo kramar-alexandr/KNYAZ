@@ -1485,6 +1485,26 @@ BEGIN
   return;
 end; //Edit***************************Sasha2,16:07 04.03.2016 }
 
+//Edit***************************Sasha2,11:32 07.12.2016 {
+function Boolean PODClassPriceNoVATEFAfter(Integer wn,Integer rownr,Boolean changedf)
+BEGIN
+  record POVc POr;
+  row POVc POrw;
+
+  if (changedf) then begin
+    GetWindowRecord(wn,POr); 
+    if (rownr>-1) then begin
+      MatRowGet(POr,rownr,POrw); 
+      POrw.Price = POrw.PriceNoVAT * 1.2;
+      MatRowPut(POr,rownr,POrw);
+    end;
+    POVc_PastePrice(POr,rownr);
+    PutWindowRecord(wn,POr);
+  end;
+  PODClassPriceNoVATEFAfter = true;
+  return;
+end; //Edit***************************Sasha2,11:32 07.12.2016 }
+
 global
 function Boolean PODClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
 BEGIN
@@ -1526,6 +1546,7 @@ BEGIN
     case "TREO": res = PODClassTREOEFAfter(wn,rownr,changed!=0);
     case "SellPrice": res = PODClassSellPriceEFAfter(wn,rownr,changed!=0); //Edit***************************Sasha2,16:06 04.03.2016
     case "newrowGP": res = PODClassnewrowGPEFAfter(wn,rownr,changed!=0); //Edit***************************Sasha2,16:06 04.03.2016
+    case "PriceNoVAT": res = PODClassPriceNoVATEFAfter(wn,rownr,changed!=0); //Edit***************************Sasha2,16:06 04.03.2016
   end;
   PODClassAfterEditField = res;
   RETURN;

@@ -455,6 +455,7 @@ RecordAddBegin(POVc,"PoVc_Custom");
   ArrayField(rowGP,M4Val,0,0);
   ArrayField(newrowGP,M4Val,0,0);
   ArrayField(ItemGroup,M4Code,20,ITVc);
+  ArrayField(PriceNoVAT,M45Val,0,0);
 EndRecordAdd;
 
 RecordAddBegin(PUVc,"PUVc_Custom");

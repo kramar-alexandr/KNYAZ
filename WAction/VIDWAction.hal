@@ -1432,3 +1432,29 @@ begin
   PutWindowString(wn,"AcceptanceStatusFlag",StringFromSet(443,AcceptanceStatusFlag));  
   return;
 end;
+
+global //Edit***************************Sasha2,12:05 07.12.2016 {
+function Integer VILClassRowColor(record VIVc VIr)
+begin
+  Integer res;
+  record APVc APr;
+  
+  res = kRowColorNone;
+  
+  APr.SerNr = VIr.SerNr;
+  
+  if (ReadFirstMain(APr,1,true)) then begin
+    if (APr.DueDate<CurrentDate) then begin
+      res = kRowcolorRed;
+    end else begin
+      //res = kRowcolorYellow;
+    end;
+  end else begin
+    if (VIr.OKFlag) then begin
+      res = kRowcolorGreen;
+    end;
+  end;
+  
+  VILClassRowColor = res;
+  return;
+end; //Edit***************************Sasha2,12:06 07.12.2016 }

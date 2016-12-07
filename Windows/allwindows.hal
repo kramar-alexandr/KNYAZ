@@ -816,7 +816,7 @@ window INSClass:4
   wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
 begin
   real v;
-  Boolean retailStores;
+  Boolean retailStores; //Edit***************************Sasha2,10:13 07.12.2016
   
   switch(CurrentCompany)begin //Edit***************************Sasha2,16:00 06.12.2016 {
     case 1:
@@ -1550,11 +1550,18 @@ begin
   record CYBlock CYb;
   string 255 label;
   Integer tilenr,flipnr,f,rn;
-
+  Boolean retailStores; //Edit***************************Sasha2,10:13 07.12.2016
+  
+  switch(CurrentCompany)begin //Edit***************************Sasha2,16:00 06.12.2016 {
+    case 1:
+      retailStores = true;
+    case 3:
+      retailStores = true;
+  end; //Edit***************************Sasha2,16:23 06.12.2016 }
   vs = 20;
   BlockLoad(CYb);
   WindowBegin("Заказ поставщику",PODClass,CGview,-);
-  SetWRect(20,80,850,460);
+  SetWRect(20,80,1000,460);
   Sizeable(-1,-1,0,0);
   UseView(POVc);
   CommunicateButton;
@@ -1666,6 +1673,9 @@ begin
   Flip(flipnr); flipnr = flipnr + 1;
   MatColTL(1,190,"Ед.",0,M4Code,ViewOnly,5,UnitCode,false,UnitSCLass);
   MatCol(1,220,"Наименование",0,Spec,false,0);
+  if (retailStores) then begin //Edit***************************Sasha2,10:27 07.12.2016 {
+    MatCol(1,-410,"Ц.без НДС",0,PriceNoVAT,true,0);
+  end; //Edit***************************Sasha2,10:27 07.12.2016 }
   MatCol(1,-350,"В пост.",0,Shipd1,true,0);
   MatCol(1,-310,"Поступ.",0,Shipd2,true,0);
   if (HasJewelleryInterface) then begin
@@ -2787,7 +2797,7 @@ begin
     if (blank(lmc)) then begin lmc = LMb.LocalMachineCode; end;
     sm = IVCashr.SalesMan;
     if (blank(sm)) then begin sm = CurrentUser; end;
-    nr = "Invoice: ";
+    nr = "Сч/ф №: ";
     if (IVCashr.SerNr>0) then begin
       nr = nr & IVCashr.SerNr;
     end;
@@ -2817,10 +2827,15 @@ begin
       SoftEditFieldTLX(420,6,h4,"",M4Str,ViewOnly,100,20,patM4black,"CustomerDisplayData_Line1",true,0);
       SoftEditFieldTLX(420,36,h4,"",M4Str,ViewOnly,100,30,patM4black,"CustomerDisplayData_Line2",true,0);
     end else begin
+      if (IVCashr.OKFlag==0) then begin //Edit***************************Sasha2,13:00 07.12.2016 {
+        SoftEditFieldTLX(-15,8,h4,"Сч/ф открыта",M4Str,ViewOnly,0,30,patM4green,"DisplayIVCashOpenState",false,0);
+      end else begin
+        SoftEditFieldTLX(-15,8,h4,"Сч/ф закрыта",M4Str,ViewOnly,0,30,patM4red,"DisplayIVCashOpenState",false,0);
+      end; //Edit***************************Sasha2,13:00 07.12.2016 }
       SoftEditFieldTLX(520-310,6+40,h4,"",M4Str,ViewOnly,100,30-10,patM4black,"CustomerDisplayData_Line1",true,0);//Edit***************************Sasha2,10:09 08.09.2016
       SoftEditFieldTLX(520-310,46+40,h4,"",M4Str,ViewOnly,100,50-20,patM4black,"CustomerDisplayData_Line2",true,0); //Edit***************************Sasha2,10:09 08.09.2016
-      StaticText(520-230,90+70,"Наличные в фиск. кассе:",false); //Edit***************************Sasha2,13:53 17.11.2016
-      SoftEditFieldTLX(520-100,90+40,170,"",M4Str,ViewOnly,100,50-20,patM4black,"DisplayMoneyInBox",false,0); //Edit***************************Sasha2,13:53 17.11.2016
+      StaticText(520-270,90+70,"Наличные в фиск. кассе:",false); //Edit***************************Sasha2,13:53 17.11.2016
+      SoftEditFieldTLX(520-140,90+40,150,"",M4Str,ViewOnly,100,50-20,patM4black,"DisplayMoneyInBox",false,0); //Edit***************************Sasha2,13:53 17.11.2016
     end;
     switch (LMb.POSButtonsPosition) begin
       case kPOSButtonsPositionLeft:
