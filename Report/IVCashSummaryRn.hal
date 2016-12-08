@@ -102,7 +102,7 @@ begin
   Integer i,rwcnt;
   val ivTot,TotSum;
   vector val ClientSums;
-  date blankd,curdate;
+  date blankd,curdate,lastdate;
   vector string 255 customerName,paymodeText;
 
   BlockLoad(CDb);
@@ -169,8 +169,11 @@ begin
         IVCashTotDismatch = IVCashTotDismatch & IVCashr.SerNr & ",";
       end;
       TotSum = TotSum + IVCashr.Sum4;
+      lastdate = IVCashr.TransDate;
     end;
   end;
+  
+  OutputTotals(ClientSums,splitChars,lastdate,customerName,paymodeText);
   
   Black_Divider(0,1);
   StartFormat(15);
