@@ -140,7 +140,7 @@ begin
     if (nonblank(RepSpec.f2) and  RepSpec.f2!=IVCashr.CustCode) then begin testf = false; end;
     if (IVCashr.OKFlag==0) then begin testf = false; end;
     if (IVCashr.Invalid!=0) then begin testf = false; end;
-    if (DateInRange(IVCashr.TransDate,RepSpec.sStartDate,RepSpec.sEndDate)==false) then begin testf = false; end;
+    if (IVCashr.TransDate>RepSpec.sEndDate) then begin testf = false; TrHs = false; end;
     if (testf) then begin
       if (curdate==blankd) then begin
         curdate = IVCashr.TransDate;

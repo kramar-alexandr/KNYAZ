@@ -553,6 +553,12 @@ EndBlock;
   KeySegment(MachineCode);
 EndRecord;*/
 
+RecordAddBegin(RetPUVc,"RetPUVc_Custom");
+  RecordField(TotSellPrice,M4Val,0,0);
+  ArrayField(SellPrice,M45Val,0,0);
+  ArrayField(SumSellPrice,M45Val,0,0);
+EndRecordAdd;
+
 return;
 end;
 

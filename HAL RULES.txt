@@ -1,4 +1,4 @@
-HALRulesVc (06.12.2016)
+HALRulesVc (08.12.2016)
 
 halcust/datadef.hal
 halcust/startup.hal
@@ -35,6 +35,7 @@ halcust\\WAction/NPTSCashPaymentTClassWAction.hal
 halcust\\WAction/POSEventVcWAction.hal
 halcust\\WAction/POVcWAction.hal
 halcust\\WAction/PUVcWAction.hal
+halcust\\WAction/RetPUVcWAction.hal
 halcust\\WAction/VIDsm.hal
 halcust\\WAction/VIDWAction.hal
 halcust\\Windows/allwindows.hal
