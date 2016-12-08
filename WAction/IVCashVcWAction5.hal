@@ -98,7 +98,8 @@ external updating function Boolean DoXMLExport_IVCashVc(var record IVCashVc);
 external updating procedure ProceedChangeAddressNPTSSClass();
 external updating procedure ProceedChangeTermsNPTSSClass();
 external function Boolean MakeFiscalReceipt(record IVCashVc); //Edit***************************Sasha2,16:20 13.06.2016
-forward procedure IVCashDClassTouchScreenAmendLine(); //Edit***************************Sasha2,11:20 09.11.2016
+forward procedure IVCashDClassTouchScreenAmendLine(); //Edit***************************Sasha2,12:03 08.12.2016
+forward procedure IVCashDClassTouchScreenAmendLineWithParam(string); //Edit***************************Sasha2,12:03 08.12.2016
 
 SetLangMode(LangRussian,"RUS",0); 
 
@@ -1311,7 +1312,7 @@ begin
         PutWindowString(wn,"touchscreenitemqty",1.00);
         DeselectWindow(wn,false);
         IVCashDClasstouchscreenitemEFAfter(wn,0,true);
-        IVCashDClassTouchScreenAmendLine; //Edit***************************Sasha2,10:44 09.11.2016
+        IVCashDClassTouchScreenAmendLineWithParam("fastitem"); //Edit***************************Sasha2,10:44 09.11.2016
         // WindowFieldGoto(wn,IVCashr,-1,"touchscreenitem",true);
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case kPOSButtonTypeModifier:
@@ -1682,8 +1683,34 @@ end;
 global
 procedure POSLoginClassCancel()
 begin  
-  CloseWindow(CurWindow);
-  OverrideLogout;
+  record RcVc RepSpec;
+  record IVCashVc IVCashr;
+  Integer wn,rownr;
+  Boolean deleteItemF;
+
+    wn = CurWindow;
+    if (GetWindowFileName(wn)=="RcVc") then begin
+      GetWindowRecord(wn,RepSpec);
+      if (RepSpec.Comment=="fastitem") then begin
+        deleteItemF = true;
+      end;
+    end;
+    CloseWindow(wn);
+    
+    if (deleteItemF) then begin
+      wn = CurWindow;
+      if (GetWindowFileName(wn)=="IVCashVc") then begin
+        rownr = SelectedListLine(wn);
+        if (rownr>=0) then begin
+          GetWindowRecord(wn,IVCashr);
+          MatRowDelete(IVCashr,rownr);
+          PutWindowRecord(wn,IVCashr);
+          WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",false);
+        end;
+      end;
+    end;
+    OverrideLogout;
+    
   return;
 end;
 
@@ -1729,8 +1756,8 @@ begin
   return;
 end; //Edit***************************Sasha2,11:04 14.09.2016 }
 
-global
-procedure IVCashDClassTouchScreenAmendLine()
+//Edit***************************Sasha2,12:00 08.12.2016 {
+procedure ExecuteIVCashDClassTouchScreenAmendLine(string param)
 begin
   Integer wn,mwn,line,rownr;
   record RcVc RepSpec;
@@ -1772,6 +1799,7 @@ begin
         RepSpec.f2 = IVCashrw.VATCode;
         RepSpec.f3 = "";
         RepSpec.long2 = IVCashrw.stp;
+        RepSpec.Comment = param; //Edit***************************Sasha2,11:31 08.12.2016
         if (IfAllowedChangeArtCodePrice(IVCashrw.ArtCode)) then begin //Edit***************************Sasha2,11:21 14.09.2016 {
           wn = OpenWindow("AmendLineNPTSSClass",0,mwn,"","",RepSpec);
         end else begin
@@ -1782,9 +1810,27 @@ begin
       end;
     end;
   end;
-LIVCashDClassTouchScreenAmendLine:;  
+LIVCashDClassTouchScreenAmendLine:; 
+end; //Edit***************************Sasha2,12:00 08.12.2016 }
+
+global
+procedure IVCashDClassTouchScreenAmendLine()
+begin
+   
+   ExecuteIVCashDClassTouchScreenAmendLine("");
+   
   return;
 end;
+
+global //Edit***************************Sasha2,11:59 08.12.2016 {
+procedure IVCashDClassTouchScreenAmendLineWithParam(string param)
+begin
+
+  ExecuteIVCashDClassTouchScreenAmendLine(param);
+  
+LIVCashDClassTouchScreenAmendLineWithParam:; 
+  return;
+end; //Edit***************************Sasha2,11:59 08.12.2016 }
 
 global
 procedure IVCashDClassTouchScreenAllowIncorrectSerial()

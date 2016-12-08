@@ -10,6 +10,7 @@ begin
   //Setting("Локальная машина - ящик_vc",LocMachDrawerLClass,modPOS);
   
   Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
+  Report("Отчет по кассе по дням",IVCashSummaryRClass,IVCashSummaryRn,0,modPOS);
   
   Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
   Import("Импорт остатков",ImportStockRemains2IClass,ImportStockRemains2In,modIN);

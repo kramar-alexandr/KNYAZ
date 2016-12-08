@@ -3128,8 +3128,7 @@ window CCPayTouchScreenSelfDClass:1
   wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer,iPad")
 begin
   real h,h2,v;
-  record LocalMachineBlock LMb;
-  record RahaxiBlock Rahaxib;
+
   WindowBegin("Выписка товаров на себя",CCPayTouchScreenSelfDClass,CGother,RcType);
   Modality(kModalityGlobal);
   UseView(RcVc);
@@ -3142,11 +3141,10 @@ begin
     PopoverWindow;
   end;
   EditFieldTLX(h,v=6, 140,"Сумма",M4Val,ViewOnly,0,30,patM4black,vals0,true,0);
-  BlockLoad(LMb);
-  EditFieldTLX(h,v=v+40, 80,"Валюта",M4Str,ViewOnly,5,30,patM4black,CurncyCode,false,0);
   v=v+40;
-  EditFieldTLX(h,v=v+40, 140,"Пароль",M4Str,Normal,30,25,patM4black,f1,false,0);
-  BlockLoad(Rahaxib);
+  EditFieldTLX(h,v=v+40, 140,"Пароль",M4Str,Normal,20,25,patM4black,f1,false,0);
+  EditFieldTLX(h,v=v+40, 80,"Валюта",M4Str,ViewOnly,5,30,patM4black,CurncyCode,false,0);
+
   v = v+70;
   if (GuiType==kGuiiPhone) then begin
     h = 160; h2 = 450;

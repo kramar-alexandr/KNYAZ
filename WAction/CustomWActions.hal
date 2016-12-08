@@ -1,6 +1,26 @@
 external procedure FindRepDefHeader(string,string,var string);
 remote updating function Integer CreateOPFromVI(record VIVc,var record OPVc);
 
+global //Edit***************************Sasha2,13:36 07.12.2016 {
+function Boolean CCPayTouchScreenSelfDClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
+begin
+  Boolean res;
+  record RcVc RepSpec;
+  
+  GetWindowRecord(wn,RepSpec);
+  if (fieldname=="f1") then begin
+    if (nonblank(RepSpec.f1)) then begin
+      SelectButton(wn,"ProceedCCPayTouchScreenSelfDClass");
+    end else begin
+      WindowFieldGoto(wn,RepSpec,-1,"f1",false);
+    end;
+    res = false;
+  end;
+
+  CCPayTouchScreenSelfDClassOnEnterKey = res;
+  return;
+end; //Edit***************************Sasha2,13:36 07.12.2016 }
+
 global
 procedure INRClassReportDefaults(Integer wn)
 begin

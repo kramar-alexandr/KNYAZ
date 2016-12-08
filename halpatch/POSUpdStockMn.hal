@@ -63,7 +63,7 @@ begin
   
   if (MatRowCnt(SDr)>0) then begin
     Location = SDr.Location;
-    SDr.TransDate = RepSpec.RegDate; //Edit***************************Sasha2,9:52 18.11.2016
+    SDr.TransDate = RepSpec.sStartDate; //Edit***************************Sasha2,9:52 18.11.2016
     SDr.SerNr = NextSerNr("SDVc",SDr.TransDate,-1,false,"");  
     SDr.Comment = USetStr(17810) & " ";
     SDr.Comment = SDr.Comment & USetStr(17811) & " ";
