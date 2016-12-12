@@ -22,6 +22,7 @@ remote procedure RecalculateNPTSCashPaymentTool(record RcVc,Array string,
                                         Integer,
                                         var val,var val,var val,var val);
 remote procedure CntPOSCurrencies(var Array string,var Array Boolean,var Integer);
+external updating procedure ProceedAmendLineNPTSSClass(); //Edit***************************Sasha2,18:19 09.12.2016
 
 procedure RecalculateNPTSCashPayment(Integer wn,record RcVc RepSpec)
 begin
@@ -1219,25 +1220,33 @@ end; //Edit***************************Sasha2,16:04 09.11.2016 }
 
 //_____________________________________
 //Edit***************************Sasha2,16:10 09.11.2016 {
-function Boolean AmendLineNPTSRestrictedSClassOnEnterKeyExecute(Integer wn,string fieldname,Integer fn,Integer rownr)
+function updating Boolean AmendLineNPTSRestrictedSClassOnEnterKeyExecute(Integer wn,string fieldname,Integer fn,Integer rownr)
 begin
-  Boolean res;
+  Boolean res,proceedf;
     
     res = true;
     switch (fieldname) begin
+      case "vals0":
+        proceedf = true;
+        res = false;
       case "vals1":
-        SelectButton(wn,"ProceedAmendLineNPTSSClass");
+        proceedf = true;
         res = false;
       case "vals2":
-        SelectButton(wn,"ProceedAmendLineNPTSSClass");
+        proceedf = true;
         res = false;
     end;
+    if (proceedf) then begin
+      //SelectButton(wn,"ProceedAmendLineNPTSSClass");
+      ProceedAmendLineNPTSSClass;
+    end;
+    
     AmendLineNPTSRestrictedSClassOnEnterKeyExecute = res;
   return;
 end; //Edit***************************Sasha2,16:10 09.11.2016 }
 
 global
-function Boolean AmendLineNPTSSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
+updating function Boolean AmendLineNPTSSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
 begin
   Boolean res;
   
@@ -1247,7 +1256,7 @@ begin
 end;
 
 global //Edit***************************Sasha2,16:05 09.11.2016 {
-function Boolean AmendLineNPTSRestrictedSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
+updating function Boolean AmendLineNPTSRestrictedSClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
 begin
   Boolean res;
     

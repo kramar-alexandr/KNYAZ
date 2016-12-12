@@ -1705,6 +1705,10 @@ begin
           GetWindowRecord(wn,IVCashr);
           MatRowDelete(IVCashr,rownr);
           PutWindowRecord(wn,IVCashr);
+          if (GetWindowClass(wn)=="NPTSIVCashDClass") then begin
+            PutWindowString(wn,"CustomerDisplayData_Line1",""); 
+            PutWindowString(wn,"CustomerDisplayData_Line2","");   
+          end;
           WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",false);
         end;
       end;
