@@ -1531,6 +1531,9 @@ LPUVcRecordCheck_GenTrans:;
       end;
     end;    
   end;  
+  
+  PUr.TransDateText = PUr.TransDate; //Edit***************************Sasha2,15:51 14.12.2016
+  
 L99PUVcRecordCheck:;
   if (res!=0) then begin PUr.SerNr = oldnr; end;
   PUVcRecordCheck = res;

@@ -754,3 +754,80 @@ begin
     
   return;
 end; //Edit***************************Sasha2,11:47 05.12.2016 }
+
+
+global //Edit***************************Sasha2,16:35 14.12.2016 {
+updating procedure UpdateTextFieldsForQuickSearchMn(record RcVc RepSpec)
+begin
+  record PUVc PUr;
+  record POVc POr;
+  record VIVc VIr;
+  record OPVc OPr;
+  record CLinVc CLinr;
+  record CLoutVc CLoutr;
+  record IVCashVc IVCashr;
+  
+    if (RepSpec.flags[0]==1) then begin
+      PUr.SerNr = -1;
+      while (LoopMain(PUr,1,true)) begin
+        PUr.TransDateText = PUr.TransDate;
+        RECORDSTORE(PUr,true);
+      end;
+    end;
+    
+    if (RepSpec.flags[1]==1) then begin
+      POr.SerNr = -1;
+      while (LoopMain(POr,1,true)) begin
+        POr.TransDateText = POr.TransDate;
+        POr.Sum4Text = POr.Sum4;
+        RECORDSTORE(POr,true);
+      end;
+    end;
+    
+    if (RepSpec.flags[2]==1) then begin
+      VIr.SerNr = -1;
+      while (LoopMain(VIr,1,true)) begin
+        VIr.InvDateText = VIr.InvDate;
+        VIr.PayValText = VIr.PayVal;
+        RECORDSTORE(VIr,true);
+      end;
+    end;
+    
+    if (RepSpec.flags[3]==1) then begin
+      OPr.SerNr = -1;
+      while (LoopMain(OPr,1,true)) begin
+        OPr.PayDateText = OPr.PayDate;
+        OPr.CurPayValText = OPr.CurPayVal;
+        RECORDSTORE(OPr,true);
+      end;
+    end;
+    
+    if (RepSpec.flags[4]==1) then begin
+      CLinr.SerNr = -1;
+      while (LoopMain(CLinr,1,true)) begin
+        CLinr.TransDateText = CLinr.TransDate;
+        CLinr.TotalText = CLinr.Total;
+        RECORDSTORE(CLinr,true);
+      end;
+    end;
+    
+    if (RepSpec.flags[5]==1) then begin
+      CLoutr.SerNr = -1;
+      while (LoopMain(CLoutr,1,true)) begin
+        CLoutr.TransDateText = CLoutr.TransDate;
+        CLoutr.TotalText = CLoutr.Total;
+        RECORDSTORE(CLoutr,true);
+      end;
+    end;
+    
+    if (RepSpec.flags[6]==1) then begin
+      IVCashr.SerNr = -1;
+      while (LoopMain(IVCashr,1,true)) begin
+        IVCashr.InvDateText = IVCashr.InvDate;
+        IVCashr.Sum4Text = IVCashr.Sum4;
+        RECORDSTORE(IVCashr,true);
+      end;
+    end;
+
+  return;
+end; //Edit***************************Sasha2,16:35 14.12.2016 }

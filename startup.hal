@@ -19,6 +19,7 @@ begin
   Maintenance("Удалить все записи по POS",POSRegistersRemoveVClass,POSRegistersRemoveMn,modDBMain);
   Maintenance("Удалить записи выборочно",RegistersRemoveOptionallyVClass,RegistersRemoveOptionallyMn,modDBMain);
   Maintenance("Прописать ед.измерения в товаре, где её нет",SetUnitTextInItemIfNeededVClass,SetUnitTextInItemIfNeededMn,modIN);
+  Maintenance("Обновить текст. поля для быстрого поиска",UpdateTextFieldsForQuickSearchVClass,UpdateTextFieldsForQuickSearchMn,modDBMain); //Edit***************************Sasha2,16:53 14.12.2016
 
   SString(50000,"Укажите цену закупки"); 
   SString(50001,"Укажите себестоимость");
@@ -29,5 +30,6 @@ begin
   SString(50006,"Должна стоять галочка ok");
   SString(50007,"или");
   SString(50008,"Розн.цена");
+  SString(50009,"Сумма розн.ц.");
 	return;
 end;

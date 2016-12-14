@@ -126,7 +126,7 @@ L99:;
   RETURN;
 END;
 
-procedure PrintSTCompOneItem(record RcVc RepSpec,record INVc INr,Boolean varf,string variety,string serialnr,Date dat1,val diff,val units,val instock,val instock2,var val totinprice)
+procedure PrintSTCompOneItem(record RcVc RepSpec,record INVc INr,Boolean varf,string variety,string serialnr,Date dat1,val diff,val units,val instock,val instock2,var val totinprice,var val priceSumTot,var val unitSumTot) //Edit***************************Sasha2,17:00 13.12.2016
 begin
   string 200 dblstr;  
   record INVc locINr;
@@ -168,9 +168,12 @@ begin
         OutString(240,0,instock,true);
         OutString(290,0,INr.UPrice1,true); //InPrice //Edit***************************Sasha2,17:40 02.12.2016
         OutString(330,0,instock * INr.UPrice1,true); //InPrice //Edit***************************Sasha2,17:40 02.12.2016
+        priceSumTot = priceSumTot + instock * INr.UPrice1;
         OutString(370,0,units,true);
-        OutVal(420,0,diff,M4UVal,true);
-        OutVal(1,0,diff* INr.UPrice1,M4Val,true); //InPrice //Edit***************************Sasha2,17:40 02.12.2016
+        OutVal(430,0,units*INr.UPrice1,M4Val,true); //InPrice //Edit***************************Sasha2,17:40 02.12.2016
+        unitSumTot = unitSumTot + units*INr.UPrice1;
+        OutVal(470,0,diff,M4UVal,true);
+        
         totinprice = totinprice + diff* INr.UPrice1; //InPrice //Edit***************************Sasha2,17:40 02.12.2016
       case 2:    
         OutString(3,0,INr.InvCode,true);
@@ -185,7 +188,7 @@ begin
   return;
 end;
 
-procedure DoSTCompOneItem(record RcVc RepSpec,record INVc INr,Boolean varf,string variety,var Boolean itemoutf,var val inp,var val inq2p,var val countp,var val diffp,var val totinprice)
+procedure DoSTCompOneItem(record RcVc RepSpec,record INVc INr,Boolean varf,string variety,var Boolean itemoutf,var val inp,var val inq2p,var val countp,var val diffp,var val totinprice,var val priceSumTot,var val unitSumTot) //Edit***************************Sasha2,16:54 13.12.2016
 begin
   Boolean plhit,testf;
   val instock,instock2,units,diff,uprice;
@@ -257,7 +260,7 @@ begin
     end;
     if (testf) then begin
       if (RepSpec.flags[5]==0) then begin
-        PrintSTCompOneItem(RepSpec,INr,varf,variety,"",dat1,diff,units,instock,instock2,totinprice);
+        PrintSTCompOneItem(RepSpec,INr,varf,variety,"",dat1,diff,units,instock,instock2,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,17:01 13.12.2016
         inp = instock + inp;
         inq2p = instock2 + inq2p;
         countp = units + countp;
@@ -265,7 +268,7 @@ begin
       end else begin
         switch (IN2r.SerNrf) begin
           case 0:
-            PrintSTCompOneItem(RepSpec,INr,varf,variety,"",dat1,diff,units,instock,instock2,totinprice);
+            PrintSTCompOneItem(RepSpec,INr,varf,variety,"",dat1,diff,units,instock,instock2,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,17:01 13.12.2016
             inp = instock + inp;
             inq2p = instock2 + inq2p;
             countp = units + countp;
@@ -287,7 +290,7 @@ LCASE0:;
                   SerBalr.Serial = batcha[i];
                   if (ReadFirstKey("Serial",SerBalr,3,true)) then begin
                     diff = counteda[i] - SerBalr.Quant;
-                    PrintSTCompOneItem(RepSpec,INr,varf,variety,batcha[i],dat1,diff,counteda[i],SerBalr.Quant,instock2,totinprice);
+                    PrintSTCompOneItem(RepSpec,INr,varf,variety,batcha[i],dat1,diff,counteda[i],SerBalr.Quant,instock2,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,17:01 13.12.2016
                   end;
                 end;
             end;                                 
@@ -296,11 +299,11 @@ LCASE0:;
               for (i=0;i<arrcnt;i=i+1) begin
                 instock = STCompFindSerialNrQty(INr.Code,variety,batcha[i],RepSpec.AccStr,posa[i],serialnr);
                 diff = counteda[i] - instock;
-                PrintSTCompOneItem(RepSpec,INr,varf,variety,batcha[i],dat1,diff,counteda[i],instock,instock2,totinprice);
+                PrintSTCompOneItem(RepSpec,INr,varf,variety,batcha[i],dat1,diff,counteda[i],instock,instock2,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,17:01 13.12.2016
               end;
             end else begin
               instock = STCompFindSerialNrQty(INr.Code,variety,"",RepSpec.AccStr,RepSpec.LastAcc,serialnr);
-              PrintSTCompOneItem(RepSpec,INr,varf,variety,"",dat1,diff,units,instock,instock2,totinprice);
+              PrintSTCompOneItem(RepSpec,INr,varf,variety,"",dat1,diff,units,instock,instock2,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,17:01 13.12.2016
             end;          
         end;
       end;
@@ -332,7 +335,7 @@ LRemoveFromLastSTForItem:;
   return;
 end;
        
-procedure STCompOneItem(record RcVc RepSpec,record INVc INr,var Boolean itemoutf,var val inp,var val inq2p,var val countp,var val diffp, var val totinprice)
+procedure STCompOneItem(record RcVc RepSpec,record INVc INr,var Boolean itemoutf,var val inp,var val inq2p,var val countp,var val diffp, var val totinprice,var val priceSumTot,var val unitSumTot)
 begin
   Boolean plhit,varf,found,testf;
   val instock,instock2,units,diff,uprice;
@@ -385,7 +388,7 @@ begin
           end;
           if (blank(ISr.Variety)) then begin testf = false; end;
           if (testf) then begin
-            DoSTCompOneItem(RepSpec,INr,varf,ISr.Variety,itemoutf,inp,inq2p,countp,diffp,totinprice);
+            DoSTCompOneItem(RepSpec,INr,varf,ISr.Variety,itemoutf,inp,inq2p,countp,diffp,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,16:32 13.12.2016
             RemoveFromLastSTForItem(ISr.Code & ISr.Variety,"",combStockTaker,false);
           end;
         end;
@@ -393,10 +396,10 @@ begin
       combrwcnt = MatRowCnt(combStockTaker);
       for (combi=0;combi<combrwcnt;combi=combi+1) begin
         MatRowGet(combStockTaker,combi,combStockTakerw);
-        DoSTCompOneItem(RepSpec,INr,varf,right(combStockTakerw.ArtCode,len(combStockTakerw.ArtCode)-len(INr.Code)),itemoutf,inp,inq2p,countp,diffp,totinprice);
+        DoSTCompOneItem(RepSpec,INr,varf,right(combStockTakerw.ArtCode,len(combStockTakerw.ArtCode)-len(INr.Code)),itemoutf,inp,inq2p,countp,diffp,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,16:32 13.12.2016
       end;
     end else begin
-      DoSTCompOneItem(RepSpec,INr,varf,"",itemoutf,inp,inq2p,countp,diffp,totinprice);
+      DoSTCompOneItem(RepSpec,INr,varf,"",itemoutf,inp,inq2p,countp,diffp,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,16:32 13.12.2016
     end;
   end;
 LSTCompOneItem:;  
@@ -404,7 +407,7 @@ LSTCompOneItem:;
 end;
 
 
-procedure STCompOneItem_PerPosition(record RcVc orgRepSpec,record INVc INr,var Boolean itemout,var val instock,var val instock2,var val counted,var val diff,var val totinprice)
+procedure STCompOneItem_PerPosition(record RcVc orgRepSpec,record INVc INr,var Boolean itemout,var val instock,var val instock2,var val counted,var val diff,var val totinprice,var val priceSumTot,var val unitSumTot)
 begin
   record PISVc PISr;      
   Boolean found;
@@ -439,7 +442,7 @@ begin
     if (found) then begin
       RecordCopy(RepSpec,orgRepSpec);
       RepSpec.LastAcc = PISr.Position;     
-      DoSTCompOneItem(RepSpec,INr,varf,PISr.Variety,itemout,instock,instock2,counted,diff,totinprice);
+      DoSTCompOneItem(RepSpec,INr,varf,PISr.Variety,itemout,instock,instock2,counted,diff,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,10:52 14.12.2016
       RemoveFromLastSTForItem(PISr.ArtCode & PISr.Variety,PISr.Position,combStockTaker,true);
     end;
   end;
@@ -450,15 +453,15 @@ begin
     if (vtreatedf[combStockTakerw.ArtCode & "??" & combStockTakerw.Position]==false) then begin
       RecordCopy(RepSpec,orgRepSpec);
       RepSpec.LastAcc = combStockTakerw.Position;     
-      DoSTCompOneItem(RepSpec,INr,varf,right(combStockTakerw.ArtCode,len(combStockTakerw.ArtCode)-len(INr.Code)),itemout,instock,instock2,counted,diff,totinprice);
-      vtreatedf[combStockTakerw.ArtCode & "??" & combStockTakerw.Position] = true;
+      DoSTCompOneItem(RepSpec,INr,varf,right(combStockTakerw.ArtCode,len(combStockTakerw.ArtCode)-len(INr.Code)),itemout,instock,instock2,counted,diff,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,10:52 14.12.2016
+      vtreatedf[combStockTakerw.ArtCode & "??" & combStockTakerw.Position] = true; 
     end;
 //    RemoveFromLastSTForItem(combStockTakerw.ArtCode,combStockTakerw.Position,combStockTaker,true);
   end;
   return;
 end;
 
-procedure STLoopIN(record RcVc RepSpec,var val instock,var val instock2,var val counted,var val diff,var val totinprice)
+procedure STLoopIN(record RcVc RepSpec,var val instock,var val instock2,var val counted,var val diff,var val totinprice,var val priceSumTot,var val unitSumTot)
 BEGIN
   string 255 ckey;
   Integer keys;
@@ -549,13 +552,13 @@ BEGIN
         Locr.Code = RepSpec.AccStr;
         ReadFirstMain(Locr,1,true);
         if (Locr.RequirePos!=0) then begin
-          STCompOneItem_PerPosition(RepSpec,INr,itemout,instock,instock2,counted,diff,totinprice);
+          STCompOneItem_PerPosition(RepSpec,INr,itemout,instock,instock2,counted,diff,totinprice,priceSumTot,unitSumTot);
 //          STCompOneItem(RepSpec,INr,itemout,instock,instock2,counted,diff);
         end else begin
-          STCompOneItem(RepSpec,INr,itemout,instock,instock2,counted,diff,totinprice);
+          STCompOneItem(RepSpec,INr,itemout,instock,instock2,counted,diff,totinprice,priceSumTot,unitSumTot);
         end;
       end else begin
-        STCompOneItem(RepSpec,INr,itemout,instock,instock2,counted,diff,totinprice);
+        STCompOneItem(RepSpec,INr,itemout,instock,instock2,counted,diff,totinprice,priceSumTot,unitSumTot);
       end;
     end;
   end;
@@ -571,6 +574,7 @@ BEGIN
   Integer rw;
   string 20 frart,toart;
   val totinprice;
+  val priceSumTot,unitSumTot;
 
   if (blankdate(RepSpec.RegDate)) then begin RepSpec.RegDate = CurrentDate; end;
   frart = FirstInRange(RepSpec.f1,20);
@@ -657,11 +661,12 @@ BEGIN
         OutString(1,0,USetStr(2772),true);
       case 1:
         OutString(240,0,USetStr(2765),true);
-        OutString(290,0,UsetStr(2774),true);
+        OutString(290,0,UsetStr(50008),true); //UsetStr(2774)//Edit***************************Sasha2,11:00 14.12.2016
         OutString(330,0,UsetStr(2775),true);
         OutString(370,0,USetStr(2771),true);
-        OutString(420,0,USetStr(2772),true);
-        OutString(1,0,USetStr(2901),true);
+        OutString(430,0,USetStr(50009),true);
+        OutString(470,0,USetStr(2772),true);
+        
       case 2:
         OutString(3,0,USetStr(2767),true);
         if (RepSpec.flags[0]!=0) then  begin OutString(330,0,USetStr(7593),true); end;
@@ -690,8 +695,10 @@ BEGIN
   instock = blankval;
   counted = blankval;
   instock2 = blankval;
+  priceSumTot = blankval; //Edit***************************Sasha2,10:50 14.12.2016
+  unitSumTot = blankval; //Edit***************************Sasha2,10:50 14.12.2016
 
-  STLoopIN(RepSpec,instock,instock2,counted,diff,totinprice);
+  STLoopIN(RepSpec,instock,instock2,counted,diff,totinprice,priceSumTot,unitSumTot); //Edit***************************Sasha2,10:52 14.12.2016
   
   if (RepSpec.ArtMode==0) then begin
     Gray_Divider(0,1);
@@ -706,9 +713,10 @@ BEGIN
     case 1:
       OutVal(240,0,instock,M4UVal,true);
       //if (RepSpec.flags[0]!=0) then  begin OutVal(350,0,instock2,M4UVal,true); end;
+      OutVal(330,0,priceSumTot,M4UVal,true);
       OutVal(370,0,counted,M4UVal,true);
-      OutVal(420,0,diff,M4UVal,true);
-      OutVal(1,0,totinprice,M4Val,true);
+      OutVal(430,0,unitSumTot,M4Val,true);
+      OutVal(470,0,diff,M4UVal,true);
     case 2:
       if (RepSpec.flags[0]!=0) then  begin OutVal(330,0,instock2,M4UVal,true); end;
       OutVal(4,0,instock,M4UVal,true);
@@ -716,6 +724,13 @@ BEGIN
       OutVal(1,0,diff,M4UVal,true);
   end;
   EndFormat;
+  if (RepSpec.flags[1]==1) then begin //Edit***************************Sasha2,11:04 14.12.2016 {
+    Gray_Divider(0,1);
+    StartFormat(15);
+      OutString(370,0,"(" & USetStr(50009) & ") - (" & UsetStr(2775) & "):",true);
+      OutVal(430,0,unitSumTot - priceSumTot,M4Val,true);
+    EndFormat;
+  end; //Edit***************************Sasha2,11:04 14.12.2016 }
   EndJob; 
   RETURN;
 END;

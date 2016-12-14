@@ -1267,6 +1267,10 @@ begin
         end;
     end;
   end;
+  
+  POr.TransDateText = POr.TransDate; //Edit***************************Sasha2,15:57 14.12.2016
+  POr.Sum4Text = POr.Sum4; //Edit***************************Sasha2,15:57 14.12.2016
+  
 LPOVcRecordCheck:;
   if (res!=0) then begin POr.SerNr = oldnr; end;  
   ValidatePORecord = res;

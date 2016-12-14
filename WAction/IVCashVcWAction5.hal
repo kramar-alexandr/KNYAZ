@@ -1954,8 +1954,8 @@ begin
   return;
 end;
 
-global
-updating procedure IVCashDClassTouchScreenReturn()
+global //Edit***************************Sasha2,11:25 14.12.2016 {
+updating procedure IVCashDClassTouchScreenReturnExecute()
 BEGIN
   record IVCashVc IVCashr;
   record IVCashVc newIVCashr;
@@ -1975,91 +1975,151 @@ BEGIN
     goto LIVCashDClassToolIVReturn;
   end;                                          
   wn = CurWindow;
-  DeselectWindow(wn,true);
-  switch (WindowState(wn)) begin
-    case Rs_insert:
-      //PutWindowString(wn,"ReturnMode","true");
-      if (GetWindowString(wn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
-        PutWindowString(wn,"ReturnMode","false");
-      end else begin
-        PutWindowString(wn,"ReturnMode","true");
-      end; //Edit***************************Sasha2,14:27 13.10.2016 }
-      GetWindowRecord(wn,IVCashr);
-      if (HasLocalization("POL")) then begin
-        IVCashr.FiscalFlag = 0;
-      end;
-      rwcnt = MatRowCnt(IVCashr);      
-      for (i=0;i<rwcnt;i=i+1) begin
-        MatRowGet(IVCashr,i,IVCashrw);
-        if (IVCashrw.Quant<>0) then begin //Edit***************************Sasha2,16:27 09.09.2016 was ">"
-          IVCashrw.Quant = -IVCashrw.Quant;
-          IVCashrw.Sum = -IVCashrw.Sum;
-          MatRowPut(IVCashr,i,IVCashrw);
-        end;
-      end;
-      IVCashSumup(IVCashr,true);
-      PutWindowRecord(wn,IVCashr);
-      IVCashDClass_RefreshStringList(wn,IVCashr);
-    otherwise
-      if (GetWindowString(wn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
-        PutWindowString(wn,"ReturnMode","false");
-      end else begin
-        PutWindowString(wn,"ReturnMode","true");
-      end; //Edit***************************Sasha2,14:27 13.10.2016 }
-      GetWindowRecord(wn,IVCashr);
-      if (IVCashr.Invalid!=0) then begin goto LIVCashDClassToolIVReturn; end;
-      
-      if (IVCashr.OKFlag==0) then begin
-        RecordCopy(newIVCashr,IVCashr);
+  if (GetWindowFileName(wn)=="IVCashVc") then begin
+    DeselectWindow(wn,true);
+    switch (WindowState(wn)) begin
+      case Rs_insert:
+        //PutWindowString(wn,"ReturnMode","true");
+        if (GetWindowString(wn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
+          PutWindowString(wn,"ReturnMode","false");
+        end else begin
+          PutWindowString(wn,"ReturnMode","true");
+        end; //Edit***************************Sasha2,14:27 13.10.2016 }
+        GetWindowRecord(wn,IVCashr);
         if (HasLocalization("POL")) then begin
-          newIVCashr.FiscalFlag = 0;
+          IVCashr.FiscalFlag = 0;
         end;
-        newIVCashr.TransDate = CurrentDate;
-        newIVCashr.InvDate = CurrentDate;
-        rwcnt = MatRowCnt(newIVCashr);
+        rwcnt = MatRowCnt(IVCashr);      
         for (i=0;i<rwcnt;i=i+1) begin
-          MatRowDelete(newIVCashr,i);
-          rwcnt = MatRowCnt(newIVCashr);
-          i = i - 1;
-        end;
-        IVCashDClassTouchScreenReturnRemote(IVCashr,newIVCashr);    
-        IVCashSumup(newIVCashr,true);
-        PutWindowRecord(wn,newIVCashr);
-        IVCashDClass_RefreshStringList(wn,newIVCashr);
-      end else begin
-        RecordCopy(newIVCashr,IVCashr);
-        if (HasLocalization("POL")) then begin
-          newIVCashr.FiscalFlag = 0;
-        end;
-        newIVCashr.UUID = buuid;
-        newIVCashr.OKFlag = 0;
-        newIVCashr.SerNr = -1;
-        newIVCashr.TransDate = CurrentDate;
-        newIVCashr.InvDate = CurrentDate;
-        newIVCashr.LocalMachineCode = CurMachineName;
-        newIVCashr.DrawerCode = CurDrawerCode(newIVCashr.LocalMachineCode);
-        rwcnt = MatRowCnt(newIVCashr);
-        for (i=0;i<rwcnt;i=i+1) begin
-          MatRowDelete(newIVCashr,i);
-          rwcnt = MatRowCnt(newIVCashr);
-          i = i - 1;
-        end;
-        IVCashDClassTouchScreenReturnRemote(IVCashr,newIVCashr);
-        if (MatRowCnt(newIVCashr)>0) then begin
-          IVCashSumup(newIVCashr,true);
-          SetWindowState(wn,Rs_insert);
-          PutWindowRecord(wn,newIVCashr);
-          if (WindowDoOK(wn,0)) then begin
-            PutWindowPrevRecord(wn,newIVCashr);
+          MatRowGet(IVCashr,i,IVCashrw);
+          if (IVCashrw.Quant<>0) then begin //Edit***************************Sasha2,16:27 09.09.2016 was ">"
+            IVCashrw.Quant = -IVCashrw.Quant;
+            IVCashrw.Sum = -IVCashrw.Sum;
+            MatRowPut(IVCashr,i,IVCashrw);
           end;
-          ReRunWindowDef(wn);
-    //    nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",newIVCashr);
-    //    ReRunWindowDef(nwn);
-          IVCashDClass_RefreshStringList(wn,newIVCashr);
         end;
-      end;
+        IVCashSumup(IVCashr,true);
+        PutWindowRecord(wn,IVCashr);
+        IVCashDClass_RefreshStringList(wn,IVCashr);
+      otherwise
+        if (GetWindowString(wn,"ReturnMode")=="true") then begin //Edit***************************Sasha2,14:27 13.10.2016 {
+          PutWindowString(wn,"ReturnMode","false");
+        end else begin
+          PutWindowString(wn,"ReturnMode","true");
+        end; //Edit***************************Sasha2,14:27 13.10.2016 }
+        GetWindowRecord(wn,IVCashr);
+        if (IVCashr.Invalid!=0) then begin goto LIVCashDClassToolIVReturn; end;
+        
+        if (IVCashr.OKFlag==0) then begin
+          RecordCopy(newIVCashr,IVCashr);
+          if (HasLocalization("POL")) then begin
+            newIVCashr.FiscalFlag = 0;
+          end;
+          newIVCashr.TransDate = CurrentDate;
+          newIVCashr.InvDate = CurrentDate;
+          rwcnt = MatRowCnt(newIVCashr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowDelete(newIVCashr,i);
+            rwcnt = MatRowCnt(newIVCashr);
+            i = i - 1;
+          end;
+          IVCashDClassTouchScreenReturnRemote(IVCashr,newIVCashr);    
+          IVCashSumup(newIVCashr,true);
+          PutWindowRecord(wn,newIVCashr);
+          IVCashDClass_RefreshStringList(wn,newIVCashr);
+        end else begin
+          RecordCopy(newIVCashr,IVCashr);
+          if (HasLocalization("POL")) then begin
+            newIVCashr.FiscalFlag = 0;
+          end;
+          newIVCashr.UUID = buuid;
+          newIVCashr.OKFlag = 0;
+          newIVCashr.SerNr = -1;
+          newIVCashr.TransDate = CurrentDate;
+          newIVCashr.InvDate = CurrentDate;
+          newIVCashr.LocalMachineCode = CurMachineName;
+          newIVCashr.DrawerCode = CurDrawerCode(newIVCashr.LocalMachineCode);
+          rwcnt = MatRowCnt(newIVCashr);
+          for (i=0;i<rwcnt;i=i+1) begin
+            MatRowDelete(newIVCashr,i);
+            rwcnt = MatRowCnt(newIVCashr);
+            i = i - 1;
+          end;
+          IVCashDClassTouchScreenReturnRemote(IVCashr,newIVCashr);
+          if (MatRowCnt(newIVCashr)>0) then begin
+            IVCashSumup(newIVCashr,true);
+            SetWindowState(wn,Rs_insert);
+            PutWindowRecord(wn,newIVCashr);
+            if (WindowDoOK(wn,0)) then begin
+              PutWindowPrevRecord(wn,newIVCashr);
+            end;
+            ReRunWindowDef(wn);
+      //    nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",newIVCashr);
+      //    ReRunWindowDef(nwn);
+            IVCashDClass_RefreshStringList(wn,newIVCashr);
+          end;
+        end;
+    end;
   end;
+  
 LIVCashDClassToolIVReturn:;  
+  return;
+end; //Edit***************************Sasha2,11:25 14.12.2016 }
+
+global //Edit***************************Sasha2,11:53 30.09.2016 {
+procedure NoProceedItemsReturnTClass()
+begin
+  Integer wn,mwn;
+  record IVCashVc IVCashr;
+  record RcVc RepSpec;
+  boolean res;
+  
+  wn = CurWindow;
+  CloseWindow(wn);
+
+LNoProceedItemsReturnTClass:;
+  return;  
+end; //Edit***************************Sasha2,11:53 30.09.2016 }
+
+global //Edit***************************Sasha2,11:53 30.09.2016 {
+updating procedure YesProceedItemsReturnTClass()
+begin
+  Integer wn;
+  record RcVc RepSpec;
+  
+  wn = CurWindow;
+  if (GetWindowFileName(wn)=="RcVc") then begin
+    DeselectWindow(wn,false);
+    GetWindowRecord(wn,RepSpec);
+    if (RepSpec.f1=="1111") then begin
+      NoProceedItemsReturnTClass;
+      IVCashDClassTouchScreenReturnExecute;
+    end else begin
+      MessageBox(22150,"");
+      WindowFieldGoto(wn,RepSpec,-1,"f1",false);
+    end;
+  end;
+
+LYesProceedItemsReturnTClass:;
+  return;  
+end; //Edit***************************Sasha2,11:53 30.09.2016 }
+
+global
+updating procedure IVCashDClassTouchScreenReturn()
+BEGIN
+  Integer wn,wn2;
+  record RcVc RepSpec;
+  
+  wn = CurWindow; //Edit***************************Sasha2,11:51 30.09.2016 {
+  if (GetWindowFileName(wn)=="IVCashVc") then begin
+    RECORDNEW(RepSpec);
+    wn2 = OpenWindow("ProceedItemsReturnTClass",0,wn,"","",RepSpec);
+    if (wn2>0) then begin
+      WindowFieldGoto(wn2,RepSpec,-1,"f1",false);
+    end;
+    
+  end; //Edit***************************Sasha2,11:51 30.09.2016 }
+  
   return;
 end;
 

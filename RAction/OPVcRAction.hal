@@ -1086,6 +1086,10 @@ LOPVcRecordCheck_GenTrans:;
       end;      
     end;
   end;
+  
+  OPp.PayDateText = OPp.PayDate; //Edit***************************Sasha2,15:57 14.12.2016
+  OPp.CurPayValText = OPp.CurPayVal; //Edit***************************Sasha2,15:57 14.12.2016
+  
 LOPVcRecordCheck:;
   if (res!=0) then begin
     OPp.SerNr = oldnr;

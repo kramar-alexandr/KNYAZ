@@ -1,5 +1,6 @@
 external procedure FindRepDefHeader(string,string,var string);
 remote updating function Integer CreateOPFromVI(record VIVc,var record OPVc);
+external updating procedure YesProceedItemsReturnTClass();
 
 global //Edit***************************Sasha2,13:36 07.12.2016 {
 function Boolean CCPayTouchScreenSelfDClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
@@ -272,3 +273,35 @@ begin
   
   NPTSIVCashLClassOnOpenWindow = false;
 end;
+
+//Edit***************************Sasha2,13:28 14.12.2016 {
+function Boolean ProceedItemsReturnTClassf1EFAfter(Integer wn,Boolean changedf)
+begin
+  Boolean res;
+  record RcVc RepSpec;
+  
+  if (changedf) then begin
+    GetWindowRecord(wn,RepSpec);
+    if (nonblank(RepSpec.f1)) then begin
+      queued.YesProceedItemsReturnTClass;
+      res = true; 
+    end;
+  end;
+  
+  ProceedItemsReturnTClassf1EFAfter = res;
+  return;
+end; //Edit***************************Sasha2,13:28 14.12.2016 }
+
+
+global //Edit***************************Sasha2,13:23 14.12.2016 {
+function Boolean ProceedItemsReturnTClassAfterEditField(Integer wn,string fieldname,Integer fn, Integer rownr,Integer changed)
+begin
+  Boolean res;
+  
+  switch (fieldname) begin
+    case "f1": res = ProceedItemsReturnTClassf1EFAfter(wn,changed!=0);
+  end;
+  
+  ProceedItemsReturnTClassAfterEditField = res;
+  return;
+end; //Edit***************************Sasha2,13:23 14.12.2016 }

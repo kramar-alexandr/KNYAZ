@@ -1776,6 +1776,10 @@ u might want to put loyalty card or bagger 1st
       end;
     end;
   end;
+  
+  IVCashr.InvDateText = IVCashr.InvDate; //Edit***************************Sasha2,15:57 14.12.2016
+  IVCashr.Sum4Text = IVCashr.Sum4; //Edit***************************Sasha2,15:57 14.12.2016
+  
 LIVCashVcRecordCheck:;  
   if (res!=0) then begin 
     IVCashr.SerNr = oldnr; 
