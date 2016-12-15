@@ -1230,6 +1230,7 @@ begin
     //StaticText(h4,v4,tstr,false); v4 = v4 + vs;
   end;
 
+  StaticText(h,v,"Дата сч/ф: " & td & "  " & Left(tt,5),false); v = v + vs; //Edit***************************Sasha2,15:02 15.12.2016
   tstr = "Клиент: ";
   tstr = tstr & custcode;
   StaticText(h,v,tstr,false); v = v + vs;

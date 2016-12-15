@@ -813,6 +813,7 @@ u might want to put loyalty card or bagger 1st
   end;
   if (UserCanAction("UnOKAll",true) == false /*and RequireOpenSession(IVCashr.LocalMachineCode)*/) then begin //Edit***************************Sasha2,9:56 07.11.2016
     if (IVCashr.OKFlag==0) then begin
+      IVCashr.InvDate = CurrentDate;
       IVCashr.TransDate = CurrentDate;
     end;
     /*if (IsSessionOpen(IVCashr.LocalMachineCode,IVCashr.DrawerCode,IVCashr.TransDate,IVCashr.TransTime)==false) then begin //Edit***************************Sasha2,9:56 07.11.2016

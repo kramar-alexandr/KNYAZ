@@ -138,11 +138,12 @@ begin
         testf = false; 
       end;
       if (testf) then begin
-        IVcashr.InvComment = IVcashr.InvComment & " SalesMan:" & IVcashr.SalesMan;
+        IVcashr.InvComment = IVcashr.InvComment & " SalesMan:" & IVcashr.SalesMan & ".HDALL";
         IVcashr.SalesMan = "";
         RECORDSTORE(IVcashr,true);
       end;
     end;
+    LogText(0,"ClearUpSalesmanForAllPosInvoices");
     MessageBox(0,"Готово");
   return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
@@ -203,12 +204,36 @@ begin
   return;
 end; //Edit***************************Sasha2,14:39 03.10.2016 }
 
+global //Edit***************************Sasha2,15:15 15.12.2016 {
+procedure LookUpLastOpenIVCashWithItems(var LongInt lastOpenIVCasNr)
+begin
+  record IVCashVc IVCashr;
+  Boolean TrHs,testf;
+  
+    lastOpenIVCasNr = -1;
+    IVCashr.OKFlag = 0;
+    TrHs = true;
+    while (LoopBackKey("OKFlag",IVCashr,1,TrHs)) begin
+      testf = true;
+      if (IVCashr.OKFlag!=0) then begin TrHs = false; testf = false; end;
+      if (MatRowCnt(IVCashr)==0) then begin testf = false; end;
+      if (testf) then begin
+        TrHs = false;
+        lastOpenIVCasNr = IVCashr.SerNr;
+      end;
+    end;
+
+  return;
+end; //Edit***************************Sasha2,15:15 15.12.2016 }
+
 global //Edit***************************Sasha2,14:39 03.10.2016 {
 updating procedure OpenNewIVcashInvoice()
 begin
   record IVCashVc IVCashr;
   Boolean TrHs,testf;
-  Integer wn;
+  Integer wn,wn2;
+  LongInt lastOpenIVCasNr;
+  Boolean openNewF;
     
     //RECORDNEW(IVCashr);
     wn = CurWindow;
@@ -219,11 +244,38 @@ begin
           testf = false; /*WindowDoOK(wn,0)*/
         end;
         if (testf) then begin
-          WINDOWDONEW(wn,0);
+          openNewF = true;
+          LookUpLastOpenIVCashWithItems(lastOpenIVCasNr);
+          if (lastOpenIVCasNr>-1) then begin
+            IVCashr.SerNr = lastOpenIVCasNr;
+            if (ReadFirstMain(IVCashr,1,true)) then begin
+              CloseWindow(wn);
+              wn2 = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
+              PutWindowString(wn2,"CustomerDisplayData_Line1",USetStr(10382) & ": " & IVCashr.InvDate & "  " & Left(IVCashr.TransTime,5)); 
+              PutWindowString(wn2,"CustomerDisplayData_Line2",USetStr(50010)); 
+              openNewF = false;
+            end;
+          end;
+          if (openNewF) then begin
+            WINDOWDONEW(wn,0);
+          end;
         end;
       otherwise
         wn = OpenWindow("NPTSIVCashLClass",1,0,"","",IVCashr);
-        WindowDoNew(wn,0);
+        openNewF = true;
+        LookUpLastOpenIVCashWithItems(lastOpenIVCasNr);
+        if (lastOpenIVCasNr>-1) then begin
+          IVCashr.SerNr = lastOpenIVCasNr;
+          if (ReadFirstMain(IVCashr,1,true)) then begin
+            wn2 = OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
+            PutWindowString(wn2,"CustomerDisplayData_Line1",USetStr(10382) & ": " & IVCashr.InvDate & "  " & Left(IVCashr.TransTime,5)); 
+              PutWindowString(wn2,"CustomerDisplayData_Line2",USetStr(50010)); 
+            openNewF = false;
+          end;
+        end;
+        if (openNewF) then begin
+          WindowDoNew(wn,0);
+        end;
     end;
     //OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
   return;

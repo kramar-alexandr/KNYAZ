@@ -811,6 +811,77 @@ begin
   EndWindow;
 end;
 
+window ForSaleINSClass:1
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")  
+begin
+  real v;
+  record LocalMachineBlock LMb;
+  Boolean retailStores; //Edit***************************Sasha2,10:13 07.12.2016
+  
+  switch(CurrentCompany)begin //Edit***************************Sasha2,16:00 06.12.2016 {
+    case 1:
+      retailStores = true;
+    case 3:
+      retailStores = true;
+  end; //Edit***************************Sasha2,16:23 06.12.2016 }
+ 
+  BlockLoad(LMb);
+  WindowBegin("Выбрать товар",ForSaleINSClass,CGslist,-);
+  Sizeable(-1,-1,0,0);
+  UseView(INVc);
+  SpawnClass(INDClass);
+    v = 0;
+    if (GuiType==kGuiCocoa) then begin
+      SetWRect(210,80,850,498);
+    FlowView(0,30,-1,230);
+    v = v+230;
+    end else begin
+      SetWRect(210,80,850,298);
+    end;
+    RecordList(4,v+17,-21,-39);
+    RlColKey(4,4,"№",Code,false,ActCodeForSale);
+  if (HasItemGroups) then begin
+      RlColKey(105,105,"Группа",Group,false,ActGroupForSale);
+      RlColKey(160,160,"Описание",Name,false,ActNameForSale);  
+    end else begin
+      RlColKey(105,105,"Описание",Name,false,ActNameForSale);
+    end;
+    if (IsEnterprise) then begin
+      if (StandardHansa==false) then begin
+        RlColKey(-250,-250,"Альтернативный код",AlternativeCode,false,ActAlternativeCodeForSale);
+      end else begin
+        RlCol(-250,-250,"Штрих код",BarCode,false);  
+      end;
+    end;
+    if (retailStores) then begin //Edit***************************Sasha2,10:13 15.12.2016 {
+      RlCol(-120,-120,"Закуп.цена",InPrice,false);  
+    end else begin  //Edit***************************Sasha2,10:13 15.12.2016 }
+      if (HasModIN) then begin
+        RlCol(-120,-120,"Основаная цена",UPrice1,false);  
+      end else begin
+        RlCol(-120,-120,"Цена",UPrice1,false);  
+      end;
+    end;
+    
+    if (HasModIN) then begin
+      CalculatedColumn(-50,-50,"На складе","INSClassInStock",true);  
+    end;
+    SearchField("Поиск");  
+    if (HasModIN) then begin
+      if (UserCanReport("INInfoRn","",true)) then begin
+        SpecialMenu("Статус товара",'I',0,"INStatusINSsm");  
+      end;
+    end;
+    if (IsEnterprise) then begin
+      SpecialMenu("Поиск",'F',1,"INSearchSsm");  
+      if (StandardHansa==false) then begin
+        SpecialMenu("Товары-заменители",'l',2,"AltItemINSsm");  
+        SpecialMenu("Сопутствующие товары",'r',2,"CrossItemINSsm");  
+      end;
+    end;
+//  SearchField("Поиск");
+  EndWindow;
+end;
 
 window INSClass:4
   wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
@@ -857,9 +928,9 @@ begin
         RlCol(-120,-120,"Закуп.цена",InPrice,false);
       end else begin //Edit***************************Sasha2,16:25 06.12.2016 }
         if (HasModIN) then begin
-          RlCol(-120,-120,"Баз. цена",UPrice1,false); //Edit***************************Sasha2,12:15 06.06.2016
+          RlCol(-120,-120,"Баз. цена",UPrice1,false);
         end else begin
-          RlCol(-120,-120,"Цена",UPrice1,false); //Edit***************************Sasha2,12:15 06.06.2016
+          RlCol(-120,-120,"Цена",UPrice1,false);
         end;
       end;
       
@@ -880,6 +951,55 @@ begin
         end;
       end;
 //  SearchField("Поиск");
+  EndWindow;
+end;
+
+window IN3SClass:1
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  Boolean retailStores; //Edit***************************Sasha2,10:13 07.12.2016
+  
+  switch(CurrentCompany)begin //Edit***************************Sasha2,16:00 06.12.2016 {
+    case 1:
+      retailStores = true;
+    case 3:
+      retailStores = true;
+  end; //Edit***************************Sasha2,16:23 06.12.2016 }
+  WindowBegin("Выберите товар",IN3SClass,CGslist,-);
+  Sizeable(-1,-1,0,0);
+  UseView(INVc);
+  SpawnClass(INDClass);
+  SetWRect(210,80,850,298);
+  RecordList(4,17,-21,-39);
+  RlColKey(4,4,"Код",Code,false,ActCode);
+  if (HasModIN or HasItemGroups) then begin
+    RlColKey(105,105,"Группа",Group,false,ActGroup);
+    RlColKey(160,160,"Описание",Name,false,ActName);
+  end else begin
+    RlColKey(105,105,"Наименование",Name,false,ActName);
+  end;
+  if (IsEnterprise) then begin
+    RlColKey(-250,-250,"Альт. код",AlternativeCode,false,AlternativeCode);
+    if (retailStores) then begin //Edit***************************Sasha2,10:19 15.12.2016 {
+      RlCol(-120,-120,"Закуп.цена",InPrice,false);
+    end else begin //Edit***************************Sasha2,10:19 15.12.2016 }
+      RlCol(-120,-120,"Баз. цена",UPrice1,false);
+    end;
+    CalculatedColumn(-50,-50,"На складе","INSClassInStock",true);
+  end else begin
+    if (retailStores) then begin //Edit***************************Sasha2,10:19 15.12.2016 {
+      RlCol(-70,-70,"Закуп.цена",InPrice,false);
+    end else begin //Edit***************************Sasha2,10:19 15.12.2016 }
+      RlCol(-70,-70,"Цена",UPrice1,false);
+    end;
+  end;
+  SearchField("Поиск");
+  if (IsEnterprise) then begin
+    SpecialMenu("Статус товара",'I',0,"INStatusINSsm");
+    SpecialMenu("Поиск",'F',1,"INSearchSsm");
+    SpecialMenu("Товары-заменители",'l',2,"AltItemINSsm");
+    SpecialMenu("Сопутствующие товары",'r',2,"CrossItemINSsm");
+  end;
   EndWindow;
 end;
 
@@ -2807,13 +2927,13 @@ begin
       end;
     end;
 
-    if (IsEnterprise) then begin
+    /*if (IsEnterprise) then begin //Edit***************************Sasha2,15:03 15.12.2016
       if (IsSessionOpen(IVCashr.LocalMachineCode,IVCashr.DrawerCode,CurrentDate,CurrentTime)) then begin
         sessdesc = "Сессия POS открыта";
       end else begin
         sessdesc = "*** Сессия POS закрыта ***";
       end;
-    end;
+    end;*/
 
     // StopAlert("IsSessionOpen(" & IVCashr.LocalMachineCode & "," & IVCashr.DrawerCode & "," & IVCashr.TransDate & "," & IVCashr.TransTime & "); -> " & sessdesc);
 
