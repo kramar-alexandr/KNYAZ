@@ -20,6 +20,7 @@ external procedure IVCashDClass_RefreshStringList(Integer,record IVCashVc);
 external updating function LongInt IVCashVcRecordDefaultsClient(LongInt,var record IVCashVc,record IVCashVc,LongInt,LongInt);
 external updating procedure PrintIVCashFiscalReceiptAndUpdatePrintFlag();
 remote updating function LongInt IVCashVcRecordCheck(var record IVCashVc,record IVCashVc,LongInt,LongInt);
+external procedure LookUpLastOpenIVCashWithItems(var LongInt); //Edit***************************Sasha2,12:23 16.12.2016
 
 global
 updating procedure IVCashToORsm()
@@ -507,13 +508,15 @@ END;
 
 */
 global
-updating function Boolean IVCashFinish(Integer wn,var record IVCashVc IVCashr)
+updating function Boolean IVCashFinish(var Integer wn,var record IVCashVc IVCashr)
 begin
   Integer nwn;
   Boolean res;
-  record IVCashVc IVCash2r,IVcashDummy;
+  record IVCashVc IVCash2r,IVCashDummy;
   string 255 windowclass,tstr;
   val prevRetValue;
+  LongInt lastOpenIVCasNr;
+  Boolean openNewF;
 
   res = false;
   if (IVCashr.OKFlag!=0) then begin goto LIVCashFinish; end;
@@ -527,11 +530,11 @@ begin
   prevRetValue = IVCashr.RetValue;
   PutWindowRecord(wn,IVCashr);
   /*if (IVCashr.MakeFiscalReceiptF==1) then begin
-    GetPrevWindowRecord(wn,IVcashDummy);
-    if (RecordValid(IVcashDummy)==false) or (IVcashDummy.SerNr<=0) then begin
-      RecordCopy(IVcashDummy,IVCashr);
+    GetPrevWindowRecord(wn,IVCashDummy);
+    if (RecordValid(IVCashDummy)==false) or (IVCashDummy.SerNr<=0) then begin
+      RecordCopy(IVCashDummy,IVCashr);
     end;
-    if (IVCashVcRecordCheck(IVCashr,IVcashDummy,WindowState(wn),1)==0) then begin
+    if (IVCashVcRecordCheck(IVCashr,IVCashDummy,WindowState(wn),1)==0) then begin
       PrintIVCashFiscalReceiptAndUpdatePrintFlag;
     end;
   end;*/
@@ -545,28 +548,43 @@ begin
     //nwn = OpenWindow(windowclass,1,0,"","",IVCash2r);
     //WindowFieldGoto(nwn,IVCash2r,-1,"CustCode",true); } native code //Edit***************************Sasha2,18:33 01.10.2016
     
-    WindowDoNew(wn,0);
-    switch (GetWindowClass(wn)) begin
-    case "NPTSIVCashDClass":
-      GetWindowRecord(wn,IVCash2r);
-      IVCash2r.RetValue = prevRetValue;
-      PutWindowString(wn,"touchscreenwindowpage",1);
-      PutWindowString(wn,"touchscreenwindowpagestack","1");
-      PutWindowString(wn,"touchscreenwindowprinterstack","*");
-      PutWindowString(wn,"CustomerDisplayData_Line1","");
-      PutWindowString(wn,"CustomerDisplayData_Line2","");    
-      PutWindowString(wn,"touchscreenitemlastrownr",-1);
-      PutWindowString(wn,"ReturnMode","false");
-      tstr = USetStr(24172) & "  ";
-      tstr = tstr & ValToString(prevRetValue,M4Val,ThousandSeparator,DecimalSeparator,0);
-      PutWindowRecord(wn,IVCash2r);
-      IVCashDClass_RefreshStringList(wn,IVCash2r);
-      WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",true);
+    openNewF = true;
+    if (GetWindowClass(wn)=="NPTSIVCashDClass") then begin
+      LookUpLastOpenIVCashWithItems(lastOpenIVCasNr);
+      if (lastOpenIVCasNr>-1) then begin
+        IVCash2r.SerNr = lastOpenIVCasNr;
+        if (ReadFirstMain(IVCash2r,1,true)) then begin
+          CloseWindow(wn);
+          wn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCash2r);
+          PutWindowString(wn,"CustomerDisplayData_Line1",USetStr(10382) & ": " & IVCash2r.InvDate & "  " & Left(IVCash2r.TransTime,5)); 
+          PutWindowString(wn,"CustomerDisplayData_Line2",USetStr(50010)); 
+          openNewF = false;
+        end;
+      end;
     end;
-    
+    if (openNewF) then begin
+      WindowDoNew(wn,0);
+      switch (GetWindowClass(wn)) begin
+        case "NPTSIVCashDClass":
+          GetWindowRecord(wn,IVCash2r);
+          IVCash2r.RetValue = prevRetValue;
+          PutWindowString(wn,"touchscreenwindowpage",1);
+          PutWindowString(wn,"touchscreenwindowpagestack","1");
+          PutWindowString(wn,"touchscreenwindowprinterstack","*");
+          PutWindowString(wn,"CustomerDisplayData_Line1","");
+          PutWindowString(wn,"CustomerDisplayData_Line2","");    
+          PutWindowString(wn,"touchscreenitemlastrownr",-1);
+          PutWindowString(wn,"ReturnMode","false");
+          tstr = USetStr(24172) & "  ";
+          tstr = tstr & ValToString(prevRetValue,M4Val,ThousandSeparator,DecimalSeparator,0);
+          PutWindowRecord(wn,IVCash2r);
+          IVCashDClass_RefreshStringList(wn,IVCash2r);
+          WindowFieldGotoForTouchScreen(wn,-1,"ivcashcommand",true);
+      end;
+    end;
     /*CloseWindow(wn);
     RecordNew(IVCash2r);
-    IVCashVcRecordDefaultsClient(wn,IVCash2r,IVcashDummy,1,1);
+    IVCashVcRecordDefaultsClient(wn,IVCash2r,IVCashDummy,1,1);
     nwn = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCash2r);
     GetWindowRecord(nwn,IVCash2r);
     WindowFieldGoto(nwn,IVCash2r,-1,"ivcashcommand",true);*/

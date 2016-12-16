@@ -74,7 +74,7 @@ external procedure PCEftpos_Transaction_Request(Integer,val,val,Boolean,string,s
 external procedure Bambora_Transaction_Request(Integer,val,val,Boolean,string,string,string,string,val,string,val);
 external procedure Bambora_Cancel_Request(Integer);
 remote procedure IVVc_PasteSalesMan(var record IVVc,string);
-external updating function Boolean IVCashFinish(Integer,var record IVCashVc);
+external updating function Boolean IVCashFinish(var Integer,var record IVCashVc);
 
 global 
 procedure SelectHWStoreWClass()

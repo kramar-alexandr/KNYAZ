@@ -267,9 +267,9 @@ begin
         if (lastOpenIVCasNr>-1) then begin
           IVCashr.SerNr = lastOpenIVCasNr;
           if (ReadFirstMain(IVCashr,1,true)) then begin
-            wn2 = OpenWindow("NPTSIVCashDClass",1,wn,"","",IVCashr);
+            wn2 = OpenWindow("NPTSIVCashDClass",1,0,"","",IVCashr);
             PutWindowString(wn2,"CustomerDisplayData_Line1",USetStr(10382) & ": " & IVCashr.InvDate & "  " & Left(IVCashr.TransTime,5)); 
-              PutWindowString(wn2,"CustomerDisplayData_Line2",USetStr(50010)); 
+            PutWindowString(wn2,"CustomerDisplayData_Line2",USetStr(50010)); 
             openNewF = false;
           end;
         end;
