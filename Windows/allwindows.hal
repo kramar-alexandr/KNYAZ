@@ -2639,7 +2639,8 @@ begin
   if (HasTaxMatrix) then begin
     SpecialMenu("Открыть нал. матрицу",' ',25,"OpenVatMatrixPUDsm");
   end;
-  SpecialMenu("Распечатать этикетки",'e',0,"PrintPULabPUDsm");
+    //SpecialMenu("Распечатать этикетки",'e',0,"PrintPULabPUDsm");
+    SpecialMenu("Распечатать ценники",'',0,"PrintLabelsDsm"); //Edit***************************Sasha2,11:45 22.12.2016
     SpecialMenu("Обновить цены",' ',1,"UpdatePricesPUDsm");
 
   if (HasModWHM) then begin
@@ -2669,6 +2670,7 @@ begin
     SpecialMenu("Создать складское перемещение",' ',8,"INTransFromPUsm");
   end;
   end;
+  
   EndWindow;
 end;
 
