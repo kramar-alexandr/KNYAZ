@@ -307,7 +307,7 @@ begin
       case 5: ystep = 112; //2 *7 117
       case 6: ystep = 60; //4*13  // Edit ************************** Monday, 31 March 2014 14:16:33
       case 7: ystep = 57; //4*14 // Edit ************************** Monday, 31 March 2014 14:16:34
-      case 8: ystep = 120; //3*7// Edit ************************** Wednesday, 13 August 2014 11:30:25
+      case 8: ystep = 116; //3*7// Edit ************************** Wednesday, 13 August 2014 11:30:25
       
     end;
   end;
