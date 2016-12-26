@@ -56,6 +56,18 @@ external procedure AddVATBase(var record SMVc,string,val,val,Integer,Integer,Int
 external procedure CalcVATBaseVAT(record SMVc,Integer,Integer,Integer,var val,var val);
 external function string 255 OverrideTaxMatrix(string,var record TaxMatrixVc);
 
+//Edit***************************Sasha2,11:02 26.12.2016 {
+procedure CalcPriceNoVAT(var row POVc POrw)
+begin
+  roundmode rnd;
+  
+    rnd = DefaultValRoundoff;
+    rnd.decimals = 2;
+    POrw.PriceNoVAT = Round(POrw.Price/1.2,rnd);
+  
+  return;
+end; //Edit***************************Sasha2,11:02 26.12.2016 }
+
 global
 function Boolean PODchrsum(record POVc POp,Integer rownr)
 BEGIN
@@ -71,6 +83,7 @@ BEGIN
     POrwp.Sum = s;
   end;
   RowCalculateTaxMatrix_POVc(POp,rownr,POrwp);
+  CalcPriceNoVAT(POrwp); //Edit***************************Sasha2,10:10 26.12.2016
   MatRowPut(POp,rownr,POrwp);
   PODchrsum = res;
   RETURN;
@@ -313,6 +326,7 @@ BEGIN
     s = s/t;
     POrw.vRebate = Round(s,SetRoundModeD(1));;
     if (POrw.vRebate==0) then begin POrw.vRebate = blankval; end;
+    CalcPriceNoVAT(POrw); //Edit***************************Sasha2,10:10 26.12.2016
     MatRowPut(POp,rownr,POrw);
   end;  
   POSumup(POp);
@@ -1302,6 +1316,7 @@ begin
     PackRowFieldMatrix(POrw,"TaxMatrix",TMr);
     POrw.SellPrice = INr.UPrice1; //Edit***************************Sasha2,17:17 10.03.2016
     POrw.ItemGroup = INr.Group; //Edit***************************Sasha2,17:17 10.03.2016
+    CalcPriceNoVAT(POrw); //Edit***************************Sasha2,10:10 26.12.2016
     MatRowPut(POp,rownr,POrw);
     if (pifound) then begin
       if (multilinef==false) then begin
