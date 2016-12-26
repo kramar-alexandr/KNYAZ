@@ -320,7 +320,7 @@ begin
     case 5: FormLabelGrid(2,305,7,ystep); lbls = 14; //2 *7 last 112??
     case 6: FormLabelGrid(4,147,13,ystep); lbls = 52; // 4*13 // Edit ************************** Monday, 31 March 2014 14:15:54
     case 7: FormLabelGrid(4,149,14,ystep); lbls = 56; // 4*14 // Edit ************************** Monday, 31 March 2014 14:15:59
-    case 8: FormLabelGrid(3,200,7,ystep); lbls = 21; //3*7 
+    case 8: FormLabelGrid(3,196,7,ystep); lbls = 21; //3*7 
   end;
 
   LabelSetup = lbls;
