@@ -55,11 +55,11 @@ begin
   array string 255 sourceStrs;
   Integer i,pos,arrLen;
   string 20 word;
-  string 255 incomeString;
+  string 255 searchString;
   
   res = true;
-  incomeString = RepSpec.f12;
-  if (NonBlank(incomeString)) then begin
+  searchString = RepSpec.f12;
+  if (NonBlank(searchString)) then begin
     pos = 0;
     ExtractObjWithSeparator(" ",INr.Name,true,pos,word);
     while (NonBlank(word)) begin
@@ -68,7 +68,7 @@ begin
     end;
     if (sourceStrs.length>0) then begin
       pos = 0;
-      ExtractObjWithSeparator(" ",incomeString,true,pos,word);
+      ExtractObjWithSeparator(" ",searchString,true,pos,word);
       while (NonBlank(word)) begin
         word = UpperCase(word);
         foundF = false;
@@ -85,9 +85,9 @@ begin
         end;
         res = res and foundF;
         if (res==false) then begin
-          pos = len(incomeString);
+          pos = len(searchString);
         end;
-        ExtractObjWithSeparator(" ",incomeString,true,pos,word);
+        ExtractObjWithSeparator(" ",searchString,true,pos,word);
       end;
     end;
   end;
