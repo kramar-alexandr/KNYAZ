@@ -46,15 +46,49 @@ external function Boolean SetInSet2(string,string);
 external procedure ItemClassTypef(string,string,var Boolean);
 external function Boolean FillItemVarArray(string,string,date,var array string,var array val,var Integer,var string,var string,var string,var string);
 external function Boolean FindStringInString(string,string); //Edit***************************Sasha2,11:35 27.12.2016
+external procedure ExtractObjWithSeparator(string,string,Boolean,var Integer,var string);
 
 //Edit***************************Sasha2,11:38 27.12.2016 {
 function Boolean IncludeIN_AdditionalFilter(record INVc INr,record RcVc RepSpec)
 begin
-  Boolean res;
+  Boolean res,foundF;
+  array string 255 sourceStrs;
+  Integer i,pos,arrLen;
+  string 20 word;
+  string 255 incomeString;
   
   res = true;
-  if (NonBlank(RepSpec.f12)) then begin
-    res = FindStringInString(UpperCase(INr.Name),UpperCase(RepSpec.f12));
+  incomeString = RepSpec.f12;
+  if (NonBlank(incomeString)) then begin
+    pos = 0;
+    ExtractObjWithSeparator(" ",INr.Name,true,pos,word);
+    while (NonBlank(word)) begin
+      sourceStrs[sourceStrs.length] = word;
+      ExtractObjWithSeparator(" ",INr.Name,true,pos,word);
+    end;
+    if (sourceStrs.length>0) then begin
+      pos = 0;
+      ExtractObjWithSeparator(" ",incomeString,true,pos,word);
+      while (NonBlank(word)) begin
+        foundF = false;
+        arrLen = sourceStrs.length;
+        for (i=0;i<arrLen;i=i+1) begin
+          /*foundF = false;
+          if (UpperCase(word)==Left(UpperCase(sourceStrs[i]),len(word))) then begin
+            foundF = true;
+          end;*/
+          foundF = FindStringInString(UpperCase(sourceStrs[i]),UpperCase(word));
+          if (foundF) then begin
+            i = arrLen;
+          end;
+        end;
+        res = res and foundF;
+        if (res==false) then begin
+          pos = len(incomeString);
+        end;
+        ExtractObjWithSeparator(" ",incomeString,true,pos,word);
+      end;
+    end;
   end;
   
   IncludeIN_AdditionalFilter = res;
