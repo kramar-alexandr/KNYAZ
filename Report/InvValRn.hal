@@ -63,13 +63,14 @@ begin
     pos = 0;
     ExtractObjWithSeparator(" ",INr.Name,true,pos,word);
     while (NonBlank(word)) begin
-      sourceStrs[sourceStrs.length] = word;
+      sourceStrs[sourceStrs.length] = UpperCase(word);
       ExtractObjWithSeparator(" ",INr.Name,true,pos,word);
     end;
     if (sourceStrs.length>0) then begin
       pos = 0;
       ExtractObjWithSeparator(" ",incomeString,true,pos,word);
       while (NonBlank(word)) begin
+        word = UpperCase(word);
         foundF = false;
         arrLen = sourceStrs.length;
         for (i=0;i<arrLen;i=i+1) begin
@@ -77,7 +78,7 @@ begin
           if (UpperCase(word)==Left(UpperCase(sourceStrs[i]),len(word))) then begin
             foundF = true;
           end;*/
-          foundF = FindStringInString(UpperCase(sourceStrs[i]),UpperCase(word));
+          foundF = FindStringInString(sourceStrs[i],word);
           if (foundF) then begin
             i = arrLen;
           end;
