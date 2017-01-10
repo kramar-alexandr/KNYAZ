@@ -1057,7 +1057,9 @@ BEGIN
         end;
       end;
     end;
-    testf = IncludeIN_AdditionalFilter(INr,RepSpec); //Edit***************************Sasha2,11:41 27.12.2016
+    if (testf) then begin
+      testf = IncludeIN_AdditionalFilter(INr,RepSpec); //Edit***************************Sasha2,11:41 27.12.2016
+    end;
     if (testf) then begin
       if (nonblank(RepSpec.LastAcc) or nonblank(RepSpec.f8) or nonblank(RepSpec.f9)) then begin
         PIr.ItemCode = INr.Code;
