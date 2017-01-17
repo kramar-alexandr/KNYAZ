@@ -2520,13 +2520,10 @@ begin
             totSum = RepSpec.vals0;
             while (LoopKey("InvDate",LoopIVCashr,1,TrHs)) begin
               testf = true;
-              if (LoopIVCashr.InvDate!=CurrentDate) then begin TrHs = false; testf = false; end;
+              if (LoopIVCashr.InvDate!=CurrentDate or totSum>CUr.CreditLimit) then begin TrHs = false; testf = false; end;
               if (LoopIVCashr.CustCode!=LoyaltyCardr.CustCode or LoopIVCashr.OKFlag==0) then begin testf = false; end;
               if (testf) then begin
                 totSum = totSum + LoopIVCashr.Sum4;
-                if (totSum>CUr.CreditLimit) then begin
-                  TrHs = false;
-                end;
               end;
             end;
             if (totSum>CUr.CreditLimit) then begin
@@ -2624,13 +2621,10 @@ begin
             totSum = RepSpec.vals0;
             while (LoopKey("InvDate",LoopIVr,1,TrHs)) begin
               testf = true;
-              if (LoopIVr.InvDate!=CurrentDate) then begin TrHs = false; testf = false; end;
+              if (LoopIVr.InvDate!=CurrentDate or totSum>CUr.CreditLimit) then begin TrHs = false; testf = false; end;
               if (LoopIVr.CustCode!=LoyaltyCardr.CustCode or LoopIVr.OKFlag==0) then begin testf = false; end;
               if (testf) then begin
                 totSum = totSum + LoopIVr.Sum4;
-                if (totSum>CUr.CreditLimit) then begin
-                  TrHs = false;
-                end;
               end;
             end;
             if (totSum>CUr.CreditLimit) then begin
