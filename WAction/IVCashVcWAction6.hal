@@ -2459,19 +2459,22 @@ begin
 end;
 
 global
-updating procedure ProceedLoyalCardNPTSSClassExecute(Integer wn,Boolean showMsg,var string errMessage,Boolean closeWindowf) //Edit***************************Sasha2,13:59 14.09.2016
+updating procedure ProceedLoyalCardNPTSSClassExecute(Integer wn,Boolean showMsg,var string errMessage,Boolean closeWindowf,Boolean checkLimit) //Edit***************************Sasha2,13:59 14.09.2016
 begin
   Integer mwn,rownr;
   record RcVc RepSpec;
-  record IVCashVc IVCashr;
+  record IVCashVc IVCashr,LoopIVCashr;
   record IVCashVc prevIVCashr;
-  record IVVc IVr;
+  record IVVc IVr,LoopIVr;
   record IVVc prevIVr;
   record RestAccVc RestAccr;
   record RestAccVc prevRestAccr;
+  record CUVc CUr;
   string 255 tstr,t2;
   record LoyaltyCardVc LoyaltyCardr;
   record LocalMachineBlock LMb;
+  Boolean TrHs;
+  val totSum;
   
   DeselectWindow(wn,true);
   mwn = MotherWindow(wn);
@@ -2509,6 +2512,31 @@ begin
           WindowFieldGoto(wn,RepSpec,-1,"f1",false);
           goto LProceedLoyalCardNPTSSClass;
         end;
+        if (checkLimit) then begin //Edit***************************Sasha2,14:35 17.01.2017 {
+          CUr.Code = LoyaltyCardr.CustCode;
+          if (ReadFirstMain(CUr,1,true) and CUr.CreditLimit>0) then begin
+            LoopIVCashr.InvDate = CurrentDate;
+            TrHs = true;
+            totSum = BlankVal;
+            while (LoopKey("InvDate",LoopIVCashr,1,TrHs)) begin
+              if (LoopIVCashr.InvDate!=CurrentDate) then begin TrHs = false; end;
+              if (TrHs) then begin
+                totSum = totSum + LoopIVCashr.Sum4;
+                if (totSum>CUr.CreditLimit) then begin
+                  TrHs = false;
+                end;
+              end;
+            end;
+            if (totSum>CUr.CreditLimit) then begin
+              if (showMsg) then begin 
+                MessageBox(1726,"");
+              end;
+              errMessage = USetStr(1726);
+              WindowFieldGoto(wn,RepSpec,-1,"f1",false);
+              goto LProceedLoyalCardNPTSSClass;
+            end;
+          end;
+        end; //Edit***************************Sasha2,14:35 17.01.2017 }
         switch (WindowState(mwn)) begin
           case Rs_update:
             GetPrevWindowRecord(mwn,prevIVCashr);
@@ -2586,6 +2614,31 @@ begin
           WindowFieldGoto(wn,RepSpec,-1,"f1",false);
           goto LProceedLoyalCardNPTSSClass;
         end;
+        if (checkLimit) then begin //Edit***************************Sasha2,14:35 17.01.2017 {
+          CUr.Code = LoyaltyCardr.CustCode;
+          if (ReadFirstMain(CUr,1,true) and CUr.CreditLimit>0) then begin
+            LoopIVr.InvDate = CurrentDate;
+            TrHs = true;
+            totSum = BlankVal;
+            while (LoopKey("InvDate",LoopIVr,1,TrHs)) begin
+              if (LoopIVr.InvDate!=CurrentDate) then begin TrHs = false; end;
+              if (TrHs) then begin
+                totSum = totSum + LoopIVr.Sum4;
+                if (totSum>CUr.CreditLimit) then begin
+                  TrHs = false;
+                end;
+              end;
+            end;
+            if (totSum>CUr.CreditLimit) then begin
+              if (showMsg) then begin 
+                MessageBox(1726,"");
+              end;
+              errMessage = USetStr(1726);
+              WindowFieldGoto(wn,RepSpec,-1,"f1",false);
+              goto LProceedLoyalCardNPTSSClass;
+            end;
+          end;
+        end; //Edit***************************Sasha2,14:35 17.01.2017 }
         switch (WindowState(mwn)) begin
           case Rs_update:
             GetPrevWindowRecord(mwn,prevIVr);
@@ -2670,7 +2723,7 @@ updating procedure ProceedLoyalCardNPTSSClass()
 begin  
   string 255 errMessage; //Edit***************************Sasha2,14:00 14.09.2016
   
-  ProceedLoyalCardNPTSSClassExecute(CurWindow,true,errMessage,true); //Edit***************************Sasha2,14:00 14.09.2016
+  ProceedLoyalCardNPTSSClassExecute(CurWindow,true,errMessage,true,false); //Edit***************************Sasha2,14:00 14.09.2016
   return;
 end;
 
@@ -2679,7 +2732,7 @@ updating function boolean LoyalCardNPTSSClassOnOKWindow(integer wn)
 begin
   string 255 errMessage; //Edit***************************Sasha2,14:00 14.09.2016
   
-  ProceedLoyalCardNPTSSClassExecute(wn,true,errMessage,true); //Edit***************************Sasha2,14:00 14.09.2016
+  ProceedLoyalCardNPTSSClassExecute(wn,true,errMessage,true,false); //Edit***************************Sasha2,14:00 14.09.2016
   LoyalCardNPTSSClassOnOKWindow = false;
   return;
 end;
@@ -2692,7 +2745,7 @@ begin
   Integer curWin;
   
   curWin = CurWindow;
-  ProceedLoyalCardNPTSSClassExecute(curWin,false,errMessage,false);
+  ProceedLoyalCardNPTSSClassExecute(curWin,false,errMessage,false,true);
   if (NonBlank(errMessage)) then begin
     MessageBox(1029,". (" & errMessage & ")");
     GetWindowRecord(curWin,RepSpec);

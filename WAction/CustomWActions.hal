@@ -1,6 +1,7 @@
 external procedure FindRepDefHeader(string,string,var string);
 remote updating function Integer CreateOPFromVI(record VIVc,var record OPVc);
 external updating procedure YesProceedItemsReturnTClass();
+remote updating function Integer ExecuteCrateIPFromIVD(record IVVc,var longint);
 
 global //Edit***************************Sasha2,13:36 07.12.2016 {
 function Boolean CCPayTouchScreenSelfDClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
@@ -389,3 +390,36 @@ BEGIN
   
   RETURN;
 END;
+
+global //Edit***************************Sasha2,16:59 16.01.2017 {
+updating procedure CrateIPFromIVD()
+begin
+  record IVVc IVr;
+  record IPVc IPr;
+  Integer res,wn,nwn,normalstate;
+  LongInt IPSerNr;
+
+  normalstate = 0;//Rs_normal
+  wn = CurWindow;
+  DeselectWindow(wn,false);
+  if (WindowState(wn)==normalstate) then begin
+    GetWindowRecord(wn,IVr);
+    if ((IVr.OKFlag!=0) and (IVr.InvType!=kInvoiceTypeCredit and IVr.InvType!=kInvoiceTypeCreditSpecialSales)) then begin
+      res = ExecuteCrateIPFromIVD(IVr,IPSerNr);
+      if (res==0) then begin
+        if (IPSerNr>-1) then begin
+          IPr.SerNr = IPSerNr;
+          ReadFirstMain(IPr,1,true);
+          nwn = OpenWindow("IPDClass",1,0,"","",IPr);
+        end;
+      end else begin
+        MessageBox(res,"");
+      end;
+    end else begin
+      MessageBox(12556,"");      
+    end;
+  end else begin
+    MessageBox(22902,"");      
+  end;
+  return;
+end; //Edit***************************Sasha2,16:59 16.01.2017 }

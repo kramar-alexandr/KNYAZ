@@ -5739,6 +5739,7 @@ if (HasTouchScreenLook==false) then begin
     if (HasModCRM) then begin
 //      SpecialMenu("Activity",'c',9,"CreateActFromIVDsm");
     end;
+    SpecialMenu("Создать платеж",' ',1,"CrateIPFromIVD"); //Edit***************************Sasha2,16:57 16.01.2017
     SpecialMenu("Создать приходный ордер",' ',1,"DoCLInFromIVD");
     SpecialMenu("Создать кред. сч/ф",' ',20,"CreateCreditNoteIVDsm");
     if (StandardHansa==false) then begin

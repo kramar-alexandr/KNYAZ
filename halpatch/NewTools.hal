@@ -4,6 +4,7 @@ external procedure OPVc_PasteVECode(var record OPVc,Integer);
 external procedure OPVc_PasteRecVal(var record OPVc,Integer);
 external procedure NoDupObjs(string,var string);
 external updating procedure RemoveEmptyIVCashCallback(array LongInt);
+external function Boolean PasteInvIn2IPr(var record IPVc,Integer,Date,var val,Boolean,var Boolean);
 
 /*global 
 function Boolean LocMachDrawerVcRecordShouldBeSynchronised(record LocMachDrawerVc LocMachDrawerr,string tagstr)
@@ -831,3 +832,47 @@ begin
 
   return;
 end; //Edit***************************Sasha2,16:35 14.12.2016 }
+
+global
+updating function Integer ExecuteCrateIPFromIVD(record IVVc IVr,var LongInt IPSerNr)
+begin
+  record ARVc ARr;
+  record IPVc IPr;
+  val chk;
+  Boolean installmentf,testf;
+  row IPVc IPrw;
+  Integer res,rownr;
+    
+    res = 0;
+    IPSerNr = -1;
+    ARr.InvoiceNr = IVr.SerNr;
+    if (ReadFirstMain(ARr,1,true)) then begin
+      testf = true;
+      if (IVr.InvType!=kInvoiceTypeNormal) then begin testf = false; end;
+      if (testf) then begin
+        RECORDNEW(IPr);
+        rownr = MatRowCnt(IPr);
+        ClearRow(IPr,IPrw,1);
+        IPrw.InvoiceNr = IVr.SerNr;
+        MatRowPut(IPr,rownr,IPrw);
+        if (PasteInvIn2IPr(IPr,rownr,IPr.TransDate,chk,false,installmentf)) then begin
+          if (MatRowCnt(IPr)>0) then begin
+            if (IPr.SerNr==-1) then begin
+              IPr.SerNr = NextSerNr("IPVc",IPr.TransDate,-1,false,""); 
+            end;
+            if (RecordStore(IPr,false)) then begin
+              IPSerNr = IPr.SerNr;
+            end;       
+          end;
+        end else begin
+          res = 23192;
+        end;
+      end;
+    /*end else begin
+      res = 1546;  */
+    end;
+
+LExecuteCrateIPFromIVD:;  
+  ExecuteCrateIPFromIVD = res;
+  return;
+end;
