@@ -2517,7 +2517,7 @@ begin
           if (ReadFirstMain(CUr,1,true) and CUr.CreditLimit>0) then begin
             LoopIVCashr.InvDate = CurrentDate;
             TrHs = true;
-            totSum = BlankVal;
+            totSum = RepSpec.vals0;
             while (LoopKey("InvDate",LoopIVCashr,1,TrHs)) begin
               testf = true;
               if (LoopIVCashr.InvDate!=CurrentDate) then begin TrHs = false; testf = false; end;
@@ -2621,7 +2621,7 @@ begin
           if (ReadFirstMain(CUr,1,true) and CUr.CreditLimit>0) then begin
             LoopIVr.InvDate = CurrentDate;
             TrHs = true;
-            totSum = BlankVal;
+            totSum = RepSpec.vals0;;
             while (LoopKey("InvDate",LoopIVr,1,TrHs)) begin
               testf = true;
               if (LoopIVr.InvDate!=CurrentDate) then begin TrHs = false; testf = false; end;
