@@ -2473,7 +2473,7 @@ begin
   string 255 tstr,t2;
   record LoyaltyCardVc LoyaltyCardr;
   record LocalMachineBlock LMb;
-  Boolean TrHs;
+  Boolean TrHs,testf;
   val totSum;
   
   DeselectWindow(wn,true);
@@ -2519,8 +2519,10 @@ begin
             TrHs = true;
             totSum = BlankVal;
             while (LoopKey("InvDate",LoopIVCashr,1,TrHs)) begin
-              if (LoopIVCashr.InvDate!=CurrentDate) then begin TrHs = false; end;
-              if (TrHs) then begin
+              testf = true;
+              if (LoopIVCashr.InvDate!=CurrentDate) then begin TrHs = false; testf = false; end;
+              if (LoopIVCashr.CustCode!=LoyaltyCardr.CustCode or LoopIVCashr.OKFlag==0) then begin testf = false; end;
+              if (testf) then begin
                 totSum = totSum + LoopIVCashr.Sum4;
                 if (totSum>CUr.CreditLimit) then begin
                   TrHs = false;
@@ -2621,8 +2623,10 @@ begin
             TrHs = true;
             totSum = BlankVal;
             while (LoopKey("InvDate",LoopIVr,1,TrHs)) begin
-              if (LoopIVr.InvDate!=CurrentDate) then begin TrHs = false; end;
-              if (TrHs) then begin
+              testf = true;
+              if (LoopIVr.InvDate!=CurrentDate) then begin TrHs = false; testf = false; end;
+              if (LoopIVr.CustCode!=LoyaltyCardr.CustCode or LoopIVr.OKFlag==0) then begin testf = false; end;
+              if (testf) then begin
                 totSum = totSum + LoopIVr.Sum4;
                 if (totSum>CUr.CreditLimit) then begin
                   TrHs = false;
