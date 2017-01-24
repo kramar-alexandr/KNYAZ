@@ -77,6 +77,7 @@ external procedure GetFullCurncyRate (var string,Date,var val,var val,var val,va
 external procedure GetCurUser(var record UserVc);
 external function val GetAcceptanceSum_PUVc(record PUVc);
 external procedure PUVc_PasteLocation(var record PUVc,Integer); //Edit***************************Sasha2,17:26 06.12.2016
+external function Integer PUVc_PasteSellPrice(var record PUVc,Integer,Boolean); //Edit***************************Sasha2,10:42 24.01.2017
 
 global
 function LongInt PUVcRecordDefaults(var record PUVc PUr,record PUVc PU2r,LongInt stat,LongInt long4)
@@ -753,7 +754,7 @@ begin
   Boolean initotcheckf,testf;    
   record ItemSettingBlock ItSetb; //Edit***************************Sasha2,12:55 10.03.2016
   record ITVc ITr; //Edit***************************Sasha2,17:30 16.03.2016
-  Boolean itemexists; //Edit***************************Sasha2,18:04 16.03.2016
+  Boolean itemexists,PUSumUpf; //Edit***************************Sasha2,18:04 16.03.2016
 
   res = 0;
   oldnr = PUr.SerNr;
@@ -991,7 +992,7 @@ begin
     
     if (nonblank(PUrw.Location)) then begin
       location = PUrw.Location;
-      if (MSb.Chronology==1) then begin//Chronology per Location
+      if (MSb.Chronology==1) then begin //Chronology per Location
         if (PUrw.Location!=loc) then begin
           RecordCheckError(20857,"",i,"Location");      
           res = -1;
@@ -1147,7 +1148,15 @@ begin
       INr.UPrice1 = PUrw.SellPrice;
       INr.Unittext = PUrw.UnitCode;
       itemexists = RECORDSTORE(INr,false);
-    end;
+    end else begin //Edit***************************Sasha2,10:42 24.01.2017 {
+      if (PUrw.SellPrice==0 and INr.UPrice1<>0) then begin
+        PUrw.SellPrice = INr.UPrice1;
+        MatRowPut(PUr,i,PUrw);
+        PUVc_PasteSellPrice(PUr,i,false);
+        MatRowGet(PUr,i,PUrw);
+        PUSumUpf = true;
+      end;
+    end; //Edit***************************Sasha2,10:43 24.01.2017 }
     if (itemexists==false) then begin //Edit***************************Sasha2,12:56 10.03.2016 }
       RecordCheckError(1120," " & PUrw.ArtCode,i,"ArtCode");      
       res = -1;
@@ -1167,7 +1176,7 @@ begin
         goto L99PUVcRecordCheck;
       end;
     end;
-    if ((HasLocalization("EST")) or (HasLocalization("POL"))) then begin//vatEstonian,vatPolish
+    if ((HasLocalization("EST")) or (HasLocalization("POL"))) then begin //vatEstonian,vatPolish
       if (INr.ItemType!=1) then begin
         RecordCheckError(1301,"",i,"ArtCode");      
         res = -1;
@@ -1451,7 +1460,7 @@ begin
                   end;
               end;
             end;
-            if (FIFOPerSerialNr(INr,CAb)!=0) then begin//otherwise cost price on deliveries is completely wrong
+            if (FIFOPerSerialNr(INr,CAb)!=0) then begin //otherwise cost price on deliveries is completely wrong
               if (SerialNrAvail2(PUrw.ArtCode,PUrw.SerialNr,1)==true) then begin
                 RecordCheckError(1241,"",i,"SerialNr");      
                 res = -1;
@@ -1471,6 +1480,9 @@ begin
     end;
   end;
   end;
+  if (PUSumUpf) then begin //Edit***************************Sasha2,10:47 24.01.2017 {
+    PUSumUp(PUr);
+  end; //Edit***************************Sasha2,10:47 24.01.2017 }
   if (DateWarned(PUr.TransDate,"PUVc")) then begin
     MessageBox(1045,"");
   end;    
