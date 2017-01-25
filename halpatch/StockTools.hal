@@ -1563,7 +1563,10 @@ rs is already with Price factor included
             end;
             INr.LastPriceChange = CurrentDate;
         end;
-        INr.UPrice1 = LastPUSellPrice[INr.Code]; //Edit***************************Sasha2,11:55 21.03.2016
+        if (LastPUSellPrice[INr.Code]>0) then begin
+          INr.UPrice1 = LastPUSellPrice[INr.Code]; //Edit***************************Sasha2,11:55 21.03.2016
+        end;
+        
         if (RecordUpdate(oldINr,INr,false)==0) then begin
         end;
       end;
