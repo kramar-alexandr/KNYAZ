@@ -3,6 +3,8 @@ remote updating function Integer CreateOPFromVI(record VIVc,var record OPVc);
 external updating procedure YesProceedItemsReturnTClass();
 remote updating function Integer ExecuteCrateIPFromIVD(record IVVc,var longint);
 
+SetLangMode(LangRussian,"RUS",0); 
+
 global //Edit***************************Sasha2,13:36 07.12.2016 {
 function Boolean CCPayTouchScreenSelfDClassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
 begin
