@@ -139,7 +139,7 @@ begin
   end else begin
     IVCashr.SalesMan = CurrentUser;
   end;
-  
+  //LogText(0,"Def ServingClient:" & ServingClient & ", kProgramModeLiveSync:" & kProgramModeLiveSync & ", CompanyProgramMode:" & CompanyProgramMode);
   GetSalesGroup(IVCashr.SalesMan,tstr); //Edit***************************Sasha2,11:11 20.09.2016
   IVCashr.SalesGroup = tstr; //Edit***************************Sasha2,11:11 20.09.2016
   
@@ -278,6 +278,7 @@ begin
   string 255 tstr;
   record SRBlock SRb;  
   Boolean gentrans;
+  record IVCashVc tempIVCashr;
   
   BlockLoad(ARAccRec);  
   BlockLoad(CashDefRec);  
@@ -290,7 +291,7 @@ begin
   IVCashr.StartTime = CurrentTime;
   IVCashr.InvDate = curdate;
   IVCashr.TransDate = curdate;
-  if (ServingClient==false) then begin//offline
+  if (ServingClient==false) then begin //offline
     BlockLoad(LastRecNr);
     
     newnr = LastRecNr.LastIVCashNr;
@@ -307,6 +308,11 @@ begin
       IVCashr.SerNr = NextSerNr("IVCashVc",IVCashr.TransDate,newnr,false,IVCashr.LangCode);
     end;
   end;
+  tempIVCashr.SerNr = IVCashr.SerNr; //Edit***************************Sasha2,17:00 26.01.2017 {
+  while (ReadFirstMain(tempIVCashr,1,true)) begin
+    tempIVCashr.SerNr = tempIVCashr.SerNr + 1;
+    IVCashr.SerNr = tempIVCashr.SerNr;
+  end; //Edit***************************Sasha2,17:00 26.01.2017 }
   IVCashr.Prntdf = 0;
   IVCashr.OKFlag = 0;
   IVCashr.NLFlag = 0;
@@ -660,7 +666,7 @@ BEGIN
   record JobVc Jobr;
   record LocationVc Locr; //Edit***************************Sasha2,14:00 18.08.2016
   Integer pos; //Edit***************************Sasha2,14:15 18.08.2016
-
+  
   programmode = CompanyProgramMode;
   if (long4>0) then begin
     check = true;
