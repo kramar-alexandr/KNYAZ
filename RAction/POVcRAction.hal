@@ -796,6 +796,14 @@ begin
       end;
     end;
     objstr = "";
+  end;
+  if (Blank(POr.Location)) then begin
+    if (CountRecords("LocationVc")==1) then begin
+      if (ReadFirstMain(Locationr,1,false)) then begin
+        POr.Location = Locationr.Code;
+        POVc_PasteLocation(POr);
+      end;
+    end;
   end;//Edit***************************Sasha2,16:00 06.12.2016 }
   
   BlockLoad(SRb);
