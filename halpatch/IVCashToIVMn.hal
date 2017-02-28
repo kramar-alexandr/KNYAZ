@@ -92,7 +92,7 @@ begin
 	
 	IVr.CustCode = IVCashr.CustCode;
 	PasteCust2InInv(IVr,LMb,IVCashr.CustCode,true,warning,errstr,prepstr,invdatewarn,transdatewarn);
-	IVr.Objects = "";// Edit ************************** Tuesday, 7 April 2015 10:34:05
+	IVr.Objects = IVCashr.Objects;// Edit ************************** Tuesday, 28 February 2017 11:12:02
 
 	rwcnt = MatRowCnt(IVCashr);
 	for(i=0; i <rwcnt; i = i+1) begin
