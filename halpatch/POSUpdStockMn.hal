@@ -351,6 +351,9 @@ begin
               MatRowGet(recSDr,i,recSDrw);
               if (nonblank(recSDrw.ArtCode)) then begin
                 ClearRow(SDr,SDrw,1);
+                SDrw.IVCashNr = ivCashNr; //Edit***************************Sasha2,13:44 22.09.2016
+                SDrw.IVCashRowNr = ivCashRow; //Edit***************************Sasha2,13:44 22.09.2016
+                SDrw.IVCashDisplayRowNr = ivCashRow + 1; //Edit***************************Sasha2,13:44 22.09.2016
                 SDrw.ArtCode = recSDrw.ArtCode;
                 SDrw.SerialNr = "";
                 MatRowPut(SDr,rownr,SDrw);
@@ -391,6 +394,9 @@ begin
             MatRowGet(recSDr,i,recSDrw);
             if (nonblank(recSDrw.ArtCode)) then begin
               ClearRow(SDr,SDrw,1);
+              SDrw.IVCashNr = ivCashNr; //Edit***************************Sasha2,13:44 22.09.2016
+              SDrw.IVCashRowNr = ivCashRow; //Edit***************************Sasha2,13:44 22.09.2016
+              SDrw.IVCashDisplayRowNr = ivCashRow + 1; //Edit***************************Sasha2,13:44 22.09.2016
               SDrw.ArtCode = recSDrw.ArtCode;
               SDrw.SerialNr = "";
               MatRowPut(SDr,rownr,SDrw);

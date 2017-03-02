@@ -78,6 +78,9 @@ external function Boolean GetCustAndBal(var record CUVc,var val,var val,Integer,
 external function Boolean ORCheckForSalesmanPrice(record ORVc,Integer,string,string,var string);
 external function Boolean INVc_AllowSales(record INVc,var LongInt);
 remote updating procedure GetItemStatusInfoForOrder(var record ORVc); //Edit***************************Sasha2,11:52 13.10.2016
+remote function Boolean ORVc_PasteArtCode(var record ORVc,Integer,var string,var string,Boolean);
+
+SetLangMode(LangRussian,"RUS",0); //Edit***************************Sasha2,15:34 01.03.2017
 
 procedure SetORAcceptanceFlag(var record ORVc ORr,record ORVc prevORr,LongInt stat)
 begin
@@ -380,7 +383,7 @@ begin
   res = 0;
   insertmode = 1;//Rs_insert
   updatemode = 2;//Rs_update
-  if (ORr.OKFlag==0) then begin
+    if (ORr.OKFlag==0) then begin
     if (stat==updatemode) then begin
       if (OR2r.OKFlag==1) then begin unokf = true; end;
     end;
@@ -480,6 +483,15 @@ begin
     res = -1;
     goto LORVcRecordCheck;
   end;
+  if (CurrentCompany==4) then begin //Edit***************************Sasha2,16:04 01.03.2017 {
+    lORr.CustCode = ORr.CustCode;
+    lORr.OrdDate = ORr.OrdDate;
+    if (ReadFirstKey("CustDate",lORr,2,true)) then begin
+      RecordCheckError(50011,"",-1,"CustCode");      
+      res = -1;
+      goto LORVcRecordCheck;
+    end;
+  end; //Edit***************************Sasha2,16:04 01.03.2017 }
   CUr.Code = ORr.CustCode;
   if (ReadFirstMain(CUr,1,true)==false) then begin
     RecordCheckError(1120,ORr.CustCode,-1,"CustCode");      
@@ -1877,6 +1889,34 @@ begin
   return;
 end;
 
+global //Edit***************************Sasha2,15:34 01.03.2017 {
+procedure AddItemsOfCertainGroupToOR(var record ORVc ORr,string group)
+begin
+  record INVc INr;
+  row ORVc ORrw;
+  Integer nextRow;
+  boolean TrHs;
+  string 255 inwarning,warning;
+    
+    if (NonBlank(group)) then begin
+      nextRow = MatRowCnt(ORr);
+      INr.Group = group;
+      TrHs = true;
+      while (LoopKey("Group",INr,1,TrHs)) begin
+        if (INr.Group!=group) then begin TrHs = false; end;
+        if (TrHs) then begin
+          ClearRow(ORr,ORrw,1);
+          ORrw.ArtCode = INr.Code;
+          MatRowInsert(ORr,nextRow,ORrw);
+          ORVc_PasteArtCode(ORr,nextRow,inwarning,warning,false);
+          nextRow = nextRow + 1;
+        end;
+      end;
+    end;
+  
+  return;
+end; //Edit***************************Sasha2,15:35 01.03.2017 }
+
 global
 function LongInt ORVcRecordDefaults(var record ORVc ORr,record ORVc OR2r,LongInt long3,LongInt long4)
 begin
@@ -1943,6 +1983,7 @@ begin
   ORr.LocalMachineCode = CurMachineName;
   ORr.OfficialSerNr = "";
   ORr.OfficialSerNrSerie = "";
+  AddItemsOfCertainGroupToOR(ORr,"Éè"); //Edit***************************Sasha2,15:35 01.03.2017
   ORVcRecordDefaults = res;  
   return;
 end;

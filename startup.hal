@@ -11,6 +11,7 @@ begin
   
   Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
   Report("Отчет по кассе по дням",IVCashSummaryRClass,IVCashSummaryRn,0,modPOS);
+  Report("Отчет по наценкам",MarkUpRClass,MarkUpRn,0,modSL);
   
   Import("Импортировать товары",INImportFromFMFormatIClass,INImportFromFMFormatIn,modIN);
   Import("Импорт остатков",ImportStockRemains2IClass,ImportStockRemains2In,modIN);
@@ -34,5 +35,6 @@ begin
   SString(50008,"Розн.цена");
   SString(50009,"Сумма розн.ц.");
   SString(50010,"Это старая незакрытая сч/ф. ПРОВЕРЬТЕ!");
+  SString(50011,"Заказ для этого клиента на сегодня уже создан");
 	return;
 end;

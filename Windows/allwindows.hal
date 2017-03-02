@@ -3788,7 +3788,8 @@ begin
   end else begin
     MatCol(t,94,"К-во",0,Quant,true,0);
   end;
-  EnterSkip(ArtCode);
+  //EnterSkip(ArtCode); //Edit***************************Sasha2,15:51 01.03.2017
+  EnterSkip(Quant);
   MatCol(t=kInvoiceRowTypeStructuredItemComponent,32,"Товар",0,ArtCode,false,ForSaleINSClass);
 //  MatCol(t,94,"Var",0,VARList,true,VARSClass);
 //  MatCol(t,144,"Qty",0,Quant,true,0);
@@ -3797,7 +3798,8 @@ begin
   end else begin
     MatCol(t,94,"К-во",0,Quant,true,0);
   end;
-  EnterSkip(ArtCode);
+  //EnterSkip(ArtCode); //Edit***************************Sasha2,15:51 01.03.2017
+  EnterSkip(Quant);
   MatText(t=10,32,"Эта и нижележащие строки не будут печататься",false);
   MatText(t=kInvoiceRowTypePerceptionTax,32,"Налоговый сбор",true);
   MatCol(t,132,"",0,Region,false,0);

@@ -104,6 +104,50 @@ begin
 end;
 
 global
+procedure DblItemMarkUpReport(string dblstr,string l,Integer currepwn)
+begin
+  Integer wn;
+  record RcVc RepSpec;
+  
+  if (nonblank(dblstr)) then begin
+    wn = CurWindow;
+    if (GetWindowClass(wn)=="RepWClass") then begin
+      /*ReportDefaults(RepSpec,"MarkUpRClass");    
+      RepSpec.repname = "MarkUpRn";
+      RepSpec.Media = mtScreen;*/
+      DeselectWindow(wn,false);
+      GetWindowRecord(wn,RepSpec);
+      RepSpec.f1 = dblstr;
+      RepSpec.ArtMode = 1;
+      
+      RunReport(RepSpec,0);   
+    end;
+
+  end;
+
+  return;
+end;
+
+global
+procedure MarkUpRClassReportDefaults(Integer wn)
+begin
+  record RcVc RepSpec;
+  string 255 tstr;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"MarkUpRClass");  
+  FindRepDefHeader(RepSpec.repname,RepSpec.shortname,tstr);
+
+  RepSpec.flags[0] = 1;
+
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  return;
+end;
+
+global
 procedure ResRClassReportDefaults(Integer wn)
 begin
   DoResRClassReportDefaults(wn);
