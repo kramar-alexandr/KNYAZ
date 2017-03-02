@@ -82,6 +82,28 @@ begin
 end;
 
 global
+procedure ProdOrdRClassReportDefaults(Integer wn)
+begin
+  record RcVc RepSpec;
+  string 255 tstr;
+  
+  DeselectWindow(wn,false);
+  GetWindowRecord(wn,RepSpec);
+  ReportDefaults(RepSpec,"ProdOrdRClass");  
+  FindRepDefHeader(RepSpec.repname,RepSpec.shortname,tstr);
+  
+  RepSpec.Period2Str = CurrentDate & ":" & CurrentDate;
+  RepSpec.ArtMode = 1;
+  RepSpec.flags[8] = 1;
+  RepSpec.flags[6] = 1;
+
+  PutWindowRecord(wn,RepSpec);
+  SelectWindow(wn);
+  
+  return;
+end;
+
+global
 procedure ResRClassReportDefaults(Integer wn)
 begin
   DoResRClassReportDefaults(wn);
@@ -313,7 +335,7 @@ begin
       money = -1;
       if (FileExists(inBoxFilePath)) then begin
         AddFileToArea(inBoxFilePath,inBoxArea,false);
-        money = StringToVal(GetStringFromArea(inBoxArea,0,255),M4Val);
+        money = StringToVal(GetStringFromArea(inBoxArea,0,255),M4Val)/100;
       end;
       PutWindowString(wn,"DisplayMoneyInBox",money); 
     end;
