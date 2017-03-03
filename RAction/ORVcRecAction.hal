@@ -376,7 +376,7 @@ begin
   Array string 255 otcheckobjtyps;
   Integer otcheckcnt;
   record OTCheckBlock OTCheckr;
-  Boolean initotcheckf;  
+  Boolean initotcheckf,TrHs;  
   record CUUserLabelBlock CUUerLb;
   record CountryVc Countryr;
 
@@ -486,10 +486,17 @@ begin
   if (CurrentCompany==4) then begin //Edit***************************Sasha2,16:04 01.03.2017 {
     lORr.CustCode = ORr.CustCode;
     lORr.OrdDate = ORr.OrdDate;
-    if (ReadFirstKey("CustDate",lORr,2,true)) then begin
-      RecordCheckError(50011,"",-1,"CustCode");      
-      res = -1;
-      goto LORVcRecordCheck;
+    TrHs = true;
+    while (LoopKey("CustDate",lORr,2,TrHs)) begin
+      testf = true;
+      if (lORr.CustCode!=ORr.CustCode or lORr.OrdDate!=ORr.OrdDate) then begin TrHs = false; testf = false; end;
+      if (ORr.SerNr==lORr.SerNr) then begin testf = false; end;
+      if (testf) then begin
+        TrHs = false;
+        RecordCheckError(50011,"",-1,"CustCode");      
+        res = -1;
+        goto LORVcRecordCheck;
+      end;
     end;
   end; //Edit***************************Sasha2,16:04 01.03.2017 }
   CUr.Code = ORr.CustCode;
