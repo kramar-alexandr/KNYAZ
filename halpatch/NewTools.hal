@@ -70,14 +70,14 @@ begin
 	record SynkGlobalDBIDTakenSerVc SynkGlobalDBIDTakenSerr;
 	record SynkGlobalAutoSerVc SynkGlobalAutoSerr;
 	
-	record ITVc ITr;
+	/*record ITVc ITr;
 	record CTypeVc CTyper;
 	record UnitVc Unitr;
 	record ActVc Actr;
 	record ObjVc Objr;
 	record LocationVc Locationr;
 	record PDVc PDr;
-	record CurncyCodeVc CurncyCoder;
+	record CurncyCodeVc CurncyCoder;*/
 
 	Boolean TrHs;
 	
