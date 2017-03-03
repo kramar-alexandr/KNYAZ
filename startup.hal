@@ -23,6 +23,7 @@ begin
   Maintenance("Удалить записи выборочно",RegistersRemoveOptionallyVClass,RegistersRemoveOptionallyMn,modDBMain);
   Maintenance("Прописать ед.измерения в товаре, где её нет",SetUnitTextInItemIfNeededVClass,SetUnitTextInItemIfNeededMn,modIN);
   Maintenance("Обновить текст. поля для быстрого поиска",UpdateTextFieldsForQuickSearchVClass,UpdateTextFieldsForQuickSearchMn,modDBMain); //Edit***************************Sasha2,16:53 14.12.2016
+  Maintenance("Пересчитать наценку в Поступлениях",RecalcMarkUpsInPUVClass,RecalcMarkUpsInPUMn,modDBMain);
 
   SString(50000,"Укажите цену закупки"); 
   SString(50001,"Укажите себестоимость");

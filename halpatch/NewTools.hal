@@ -5,6 +5,8 @@ external procedure OPVc_PasteRecVal(var record OPVc,Integer);
 external procedure NoDupObjs(string,var string);
 external updating procedure RemoveEmptyIVCashCallback(array LongInt);
 external function Boolean PasteInvIn2IPr(var record IPVc,Integer,Date,var val,Boolean,var Boolean);
+remote function Integer PUVc_PasteSellPrice(var record PUVc,Integer,Boolean); //Edit***************************Sasha2,16:59 03.03.2017
+external procedure PUSumUp(var record PUVc); //Edit***************************Sasha2,16:59 03.03.2017
 
 /*global 
 function Boolean LocMachDrawerVcRecordShouldBeSynchronised(record LocMachDrawerVc LocMachDrawerr,string tagstr)
@@ -894,3 +896,45 @@ LExecuteCrateIPFromIVD:;
   ExecuteCrateIPFromIVD = res;
   return;
 end;
+
+global //Edit***************************Sasha2,16:12 03.03.2017 {
+updating procedure RecalcMarkUpsInPUMn(record RcVc RepSpec)
+begin
+  record PUVc PUr;
+  row PUVc PUrw;
+  record INVc INr;
+  boolean TrHs,testf;
+  integer pos,rwcnt,i;
+  string 20 curSerNr;
+    
+    pos = 0;
+    ExtractObj(RepSpec.f1,pos,curSerNr);
+    while (nonblank(curSerNr)) begin
+      PUr.SerNr = StringToLongInt(curSerNr);
+      if (ReadFirstMain(PUr,1,true)) then begin
+        rwcnt = matrowcnt(PUr);
+        for (i=0;i<rwcnt;i=i+1) begin
+          MatRowGet(PUr,i,PUrw);
+          if (NonBlank(PUrw.ArtCode)) then begin
+            if (PUrw.SellPrice==BlankVal) then begin
+              INr.Code = PUrw.ArtCode;
+              ReadFirstMain(INr,1,true);
+              PUrw.SellPrice = INr.UPrice1;
+              MatRowPut(PUr,i,PUrw);
+              PUVc_PasteSellPrice(PUr,i,true);
+              MatRowGet(PUr,i,PUrw);
+            end;
+            if (PUrw.SellPrice!=BlankVal) then begin
+              PUrw.rowGP = ((PUrw.SellPrice/PUrw.CostPrice)-1)*100;
+              MatRowPut(PUr,i,PUrw);
+            end;
+          end;
+        end;
+        PUSumUp(PUr);
+        RECORDSTORE(PUr,true);
+      end;
+      ExtractObj(RepSpec.f1,pos,curSerNr);
+    end;
+
+  return;
+end; //Edit***************************Sasha2,16:12 03.03.2017 }
