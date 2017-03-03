@@ -62,12 +62,22 @@ begin
 	record ARVc ARr;
 	record OPrsVc OPrsr;
 	record IPrsVc IPrsr;
+	record RecVc Recr; //Структуры (Рецепты)
 	
 	record SynkDBIDRegVc SynkDBIDRegr;
 	record SynkGlobalDBIDRegVc SynkGlobalDBIDRegr;
 	record SynkDBIDTakenSerVc SynkDBIDTakenSerr;
 	record SynkGlobalDBIDTakenSerVc SynkGlobalDBIDTakenSerr;
 	record SynkGlobalAutoSerVc SynkGlobalAutoSerr;
+	
+	record ITVc ITr;
+	record CTypeVc CTyper;
+	record UnitVc Unitr;
+	record ActVc Actr;
+	record ObjVc Objr;
+	record LocationVc Locationr;
+	record PDVc PDr;
+	record CurncyCodeVc CurncyCoder;
 
 	Boolean TrHs;
 	
@@ -361,6 +371,14 @@ begin
 	  if (TrHs) then begin
 	    RecordDelete(SynkGlobalAutoSerr);
 	    StepBack(SynkGlobalAutoSerr);
+	  end;
+	end;
+	
+	TrHs = true;
+	while (LoopMain(Recr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(Recr);
+	    StepBack(Recr);
 	  end;
 	end;
 
