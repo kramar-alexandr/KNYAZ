@@ -525,7 +525,6 @@ BEGIN
     PUrw.UnitCode = INr.Unittext;
     PUrw.ToPosCode = position;
     PUrw.SellPrice = INr.UPrice1; //Edit***************************Sasha2,17:14 03.03.2017
-    PUrw.SumSellPrice = PUrw.SellPrice*PUrw.Quant; //Edit***************************Sasha2,17:14 03.03.2017
     PUrw.rowGP = ((PUrw.SellPrice/PUrw.CostPrice)-1)*100; //Edit***************************Sasha2,17:14 03.03.2017
     if (loctype==1) then begin
       PUrw.CredAcc = GetUsageVarianceAcc(INr.Group,PUrw.CredAcc);
@@ -558,6 +557,7 @@ BEGIN
                     PUr.FrRate,PUr.ToRateB1,PUr.ToRateB2,PUr.BaseRate1,PUr.BaseRate2);
                                      
   PUrw.Sum = p;
+  PUrw.SumSellPrice = PUrw.SellPrice*PUrw.Quant; //Edit***************************Sasha2,17:14 03.03.2017
   MatRowPut(PUr,rwcnt,PUrw);
   RETURN;            
 END;
