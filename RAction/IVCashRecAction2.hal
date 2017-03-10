@@ -228,8 +228,8 @@ function LongInt IVCashVcRecordSyncServerAfter(var record IVCashVc IVCashr,recor
 begin
   LongInt res;
   
-  logtext(0,"IVCashVcRecordSyncServerAfter");
-  logtext(0,RecordValid(IVCash2r));
+  //logtext(0,"IVCashVcRecordSyncServerAfter");
+  //logtext(0,"Record is valid:" & RecordValid(IVCash2r));
   
   if (RecordValid(IVCash2r)) then begin
     if ((IVCash2r.Invalid==0) and (IVCashr.Invalid==0)) then begin
