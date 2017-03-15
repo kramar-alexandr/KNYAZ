@@ -1511,6 +1511,7 @@ retval is calculted in sumup
         WindowFieldGoto(nwn,RepSpec,-1,"f1",true);
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case 200: //Edit***************************Sasha2,13:12 09.03.2017 {
+        MessageBox(0,"OpenDaySessionAuthenticationWin");
         OpenDaySessionAuthenticationWin;
         goto LIVCashDClassTouchScreenPasteButtonDo; //Edit***************************Sasha2,13:12 09.03.2017 }
     end;
