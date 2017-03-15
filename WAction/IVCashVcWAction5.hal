@@ -1257,7 +1257,7 @@ begin
   GetWindowRecord(wn,IVCashr);
   
   found = POSButtonsForWindow(wn,POSBr);
-    
+  MessageBox(0,"POSButtonsForWindow");
   if (found) then begin
     rwcnt = MatRowCnt(POSBr);
     
@@ -1281,7 +1281,7 @@ begin
         goto LIVCashDClassTouchScreenPasteButtonDo;
     end;
   end;
-  
+  MessageBox(0,"WindowState(wn)");
   switch (WindowState(wn)) begin
     case Rs_update:
       GetPrevWindowRecord(wn,prevIVCashr);
@@ -1298,11 +1298,11 @@ begin
       if (IVCashr.Invalid!=0) then begin 
         goto LIVCashDClassTouchScreenPasteButtonDo; 
       end;
-  end;
+  end; MessageBox(0,"found" & found);
   if (found) then begin
     rwcnt = MatRowCnt(POSBr);
     
-    if (butnr>rwcnt) then begin
+    if (butnr>rwcnt) then begin MessageBox(0,"butnr>rwcnt");
       goto LIVCashDClassTouchScreenPasteButtonDo;
     end;
     
