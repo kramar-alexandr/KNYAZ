@@ -2,6 +2,9 @@ external procedure FindRepDefHeader(string,string,var string);
 remote updating function Integer CreateOPFromVI(record VIVc,var record OPVc);
 external updating procedure YesProceedItemsReturnTClass();
 remote updating function Integer ExecuteCrateIPFromIVD(record IVVc,var longint);
+external function LongInt CheckDaySessionCashiersIsValid(date,time);
+external function Integer CountObjects(string);
+external procedure ExtractObj(string,var Integer,var string); 
 
 SetLangMode(LangRussian,"RUS",0); 
 
@@ -22,6 +25,24 @@ begin
   end;
 
   CCPayTouchScreenSelfDClassOnEnterKey = res;
+  return;
+end; //Edit***************************Sasha2,13:36 07.12.2016 }
+
+global //Edit***************************Sasha2,13:36 07.12.2016 {
+function Boolean DaySessionCashiersRCLassOnEnterKey(Integer wn,string fieldname,Integer fn,Integer rownr)
+begin
+  Boolean res;
+  record RcVc RepSpec;
+  
+  GetWindowRecord(wn,RepSpec); MessageBox(0,"DaySessionCashiersRCLassOnEnterKey");
+  if (fieldname=="f2") then begin
+    if (nonblank(RepSpec.f2)) then begin
+      SelectButton(wn,"ProceedDaySessionAuthentication");
+    end;
+    res = false;
+  end;
+
+  DaySessionCashiersRCLassOnEnterKey = res;
   return;
 end; //Edit***************************Sasha2,13:36 07.12.2016 }
 
@@ -491,3 +512,142 @@ begin
   end;
   return;
 end; //Edit***************************Sasha2,16:59 16.01.2017 }
+
+global //Edit***************************Sasha2,15:39 07.03.2017 {
+procedure OpenDaySessionAuthenticationWin()
+begin
+	record RcVc RepSpec;
+	integer nwn,mwn;
+
+	mwn = curwindow;
+	nwn = OpenWindow("DaySessionCashiersRCLass",1,mwn,"","",RepSpec);
+	WindowFieldGoto(nwn,RepSpec,-1,"f2",false);
+	
+return;
+end; //Edit***************************Sasha2,15:39 07.03.2017 }
+
+global //Edit***************************Sasha2,15:39 07.03.2017 {
+updating procedure CancelDaySessionAuthentication()
+begin
+	integer wn;
+	wn = curwindow;
+	closewindow(wn);
+return;
+end; //Edit***************************Sasha2,15:39 07.03.2017 }
+
+global //Edit***************************Sasha2,16:20 09.03.2017 {
+procedure UpdateDaySessionDataLines(Integer wn,var record IVCashVc IVCashr)
+begin
+  string 20 curStr;
+  Integer pos,lineCnt;
+  record CUVc CUr;
+  
+    PutWindowString(wn,"DaySessionDataLine1",""); //Edit***************************Sasha2,13:41 09.03.2017 {
+    PutWindowString(wn,"DaySessionDataLine2","");
+    PutWindowString(wn,"DaySessionDataLine3","");
+    if (NonBlank(IVCashr.DaySessionCashiers)) then begin
+      PutWindowString(wn,"DaySessionDataLine1",UsetStr(50014) & CountObjects(IVCashr.DaySessionCashiers));
+      pos = 0;
+      lineCnt = 2;
+      ExtractObj(IVCashr.DaySessionCashiers,pos,curStr);
+      while (NonBlank(curStr)) begin
+        CUr.Code = curStr;
+        if (ReadFirstMain(CUr,1,true)) then begin
+          PutWindowString(wn,"DaySessionDataLine" & lineCnt,CUr.Name);
+          lineCnt = lineCnt + 1;
+        end;
+        ExtractObj(IVCashr.DaySessionCashiers,pos,curStr);
+      end;
+    end; //Edit***************************Sasha2,13:41 09.03.2017 }
+    
+  return;
+end; //Edit***************************Sasha2,16:20 09.03.2017 }
+
+
+global //Edit***************************Sasha2,16:23 09.03.2017 {
+updating procedure ProceedDaySessionAuthentication()
+begin
+	integer wn,mwn;
+	record RCVc RepSpec;
+	record IVCashVc IVCashr;
+	record LoyaltyCardVc LoyaltyCardr;
+	record CashierDefBlock CDBl;
+	record DaySessionBlock DSCBl;
+	Boolean proceedF;
+	date blankd,maxDate;
+	time blankt;
+	
+	wn = curwindow;
+	mwn = MotherWindow(wn);
+	deselectwindow(wn,true);
+	getwindowrecord(wn,RepSpec);
+	proceedF = true;
+	blockload(CDBl);
+	
+	if(blank(RepSpec.f2))then begin
+		messagebox(50012,"");
+		WindowFieldGoto(wn,RepSpec,-1,"f2",false);
+		proceedF = false;
+	end;
+	
+	if (proceedF) then begin
+	  LoyaltyCardr.SerNr = RepSpec.f2;
+    if (ReadFirstMain(LoyaltyCardr,1,true)==false) then begin
+      MessageBox(1029,"");
+      WindowFieldGoto(wn,RepSpec,-1,"f2",false);
+      proceedF = false;
+    end;
+   end;
+  if (proceedF) then begin
+    if (nonblankdate(LoyaltyCardr.ExpiryDate)) then begin
+      if (LoyaltyCardr.ExpiryDate<CurrentDate) then begin
+        MessageBox(26438,"");
+        WindowFieldGoto(wn,RepSpec,-1,"f2",false);
+        proceedF = false;
+      end;
+    end;
+  end;
+  if (proceedF) then begin
+    if (LoyaltyCardr.Closed!=0) then begin
+      MessageBox(26434,"");
+      WindowFieldGoto(wn,RepSpec,-1,"f2",false);
+      proceedF = false;
+    end;
+  end;
+  if (proceedF) then begin
+    if (CDBl.DaySessionStartTime==blankt or CDBl.DaySessionEndTime==blankt) then begin
+      MessageBox(50013,"");
+      proceedF = false;
+    end;
+    if (proceedF) then begin
+      BlockLoad(DSCBl);
+      if (CheckDaySessionCashiersIsValid(CurrentDate,CurrentTime)!=0) then begin
+        DSCBl.DaySessionCashiers = "";
+        DSCBl.TransDate = CurrentDate;
+        DSCBl.DaySessionStartTime = CDBl.DaySessionStartTime;
+        DSCBl.DaySessionEndTime = CDBl.DaySessionEndTime;
+      end;
+      if (NonBlank(LoyaltyCardr.CustCode)) then begin
+        if (SetInSet(LoyaltyCardr.CustCode,DSCBl.DaySessionCashiers)==false) then begin
+          if (NonBlank(DSCBl.DaySessionCashiers)) then begin
+            DSCBl.DaySessionCashiers = DSCBl.DaySessionCashiers & ",";
+          end;
+          DSCBl.DaySessionCashiers = DSCBl.DaySessionCashiers & LoyaltyCardr.CustCode;
+        end;
+      end;
+      BlockStore(DSCBl);
+      CloseWindow(wn);
+      if (GetWindowFileName(mwn)=="IVCashVc") then begin
+        SelectWindow(mwn);
+        GetWindowRecord(mwn,IVCashr);
+        IVCashr.DaySessionCashiers = DSCBl.DaySessionCashiers;
+        IVCashr.DaySessionStartTime = DSCBl.DaySessionStartTime;
+        IVCashr.DaySessionEndTime = DSCBl.DaySessionEndTime;
+        PutWindowRecord(mwn,IVCashr);
+        UpdateDaySessionDataLines(mwn,IVCashr);
+      end;
+	  end;
+  end;
+  
+return;
+end; //Edit***************************Sasha2,16:23 09.03.2017 }

@@ -866,7 +866,11 @@ begin
         procstr = "";  
       case kPOSButtonTypeConnectToCCTerminal:
         AddTouchScreenPasteButton(h,v,width,heighttemp,procstr,i+1,lblstr,POSBrw.colnr);
-        procstr = "";  
+        procstr = ""; 
+         
+      case 200: //Edit***************************Sasha2,13:23 09.03.2017
+        AddTouchScreenPasteButton(h,v,width,heighttemp,procstr,i+1,lblstr,POSBrw.colnr);
+        
       case kPOSButtonTypeBlank:
         goto LLDrawPOSButtons_RUS;
     end;

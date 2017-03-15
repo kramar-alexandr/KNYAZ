@@ -100,6 +100,7 @@ external updating procedure ProceedChangeTermsNPTSSClass();
 external function Boolean MakeFiscalReceipt(record IVCashVc); //Edit***************************Sasha2,16:20 13.06.2016
 forward procedure IVCashDClassTouchScreenAmendLine(); //Edit***************************Sasha2,12:03 08.12.2016
 forward procedure IVCashDClassTouchScreenAmendLineWithParam(string); //Edit***************************Sasha2,12:03 08.12.2016
+external procedure OpenDaySessionAuthenticationWin(); //Edit***************************Sasha2,15:25 07.03.2017
 
 SetLangMode(LangRussian,"RUS",0); 
 
@@ -1509,6 +1510,9 @@ retval is calculted in sumup
         nwn = OpenWindow("NPTSSearchBFCURClass",0,wn,"","",RepSpec);
         WindowFieldGoto(nwn,RepSpec,-1,"f1",true);
         goto LIVCashDClassTouchScreenPasteButtonDo;
+      case 200: //Edit***************************Sasha2,13:12 09.03.2017 {
+        OpenDaySessionAuthenticationWin;
+        goto LIVCashDClassTouchScreenPasteButtonDo; //Edit***************************Sasha2,13:12 09.03.2017 }
     end;
   end;
 LIVCashDClassTouchScreenPasteButtonDo:;

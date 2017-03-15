@@ -1,4 +1,7 @@
 
+//Info: used a number "300" (TRp.IntYc = 300) for salary transactions as a custom TRp.IntYc;
+
+
 event startup
 begin
   SetLangMode(LangRussian,"RUS",0);
@@ -7,6 +10,7 @@ begin
   Setting("Печать на фискальном принтере",FiscalPrintingTClass,modPOS);
   Setting("Локальные настройки фискального принтера",FiscalSetLocalTClass,modPOS);
   Setting("Локальная машина - ящик",LocMachDrawerTCLass,modPOS);
+  Setting("Резквизиты операционного дня",DaySessionlTClass,modPOS);
   //Setting("Локальная машина - ящик_vc",LocMachDrawerLClass,modPOS);
   
   Report("HAL Primitives",HalSpecRClass,HalSpecRn,0,modSY);
@@ -24,6 +28,7 @@ begin
   Maintenance("Прописать ед.измерения в товаре, где её нет",SetUnitTextInItemIfNeededVClass,SetUnitTextInItemIfNeededMn,modIN);
   Maintenance("Обновить текст. поля для быстрого поиска",UpdateTextFieldsForQuickSearchVClass,UpdateTextFieldsForQuickSearchMn,modDBMain); //Edit***************************Sasha2,16:53 14.12.2016
   Maintenance("Пересчитать наценку в Поступлениях",RecalcMarkUpsInPUVClass,RecalcMarkUpsInPUMn,modDBMain);
+  Maintenance("Насчитать зарплату за дату",MakeSalaryTransactionVClass,MakeSalaryTransactionMn,modNL); //Edit***************************Sasha2,10:18 14.03.2017
 
   SString(50000,"Укажите цену закупки"); 
   SString(50001,"Укажите себестоимость");
@@ -37,5 +42,10 @@ begin
   SString(50009,"Сумма розн.ц.");
   SString(50010,"Это старая незакрытая сч/ф. ПРОВЕРЬТЕ!");
   SString(50011,"Заказ для этого клиента на сегодня уже создан");
+  SString(50012,"Введите пароль");
+  SString(50013,"Пустые даты начала операционного дня");
+  SString(50014,"Кассиров в этот день: ");
+  SString(50015,"Отметьте себя в этот операционный день");
+  SString(50016,"Зарплата сотрудникам");
 	return;
 end;

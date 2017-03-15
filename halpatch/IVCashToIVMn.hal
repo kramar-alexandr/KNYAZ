@@ -93,6 +93,9 @@ begin
 	IVr.CustCode = IVCashr.CustCode;
 	PasteCust2InInv(IVr,LMb,IVCashr.CustCode,true,warning,errstr,prepstr,invdatewarn,transdatewarn);
 	IVr.Objects = IVCashr.Objects;// Edit ************************** Tuesday, 28 February 2017 11:12:02
+	IVr.DaySessionCashiers = IVCashr.DaySessionCashiers; //Edit***************************Sasha2,16:46 09.03.2017
+  IVr.DaySessionStartTime = IVCashr.DaySessionStartTime; //Edit***************************Sasha2,16:46 09.03.2017
+  IVr.DaySessionEndTime = IVCashr.DaySessionEndTime; //Edit***************************Sasha2,16:46 09.03.2017
 
 	rwcnt = MatRowCnt(IVCashr);
 	for(i=0; i <rwcnt; i = i+1) begin

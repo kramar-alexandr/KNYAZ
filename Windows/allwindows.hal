@@ -2957,6 +2957,11 @@ begin
       SoftEditFieldTLX(520-310,6+40,h4,"",M4Str,ViewOnly,100,30-10,patM4black,"CustomerDisplayData_Line1",true,0);//Edit***************************Sasha2,10:09 08.09.2016
       SoftEditFieldTLX(520-310,46+40,h4,"",M4Str,ViewOnly,100,50-20,patM4black,"CustomerDisplayData_Line2",true,0); //Edit***************************Sasha2,10:09 08.09.2016
       StaticText(520-270,90+70,"Наличные в фиск. кассе:",false); //Edit***************************Sasha2,13:53 17.11.2016
+      
+      SoftEditFieldTLX(-200,120,h4,"",M4Str,ViewOnly,0,15,patM4black,"DaySessionDataLine1",false,0); //Edit***************************Sasha2,14:12 09.03.2017
+      SoftEditFieldTLX(-200,140,h4,"",M4Str,ViewOnly,0,15,patM4black,"DaySessionDataLine2",false,0); //Edit***************************Sasha2,14:12 09.03.2017
+      SoftEditFieldTLX(-200,160,h4,"",M4Str,ViewOnly,0,15,patM4black,"DaySessionDataLine3",false,0); //Edit***************************Sasha2,14:12 09.03.2017  
+            
       SoftEditFieldTLX(520-140,90+40,150,"",M4Str,ViewOnly,100,50-20,patM4black,"DisplayMoneyInBox",false,0); //Edit***************************Sasha2,13:53 17.11.2016
     end;
     switch (LMb.POSButtonsPosition) begin
@@ -3264,7 +3269,7 @@ begin
   end;
   EditFieldTLX(h,v=6, 140,"Сумма",M4Val,ViewOnly,0,30,patM4black,vals0,true,0);
   v=v+40;
-  EditFieldTLX(h,v=v+40, 140,"Пароль",M4Str,Normal,20,25,patM4black,f1,false,0);
+  EditFieldTLX(h,v=v+40, 140,"Пароль",M4Star,Normal,20,25,patM4black,f1,false,0);
   EditFieldTLX(h,v=v+40, 80,"Валюта",M4Str,ViewOnly,5,30,patM4black,CurncyCode,false,0);
 
   v = v+70;
@@ -6275,5 +6280,116 @@ begin
   end;  
   SpecMenuGroup("",kSpecMenuGroupTypeExtendedPlusMenu,0);         
   SpecialMenu("Создать кредит-ноту",'F',0,"CredVIFromRetPUDsm");         
+  EndWindow;
+end;
+
+window CashierDefTClass:1
+  wtag("language","RUS"), wtag("product","*"), wtag("productcode","*"), wtag("device","computer")
+begin
+  real h,h2,v,vm,vs;
+  
+  WindowBegin("Настройки POS",CashierDefTClass,CGSbl,-); 
+  SetWRect(64,80,700,600);
+  SetBlid(CashierDefBlock);
+  v = 6; vs = 20; h = 150; h2 = 290; vm=0;
+  EditField(h,v,70,"Клиент по умолчанию",Normal,DefCustCode,false,CUSClass);
+  if (HasModNL) then begin
+    EditField(h,v+=vs,70,"Счёт бэк-офиса",Normal,CredAcc,false,AccSClass);
+    EditField(h,v+=vs,70,"Счёт списания",Normal,WriteOffAcc,false,AccSClass);
+  end;
+  if (HasModRest) then begin
+    EditField(h,v+=vs,70,"Метод оплаты чаевых",Normal,TipPMCode,false,PMSClass);
+  end;
+  if (IsEnterprise) then begin
+    EditField(h,v+=vs,70,"Принтер",Normal,Printer,false,SetSClass);
+    if (StandardHansa==false) then begin
+      EditField(h,v+=vs,70,"Скидка для пенсионеров",Normal,DiscountItem,false,INSClass);
+    end;
+  end;
+  if (HasModIN) then begin
+    if (IsEnterprise) then begin
+      ButtonFrame(h-130,v+=3*vs+2*16,490,2,"POS");
+    end else begin
+      if (HasModRest) then begin
+        ButtonFrame(h-130,v+=40,490,2,"POS");
+      end else begin
+        v = v + 40;
+      end;
+    end;
+      EditField(h,v,70,"Обновить интервал склада",Normal,UpdStockMaintTime,false,PasteCurTime);
+//    ButtonFrame(h2,v,170,3,"Run Update #Stock# Maintenance");
+//    RadioButton(h2,v,0,0,"Manually",UpdStockMaint);
+//    RadioButton(h2,v+=16,1,0,"Periodically",UpdStockMaint);
+//    RadioButton(h2,v+=16,2,0,"When OKing POS Invoice",UpdStockMaint);
+
+    CheckBox(h2,v,0,"Запустить функцию обновления склада",UpdStockMaint);
+    CheckBox(h2,v+=18,0,"Подтвердить списания склада",POSOKSD); 
+ end;
+ if (HasModRest) then begin
+    ButtonFrame(h-130,v+=40,490,2,"Ресторан");
+     EditField(h,v,70,"Обновить интервал склада",Normal,RestUpdStockMaintTime,false,PasteCurTime);
+   CheckBox(h2,v,0,"Запустить функцию обновления склада",RestUpdStockMaint);
+    CheckBox(h2,v+=18,0,"Записать списание склада",RestOKSD);
+//    CheckBox(h2,v,0,"Записать поступления на склад",OKPU);
+  end;
+  if (IsEnterprise) then begin
+    EditField(h,v+=(vs+5),70,"Интервал снятия кассы",Normal,CashupMaintInterval,false,PasteCurTime);
+    CheckBox(h2,v,0,"Запустить функцию снятия кассф",CashupMaint);
+  end;
+//  EditField(h,v+=vs,60,"POS No.",Normal,POSNr,false,0);
+  ButtonFrame(h-130,v+=37+vs,220,3,"Фотографии товаров на кассовом экране");  
+  RadioButton(h,v,kPOSItemPictureDefault,0,"По умолчанию",ItemPictureCashier);  
+  RadioButton(h,v+=16,kPOSItemPictureOn,0,"Включить",ItemPictureCashier);  
+  RadioButton(h,v+=16,kPOSItemPictureOff,0,"Выключить",ItemPictureCashier);  
+  ButtonFrame(h-130,v+=40,220,3,"Фотографии товаров на экране клиента");  
+  RadioButton(h,v,kPOSItemPictureDefault,0,"По умолчанию",ItemPictureCustomer);  
+  RadioButton(h,v+=16,kPOSItemPictureOn,0,"Включить",ItemPictureCustomer);  
+  RadioButton(h,v+=16,kPOSItemPictureOff,0,"Выключить",ItemPictureCustomer);  
+  v = vm + 3;
+  if (HasModRest) then begin
+    CheckBox(h2,v,0,"Включать чаевые в снятии кассы",InclTipInCashup);
+    v = v + 16;
+  end;
+  if (IsEnterprise) then begin
+    if (HasModSL) then begin
+      CheckBox(h2,v,0,"Вкл. суммы откр. счетов при снятии кассы",InclOpenInvCashup);
+      v = v + 16;
+    end;
+  end;
+  if (IsEnterprise) then begin
+    if (StandardHansa==false) then begin
+      CheckBox(h2,v,0,"Регестр. продаж. нал. в секц. фиск. контр.",CashSalesToFiscalControlUnit);
+      v = v + 16;
+    end;
+    CheckBox(h2,v,0,"Разрешать несколько сессий на одной машине",MultipleSessionsPerLocalMachine);
+    CheckBox(h2,v+=16,0,"Запр. изменен. в утв.сч/ф кас.терм.на кл. с синхр.",NoChangesPOSOnLiveSyncClient);
+  end;
+  if (IsEnterprise) then begin
+    CheckBox(h2,v+=16,0,"Require Return Reason",RequireReturnReason);
+    CheckBox(h2,v+=16,0,"Require Return Customer",RequireReturnCustomer);
+  end;
+  if (HasModNL) then begin
+    ButtonFrame(h2,v+=45,220,2,"Снятие кассы из меню Операции");
+    CheckBox(h2,v,0,"Начинать с предыдущего баланса касс. терминала",StartFromLastPOSBal);
+    if (HasModNL) then begin
+      CheckBox(h2,v+=16,0,"Печатать детализированные записи операций",PrintDetNLTrans);
+    end;
+    EndFrame;
+  end;
+  if (IsEnterprise) then begin
+    CheckBox(h2,v+=155,0,"Требовать открыть сессию",RequireOpenSession);
+    ButtonFrame(h2,vm=(v+=41),170,3,"Поля по умолч. на новый сч/ф");
+    RadioButton(h2,v,0,0,"По умолчанию",DefInvoiceField);
+    RadioButton(h2,v+=16,1,0,"Товар",DefInvoiceField);
+    if (HasSerialNumbers) then begin
+      RadioButton(h2,v+=16,2,0,"Серийный №",DefInvoiceField);
+    end;
+    EndFrame;
+  end;
+  
+  EditField(h2+140,v+=vs,70,"Время начала операц.дня",Normal,DaySessionStartTime,true,PasteCurTime); //Edit***************************Sasha2,11:18 07.03.2017
+  EditField(h2+140,v+=vs,70,"Время конца операц.дня",Normal,DaySessionEndTime,true,PasteCurTime); //Edit***************************Sasha2,11:18 07.03.2017
+  EditField(h2+140,v+=vs,70,"Способы оплаты выторга",Normal,DaySessionPMs,true,PMSClass);
+  
   EndWindow;
 end;

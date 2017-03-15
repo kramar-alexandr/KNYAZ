@@ -1,6 +1,7 @@
 external function Boolean TestForMATVARINS(Integer);
 external function Boolean HasJewelleryInterface();
 external procedure M4PadString(string,Integer,string,Boolean,var string);
+external procedure UpdateDaySessionDataLines(Integer,var record IVCashVc); //Edit***************************Sasha2,16:21 09.03.2017
 
 /*
 procedure AddStringListRow(Integer wn,string artcode,string spec,val q,val p,val s,string tag)
@@ -378,6 +379,8 @@ LkInvoiceRowTypeNormal4:;
         IVCashDClass_RefreshStringList(wn,IVCashr);
     end;
   end;
+  UpdateDaySessionDataLines(wn,IVCashr); //Edit***************************Sasha2,16:56 09.03.2017
+  
   return;
 end;
 

@@ -7,6 +7,13 @@ external updating procedure RemoveEmptyIVCashCallback(array LongInt);
 external function Boolean PasteInvIn2IPr(var record IPVc,Integer,Date,var val,Boolean,var Boolean);
 remote function Integer PUVc_PasteSellPrice(var record PUVc,Integer,Boolean); //Edit***************************Sasha2,16:59 03.03.2017
 external procedure PUSumUp(var record PUVc); //Edit***************************Sasha2,16:59 03.03.2017
+external function val AbsoluteVal(val);
+external procedure AddEuroCurncyTrRow(record TRVc,string,string,string,string,val,Boolean,Boolean,var val,string,val,val,val,val,val,val,val,LongInt,Boolean,string);
+external function Integer CountObjects(string);
+external procedure TRSumup(var record TRVc,var val);
+external function Boolean GetAccName(string,var string,Integer);
+external function roundmode DefaultRoundMode();
+external function Integer GetIntYc(Date);
 
 /*global 
 function Boolean LocMachDrawerVcRecordShouldBeSynchronised(record LocMachDrawerVc LocMachDrawerr,string tagstr)
@@ -938,3 +945,281 @@ begin
 
   return;
 end; //Edit***************************Sasha2,16:12 03.03.2017 }
+
+global //Edit***************************Sasha2,16:47 10.03.2017 {
+updating procedure CalcCashierSalaryAndMakeTransaction(record RcVc RepSpec)
+begin
+  record IVCashVc IVCashr;
+  row IVCashVc IVCashrw;
+  record TRVc TRr,TR2r;
+  record CUVc CUr;
+  record LocationVc Locr;
+  date salaryDateMin,salaryDateMax;
+  record CashierDefBlock CDBl;
+  record DaySessionBlock DSCBl;
+  record BaseCurBlock BaseCurb;
+  time blankt;
+  Boolean TrHs,testf,proceedF;
+  Integer rwcnt,i,sign,pos;
+  vector val customerSum;
+  val credCard,cashPayment,IncomeTotSum,TrTotsum,salaryCommission,nilv,cashierSelfSaleSum;
+  string 255 cashierList,persobj,tstr,locObjs;
+  string 20 curObj,selfSaleAcc;
+  LongInt nextSalaryTrNr,intYcNum;
+  
+    BlockLoad(CDBl);
+    BlockLoad(DSCBl);
+    BlockLoad(BaseCurb);
+    nilv = 1;
+    if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt) then begin
+      if (NonBlank(RepSpec.RegDate)) then begin
+        if (DSCBl.DaySessionStartTime>=DSCBl.DaySessionEndTime) then begin
+          salaryDateMin = RepSpec.RegDate;
+          salaryDateMax = AddDay(salaryDateMin,1);
+        end else begin
+          salaryDateMin = RepSpec.RegDate;
+          salaryDateMax = RepSpec.RegDate;
+        end;
+      end else begin
+        if (DSCBl.DaySessionStartTime>=DSCBl.DaySessionEndTime) then begin
+          salaryDateMax = CurrentDate;
+          salaryDateMin = AddDay(salaryDateMax,-1);
+        end else begin
+          salaryDateMax = CurrentDate;
+          salaryDateMin = CurrentDate;
+        end;
+      end;
+      proceedF = true;
+      intYcNum = GetIntYc(salaryDateMin);
+      if (proceedF and intYcNum<=1) then begin
+        LogText(1075,"");
+        proceedF = false;
+      end;
+      if (proceedF) then begin
+        //check if transaction already exists
+        TRr.IntYc = intYcNum;
+        TRr.TransDate = salaryDateMin;
+        TrHs = true;
+        while (LoopKey("IntYc",TRr,2,TrHs)) begin
+          if (TRr.IntYc!=intYcNum or TRr.TransDate!=salaryDateMin) then begin TrHs = false; end;
+          if (TrHs) then begin
+            if (TRr.FileName=="SalaryTRVc") then begin
+              TrHs = false;
+              proceedF = false;
+              LogText(0,"Salary transaction for " & salaryDateMin & " already exists");
+            end;
+          end;
+        end;
+      end;
+      if (proceedF and Blank(CDBl.DaySessionPMs)) then begin
+        LogText(0,"Undefined pay modes for Day Session in CashierDefBlock");
+        proceedF = false;
+      end;
+      if (proceedF) then begin
+        IVCashr.InvDate = salaryDateMin;
+        TrHs = true;
+        IncomeTotSum = 0;
+        while (LoopKey("InvDate",IVCashr,1,TrHs)) begin
+          testf = true;
+          if (IVCashr.InvDate<salaryDateMin or IVCashr.InvDate>salaryDateMax) then begin testf = false; TrHs = false; end;
+          if (IVCashr.InvDate==salaryDateMin and IVCashr.TransTime<DSCBl.DaySessionStartTime) then begin testf = false; end;
+          if (IVCashr.InvDate==salaryDateMax and IVCashr.TransTime>DSCBl.DaySessionEndTime) then begin testf = false; end;
+          if (IVCashr.OKFlag==0 or IVCashr.Invalid==1) then begin testf = false; end;
+          if (blank(IVCashr.DaySessionCashiers)) then begin testf = false; end;
+          if (testf) then begin
+            if (SetInSet(IVCashr.Location,locObjs)==false) then begin
+              if (NonBlank(locObjs)) then begin
+                locObjs = locObjs & ",";
+              end;
+              locObjs = locObjs & IVCashr.Location;
+            end;
+            pos = 0;
+            ExtractObj(IVCashr.DaySessionCashiers,pos,curObj);
+            while (nonblank(curObj)) begin
+              if (SetInSet(curObj,cashierList)==false) then begin
+                if (NonBlank(cashierList)) then begin
+                  cashierList = cashierList & ",";
+                end;
+                cashierList = cashierList & curObj;
+              end;
+              ExtractObj(IVCashr.DaySessionCashiers,pos,curObj);
+            end;
+            sign = 1;
+            if (IVCashr.InvType==kPOSInvoiceTypeCredit or IVCashr.Sum4<0) then begin
+              sign = -1;;
+            end;
+            customerSum[IVCashr.CustCode] = customerSum[IVCashr.CustCode] + AbsoluteVal(IVCashr.Sum4)*sign;
+            credCard = 0;
+            cashPayment = 0;
+            rwcnt = MatRowCnt(IVCashr);
+            for (i=0;i<rwcnt;i=i+1) begin
+              MatRowGet(IVCashr,i,IVCashrw);
+              switch (IVCashrw.stp) begin
+                case kInvoiceRowTypeCashPayment:
+                  if (SetInSet(IVCashrw.PayMode,CDBl.DaySessionPMs)) then begin
+                    cashPayment = cashPayment + AbsoluteVal(IVCashrw.Sum)*sign;
+                  end;
+                case kInvoiceRowTypeCreditCardPayment:
+                  if (SetInSet(IVCashrw.PayMode,CDBl.DaySessionPMs)) then begin
+                    credCard = credCard + AbsoluteVal(IVCashrw.Sum)*sign;
+                  end;
+              end;  
+            end;
+            if (cashPayment<>0) then begin
+              cashPayment = cashPayment - AbsoluteVal(IVCashr.RetValue);
+            end;
+            if ((cashPayment + credCard)<>0 and (cashPayment + credCard)!=AbsoluteVal(IVCashr.Sum4)) then begin
+              LogText(0,"Mismatch between payments and invoice total in ivoice #" & IVCashr.SerNr);
+            end;
+            IncomeTotSum = IncomeTotSum + cashPayment + credCard;
+          end;
+        end;
+        
+        salaryCommission = 7.00/CountObjects(cashierList);
+        if (NonBlank(cashierList) and salaryCommission<>0) then begin
+          tstr = locObjs;
+          locObjs = "";
+          if (NonBlank(tstr)) then begin
+            pos = 0;
+            ExtractObj(tstr,pos,curObj);
+            while (nonblank(curObj)) begin
+              Locr.Code = curObj;
+              if (ReadFirstMain(Locr,1,true) and NonBlank(Locr.Objects)) then begin
+                if (NonBlank(locObjs)) then begin
+                  locObjs = locObjs & ",";
+                end;
+                locObjs = locObjs & Locr.Objects;
+              end;
+              ExtractObj(tstr,pos,curObj);
+            end;
+          end;
+          
+          RECORDNEW(TRr);
+          TRr.RegDate = CurrentDate;
+          TRr.RegTime = CurrentTime;
+          TRr.TransDate = salaryDateMin;
+          TRr.Comment = UsetStr(50016);
+          TRr.FileName = "SalaryTRVc";
+          
+          pos = 0;
+          ExtractObj(cashierList,pos,curObj);
+          while (nonblank(curObj)) begin
+            persobj = locObjs & ",";
+            CUr.Code = curObj;
+            if (ReadFirstMain(CUr,1,true) and NonBlank(CUr.Objects)) then begin
+              persobj = persobj & CUr.Objects & ",";
+            end;
+            persobj = left(persobj,len(persobj)-1);
+            
+            if (IncomeTotSum<>0) then begin
+              GetAccName("929",tstr,60);
+              AddEuroCurncyTrRow(TRr,"929",persobj,"",tstr,Round((IncomeTotSum/100)*salaryCommission,DefaultRoundMode),false,true,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
+              GetAccName("66",tstr,60);
+              AddEuroCurncyTrRow(TRr,"66",persobj,"",tstr,Round((IncomeTotSum/100)*salaryCommission,DefaultRoundMode),false,false,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
+            end else begin
+              LogText(0,"IVCash total sum for " & salaryDateMin & " is 0");
+            end;
+            
+            cashierSelfSaleSum = customerSum[curObj];
+            switch (CurrentCompany) begin
+              case 1:
+                selfSaleAcc = "3722";
+              case 3:
+                selfSaleAcc = "3721";
+            end;
+            if (cashierSelfSaleSum<>0 and NonBlank(selfSaleAcc)) then begin
+              GetAccName("66",tstr,60);
+              AddEuroCurncyTrRow(TRr,"66",persobj,"",tstr,cashierSelfSaleSum,false,true,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
+              GetAccName(selfSaleAcc,tstr,60);
+              AddEuroCurncyTrRow(TRr,selfSaleAcc,persobj,"",tstr,cashierSelfSaleSum,false,false,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
+            end;
+            
+            ExtractObj(cashierList,pos,curObj);
+          end;
+          if (MatRowCnt(TRr)>0) then begin
+            TR2r.IntYc = intYcNum;
+            if (ReadLastMain(TR2r,1,true)) then begin
+              nextSalaryTrNr = TR2r.Number + 1;
+              TR2r.Number = nextSalaryTrNr;
+              while (ReadFirstMain(TR2r,2,true)) begin
+                nextSalaryTrNr = nextSalaryTrNr + 1;
+                TR2r.Number = nextSalaryTrNr;
+              end;
+            end else begin
+              nextSalaryTrNr = 1;
+            end;
+            TRr.Number = nextSalaryTrNr;
+            TRr.IntYc = intYcNum;
+            TRSumup(TRr,nilv);
+            if (RECORDSTORE(TRr,false)) then begin
+              LogText(0,"Salary transaction for " & salaryDateMin & " is created");
+            end else begin
+              LogText(0,"Salary transaction for " & salaryDateMin & " is failed");
+            end;
+          end;
+        end;
+        
+      end;
+    end else begin
+      LogText(0,"Undefined Day Session start/end time in CashierDefBlock");
+    end;
+
+  return;
+end; //Edit***************************Sasha2,16:48 10.03.2017 }
+
+global //Edit***************************Sasha2,17:51 13.03.2017 {
+updating procedure MakeSalaryTransactionMn(record RcVc RepSpec)
+begin
+  
+    if (NonBlankDate(RepSpec.RegDate)) then begin
+      CalcCashierSalaryAndMakeTransaction(RepSpec);
+    end;
+
+  return;
+end; //Edit***************************Sasha2,17:51 13.03.2017 }
+
+global //Edit***************************Sasha2,17:59 13.03.2017 {
+updating procedure CustTimeTableAction()
+begin
+  record RcVc RepSpec;
+  record CashierDefBlock CDBl;
+  time blankt,t1,t2,t3,curt,curtnew;
+  string 5 hr,mn;
+  integer minute,oldComp;
+
+    oldComp = CurrentCompany;
+    
+    t1 = StringToTime("8:00");
+    t2 = StringToTime("10:00");
+    t3 = StringToTime("12:00");
+    
+    curt = CurrentTime; 
+    hr = GetHour(curt);
+    if (len(hr)==1) then begin
+    	hr = "0" & hr;
+    end;
+    mn = GetMinute(curt);
+    minute = StringToInt(mn);
+    if (len(mn)==1) then begin
+    	mn = "0" & mn;
+    end;
+    curtnew = StringToTime(hr & ":" & mn);
+    
+    if (SetCompanyCode("1",false)) then begin
+      BlockLoad(CDBl);
+      if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt and curtnew==AddMinutes(CDBl.DaySessionEndTime,15)) then begin
+        RECORDNEW(RepSpec);
+        CalcCashierSalaryAndMakeTransaction(RepSpec);
+      end;
+    end;
+    if (SetCompanyCode("3",false)) then begin
+      BlockLoad(CDBl);
+      if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt and curtnew==AddMinutes(CDBl.DaySessionEndTime,15)) then begin
+        RECORDNEW(RepSpec);
+        CalcCashierSalaryAndMakeTransaction(RepSpec);
+      end;
+    end;
+    ResetCompany(oldComp);
+		
+return;
+end; //Edit***************************Sasha2,17:59 13.03.2017 }
