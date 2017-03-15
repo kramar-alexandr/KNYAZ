@@ -1532,6 +1532,17 @@ begin
 end;
 
 global
+updating procedure NPTSIVCashDClassTouchScreenPasteButton()// Edit ************************** Wednesday, 15 March 2017 16:22:04
+begin
+  Integer butnr;
+  string 255 tagstr;
+  
+  tagstr = PushButtonTag;
+  butnr = StringToInt(tagstr);
+  IVCashDClassTouchScreenPasteButtonDo(butnr)
+end;
+
+global
 updating procedure IVCashDClassTouchScreenFinishButtonRun(Boolean newf,Integer awnst)
 begin
   Integer wn,nwn;
