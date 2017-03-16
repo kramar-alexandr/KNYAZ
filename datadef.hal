@@ -629,6 +629,7 @@ EndRecordAdd;
   RecordField(DaySessionStartTime,M4Time,0,0); //Edit***************************Sasha2,11:11 07.03.2017
   RecordField(DaySessionEndTime,M4Time,0,0); //Edit***************************Sasha2,11:11 07.03.2017
   RecordField(DaySessionPMs,M4Str,100,0); //Edit***************************Sasha2,11:11 07.03.2017
+  RecordField(ForbiddenDaySessionCodes,M4Str,255,0); //Edit***************************Sasha2,11:41 16.03.2017
   EndBlock;
   
   BlockBegin(DaySessionBlock,-,"DaySessionBlock");
