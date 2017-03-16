@@ -956,7 +956,6 @@ begin
   record LocationVc Locr;
   date salaryDateMin,salaryDateMax;
   record CashierDefBlock CDBl;
-  record DaySessionBlock DSCBl;
   record BaseCurBlock BaseCurb;
   time blankt;
   Boolean TrHs,testf,proceedF;
@@ -968,12 +967,11 @@ begin
   LongInt nextSalaryTrNr,intYcNum;
   
     BlockLoad(CDBl);
-    BlockLoad(DSCBl);
     BlockLoad(BaseCurb);
     nilv = 1;
     if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt) then begin
       if (NonBlank(RepSpec.RegDate)) then begin
-        if (DSCBl.DaySessionStartTime>=DSCBl.DaySessionEndTime) then begin
+        if (CDBl.DaySessionStartTime>=CDBl.DaySessionEndTime) then begin
           salaryDateMin = RepSpec.RegDate;
           salaryDateMax = AddDay(salaryDateMin,1);
         end else begin
@@ -981,7 +979,7 @@ begin
           salaryDateMax = RepSpec.RegDate;
         end;
       end else begin
-        if (DSCBl.DaySessionStartTime>=DSCBl.DaySessionEndTime) then begin
+        if (CDBl.DaySessionStartTime>=CDBl.DaySessionEndTime) then begin
           salaryDateMax = CurrentDate;
           salaryDateMin = AddDay(salaryDateMax,-1);
         end else begin
@@ -1023,8 +1021,8 @@ begin
         while (LoopKey("InvDate",IVCashr,1,TrHs)) begin
           testf = true;
           if (IVCashr.InvDate<salaryDateMin or IVCashr.InvDate>salaryDateMax) then begin testf = false; TrHs = false; end;
-          if (IVCashr.InvDate==salaryDateMin and IVCashr.TransTime<DSCBl.DaySessionStartTime) then begin testf = false; end;
-          if (IVCashr.InvDate==salaryDateMax and IVCashr.TransTime>DSCBl.DaySessionEndTime) then begin testf = false; end;
+          if (IVCashr.InvDate==salaryDateMin and IVCashr.TransTime<CDBl.DaySessionStartTime) then begin testf = false; end;
+          if (IVCashr.InvDate==salaryDateMax and IVCashr.TransTime>CDBl.DaySessionEndTime) then begin testf = false; end;
           if (IVCashr.OKFlag==0 or IVCashr.Invalid==1) then begin testf = false; end;
           if (blank(IVCashr.DaySessionCashiers)) then begin testf = false; end;
           if (testf) then begin
