@@ -553,7 +553,7 @@ begin
       while (NonBlank(curStr)) begin
         CUr.Code = curStr;
         if (ReadFirstMain(CUr,1,true)) then begin
-          PutWindowString(wn,"DaySessionDataLine" & lineCnt,CUr.Code);
+          PutWindowString(wn,"DaySessionDataLine" & lineCnt,CUr.Name);
           lineCnt = lineCnt + 1;
         end;
         ExtractObj(IVCashr.DaySessionCashiers,pos,curStr);

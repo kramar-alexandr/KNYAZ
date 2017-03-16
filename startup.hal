@@ -1,7 +1,3 @@
-
-//Info: used a number "300" (TRp.IntYc = 300) for salary transactions as a custom TRp.IntYc;
-
-
 event startup
 begin
   SetLangMode(LangRussian,"RUS",0);
