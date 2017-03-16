@@ -989,6 +989,7 @@ begin
           salaryDateMin = CurrentDate;
         end;
       end;
+      LogText(0,"Day session start time:" & salaryDateMin & "- Day session end time:" & salaryDateMax);
       proceedF = true;
       intYcNum = GetIntYc(salaryDateMin);
       if (proceedF and intYcNum<=1) then begin
@@ -1206,6 +1207,7 @@ begin
     curtnew = StringToTime(hr & ":" & mn);
     
     if (SetCompanyCode("1",false)) then begin
+      LogText(0,"Switched to company #" & CurrentCompany);
       BlockLoad(CDBl);
       if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt and curtnew==AddMinutes(CDBl.DaySessionEndTime,15)) then begin
         RECORDNEW(RepSpec);
@@ -1213,13 +1215,16 @@ begin
       end;
     end;
     if (SetCompanyCode("3",false)) then begin
+      LogText(0,"Switched to company #" & CurrentCompany);
       BlockLoad(CDBl);
       if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt and curtnew==AddMinutes(CDBl.DaySessionEndTime,15)) then begin
         RECORDNEW(RepSpec);
         CalcCashierSalaryAndMakeTransaction(RepSpec);
       end;
     end;
+    
     ResetCompany(oldComp);
+    LogText(0,"Switched to company #" & CurrentCompany);
 		
 return;
 end; //Edit***************************Sasha2,17:59 13.03.2017 }
