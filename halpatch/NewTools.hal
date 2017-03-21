@@ -1222,7 +1222,7 @@ begin
     end;
     
     ResetCompany(oldComp);
-    LogText(0,"Switched to company #" & CurrentCompany);
+    LogText(0,"Returned to company #" & CurrentCompany);
 		
 return;
 end; //Edit***************************Sasha2,17:59 13.03.2017 }
