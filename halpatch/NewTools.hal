@@ -1205,7 +1205,7 @@ begin
     curtnew = StringToTime(hr & ":" & mn);
     
     if (SetCompanyCode("1",false)) then begin
-      LogText(0,"Switched to company #" & CurrentCompany);
+      //LogText(0,"Switched to company #" & CurrentCompany);
       BlockLoad(CDBl);
       if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt and curtnew==AddMinutes(CDBl.DaySessionEndTime,15)) then begin
         RECORDNEW(RepSpec);
@@ -1213,7 +1213,7 @@ begin
       end;
     end;
     if (SetCompanyCode("3",false)) then begin
-      LogText(0,"Switched to company #" & CurrentCompany);
+      //LogText(0,"Switched to company #" & CurrentCompany);
       BlockLoad(CDBl);
       if (CDBl.DaySessionStartTime!=blankt and CDBl.DaySessionEndTime!=blankt and curtnew==AddMinutes(CDBl.DaySessionEndTime,15)) then begin
         RECORDNEW(RepSpec);
@@ -1222,7 +1222,7 @@ begin
     end;
     
     ResetCompany(oldComp);
-    LogText(0,"Returned to company #" & CurrentCompany);
+    //LogText(0,"Returned to company #" & CurrentCompany);
 		
 return;
 end; //Edit***************************Sasha2,17:59 13.03.2017 }
