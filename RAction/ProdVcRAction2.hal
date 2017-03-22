@@ -72,11 +72,12 @@ BEGIN
       MessageBox(1544,"");
     end;
     res = 0;
-  end; 
-  if (left(CurrentUser,2)=="SA") then begin
+  end;
+  
+LProdVcRecordRemoveTest:;
+if (left(CurrentUser,2)=="SA") then begin
     res = 1;
   end;
-LProdVcRecordRemoveTest:;
   ProdVcRecordRemoveTest = res; 
   RETURN;
 END;
