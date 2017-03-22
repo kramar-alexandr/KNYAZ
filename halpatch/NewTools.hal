@@ -72,6 +72,8 @@ begin
 	record OPrsVc OPrsr;
 	record IPrsVc IPrsr;
 	record RecVc Recr; //Структуры (Рецепты)
+	record ProdOrderVc ProdOrderr;
+	record ProdVc Prodr;
 	
 	record SynkDBIDRegVc SynkDBIDRegr;
 	record SynkGlobalDBIDRegVc SynkGlobalDBIDRegr;
@@ -388,6 +390,22 @@ begin
 	  if (TrHs) then begin
 	    RecordDelete(Recr);
 	    StepBack(Recr);
+	  end;
+	end;
+	
+	TrHs = true;
+	while (LoopMain(ProdOrderr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(ProdOrderr);
+	    StepBack(ProdOrderr);
+	  end;
+	end;
+	
+	TrHs = true;
+	while (LoopMain(Prodr,1,TrHs)) begin
+	  if (TrHs) then begin
+	    RecordDelete(Prodr);
+	    StepBack(Prodr);
 	  end;
 	end;
 
