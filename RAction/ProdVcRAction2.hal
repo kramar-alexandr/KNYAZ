@@ -57,9 +57,9 @@ BEGIN
   record DBLockBlock DBLockRec;
 
   res = 1;
-  if (left(CurrentUser,2)=="SA") then begin
+  /*if (left(CurrentUser,2)=="SA") then begin
     goto LProdVcRecordRemoveTest;
-  end;
+  end;*/
   BlockLoad(DBLockRec);
   if (Prodr.PRStatusFlag!=0) then begin
     if (Prodr.ProdDate>DBLockRec.DeleteBeforeDate) then begin
