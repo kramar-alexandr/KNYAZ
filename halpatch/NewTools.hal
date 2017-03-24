@@ -983,6 +983,8 @@ begin
   string 255 cashierList,persobj,tstr,locObjs;
   string 20 curObj,selfSaleAcc;
   LongInt nextSalaryTrNr,intYcNum;
+  vector boolean cashierWasHandledF;
+  array string 255 indexes;
   
     BlockLoad(CDBl);
     BlockLoad(BaseCurb);
@@ -1093,31 +1095,29 @@ begin
         end;
         
         salaryCommission = 7.00/CountObjects(cashierList);
-        if (NonBlank(cashierList) and salaryCommission<>0) then begin
-          tstr = locObjs;
-          locObjs = "";
-          if (NonBlank(tstr)) then begin
-            pos = 0;
-            ExtractObj(tstr,pos,curObj);
-            while (nonblank(curObj)) begin
-              Locr.Code = curObj;
-              if (ReadFirstMain(Locr,1,true) and NonBlank(Locr.Objects)) then begin
-                if (NonBlank(locObjs)) then begin
-                  locObjs = locObjs & ",";
-                end;
-                locObjs = locObjs & Locr.Objects;
+        RECORDNEW(TRr);
+        TRr.RegDate = CurrentDate;
+        TRr.RegTime = CurrentTime;
+        TRr.TransDate = salaryDateMin;
+        TRr.Comment = UsetStr(50016);
+        TRr.FileName = "SalaryTRVc";
+        tstr = locObjs;
+        locObjs = "";
+        if (NonBlank(tstr)) then begin
+          pos = 0;
+          ExtractObj(tstr,pos,curObj);
+          while (nonblank(curObj)) begin
+            Locr.Code = curObj;
+            if (ReadFirstMain(Locr,1,true) and NonBlank(Locr.Objects)) then begin
+              if (NonBlank(locObjs)) then begin
+                locObjs = locObjs & ",";
               end;
-              ExtractObj(tstr,pos,curObj);
+              locObjs = locObjs & Locr.Objects;
             end;
+            ExtractObj(tstr,pos,curObj);
           end;
-          
-          RECORDNEW(TRr);
-          TRr.RegDate = CurrentDate;
-          TRr.RegTime = CurrentTime;
-          TRr.TransDate = salaryDateMin;
-          TRr.Comment = UsetStr(50016);
-          TRr.FileName = "SalaryTRVc";
-          
+        end;
+        if (NonBlank(cashierList) and salaryCommission<>0) then begin
           pos = 0;
           ExtractObj(cashierList,pos,curObj);
           while (nonblank(curObj)) begin
@@ -1150,32 +1150,60 @@ begin
               GetAccName(selfSaleAcc,tstr,60);
               AddEuroCurncyTrRow(TRr,selfSaleAcc,persobj,"",tstr,cashierSelfSaleSum,false,false,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
             end;
+            cashierWasHandledF[curObj] = true;
             
             ExtractObj(cashierList,pos,curObj);
           end;
-          if (MatRowCnt(TRr)>0) then begin
-            TR2r.IntYc = intYcNum;
-            if (ReadLastMain(TR2r,1,true)) then begin
-              nextSalaryTrNr = TR2r.Number + 1;
-              TR2r.Number = nextSalaryTrNr;
-              while (ReadFirstMain(TR2r,2,true)) begin
-                nextSalaryTrNr = nextSalaryTrNr + 1;
-                TR2r.Number = nextSalaryTrNr;
+        end;
+        
+        GetVectorTags(customerSum,indexes);
+        for (i=0;i<indexes.length;i=i+1) begin
+          if (cashierWasHandledF[indexes[i]]==false) then begin
+            cashierSelfSaleSum = customerSum[indexes[i]];
+            CUr.Code = indexes[i];
+            if (cashierSelfSaleSum<>0 and ReadFirstMain(CUr,1,true) and CUr.CustCat=="SOTR") then begin
+              persobj = locObjs & ",";
+              if (NonBlank(CUr.Objects)) then begin
+                persobj = persobj & CUr.Objects & ",";
               end;
-            end else begin
-              nextSalaryTrNr = 1;
-            end;
-            TRr.Number = nextSalaryTrNr;
-            TRr.IntYc = intYcNum;
-            TRSumup(TRr,nilv);
-            if (RECORDSTORE(TRr,false)) then begin
-              LogText(0,"Salary transaction for " & salaryDateMin & " is created");
-            end else begin
-              LogText(0,"Salary transaction for " & salaryDateMin & " is failed");
+              persobj = left(persobj,len(persobj)-1);
+              switch (CurrentCompany) begin
+                case 1:
+                  selfSaleAcc = "3722";
+                case 3:
+                  selfSaleAcc = "3721";
+              end;
+              if (cashierSelfSaleSum<>0 and NonBlank(selfSaleAcc)) then begin
+                GetAccName("66",tstr,60);
+                AddEuroCurncyTrRow(TRr,"66",persobj,"",tstr,cashierSelfSaleSum,false,true,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
+                GetAccName(selfSaleAcc,tstr,60);
+                AddEuroCurncyTrRow(TRr,selfSaleAcc,persobj,"",tstr,cashierSelfSaleSum,false,false,TrTotsum,BaseCurb.BaseCur1,blankval,blankval,blankval,blankval,blankval,blankval,blankval,-1,false,"");
+              end;
             end;
           end;
         end;
         
+        if (MatRowCnt(TRr)>0) then begin
+          TR2r.IntYc = intYcNum;
+          if (ReadLastMain(TR2r,1,true)) then begin
+            nextSalaryTrNr = TR2r.Number + 1;
+            TR2r.Number = nextSalaryTrNr;
+            while (ReadFirstMain(TR2r,2,true)) begin
+              nextSalaryTrNr = nextSalaryTrNr + 1;
+              TR2r.Number = nextSalaryTrNr;
+            end;
+          end else begin
+            nextSalaryTrNr = 1;
+          end;
+          TRr.Number = nextSalaryTrNr;
+          TRr.IntYc = intYcNum;
+          TRSumup(TRr,nilv);
+          if (RECORDSTORE(TRr,false)) then begin
+            LogText(0,"Salary transaction for " & salaryDateMin & " is created");
+          end else begin
+            LogText(0,"Salary transaction for " & salaryDateMin & " is failed");
+          end;
+        end;
       end;
     end else begin
       LogText(0,"Undefined Day Session start/end time in CashierDefBlock");
