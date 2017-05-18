@@ -1257,7 +1257,7 @@ begin
   GetWindowRecord(wn,IVCashr);
   
   found = POSButtonsForWindow(wn,POSBr);
-  MessageBox(0,"POSButtonsForWindow");
+
   if (found) then begin
     rwcnt = MatRowCnt(POSBr);
     
@@ -1281,7 +1281,7 @@ begin
         goto LIVCashDClassTouchScreenPasteButtonDo;
     end;
   end;
-  MessageBox(0,"WindowState(wn)");
+
   switch (WindowState(wn)) begin
     case Rs_update:
       GetPrevWindowRecord(wn,prevIVCashr);
@@ -1298,11 +1298,11 @@ begin
       if (IVCashr.Invalid!=0) then begin 
         goto LIVCashDClassTouchScreenPasteButtonDo; 
       end;
-  end; MessageBox(0,"found" & found);
+  end;
   if (found) then begin
     rwcnt = MatRowCnt(POSBr);
     
-    if (butnr>rwcnt) then begin MessageBox(0,"butnr>rwcnt");
+    if (butnr>rwcnt) then begin
       goto LIVCashDClassTouchScreenPasteButtonDo;
     end;
     
@@ -1511,7 +1511,6 @@ retval is calculted in sumup
         WindowFieldGoto(nwn,RepSpec,-1,"f1",true);
         goto LIVCashDClassTouchScreenPasteButtonDo;
       case 200: //Edit***************************Sasha2,13:12 09.03.2017 {
-        MessageBox(0,"OpenDaySessionAuthenticationWin");
         OpenDaySessionAuthenticationWin;
         goto LIVCashDClassTouchScreenPasteButtonDo; //Edit***************************Sasha2,13:12 09.03.2017 }
     end;
@@ -1522,17 +1521,6 @@ end;
 
 global
 updating procedure IVCashDClassTouchScreenPasteButton()
-begin
-  Integer butnr;
-  string 255 tagstr;
-  
-  tagstr = PushButtonTag;
-  butnr = StringToInt(tagstr);
-  IVCashDClassTouchScreenPasteButtonDo(butnr)
-end;
-
-global
-updating procedure NPTSIVCashDClassTouchScreenPasteButton()// Edit ************************** Wednesday, 15 March 2017 16:22:04
 begin
   Integer butnr;
   string 255 tagstr;

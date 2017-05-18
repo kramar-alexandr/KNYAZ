@@ -1,7 +1,3 @@
-
-//Info: used a number "300" (TRp.IntYc = 300) for salary transactions as a custom TRp.IntYc;
-
-
 event startup
 begin
   SetLangMode(LangRussian,"RUS",0);
@@ -47,5 +43,7 @@ begin
   SString(50014,"Кассиров в этот день: ");
   SString(50015,"Отметьте себя в этот операционный день");
   SString(50016,"Зарплата сотрудникам");
+  SString(50017,"Достигнуто максимально допустимое количество аутентифицированных кассиров");
+  SString(50018,"Использовать этот пароль запрещено");
 	return;
 end;

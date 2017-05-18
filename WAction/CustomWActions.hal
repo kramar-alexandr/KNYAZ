@@ -553,7 +553,7 @@ begin
       while (NonBlank(curStr)) begin
         CUr.Code = curStr;
         if (ReadFirstMain(CUr,1,true)) then begin
-          PutWindowString(wn,"DaySessionDataLine" & lineCnt,CUr.Code);
+          PutWindowString(wn,"DaySessionDataLine" & lineCnt,CUr.Name);
           lineCnt = lineCnt + 1;
         end;
         ExtractObj(IVCashr.DaySessionCashiers,pos,curStr);
@@ -583,13 +583,22 @@ begin
 	getwindowrecord(wn,RepSpec);
 	proceedF = true;
 	blockload(CDBl);
+	BlockLoad(DSCBl);
 	
-	if(blank(RepSpec.f2))then begin
+	if (proceedF and CountObjects(DSCBl.DaySessionCashiers)>=2) then begin
+	  messagebox(50017,"");
+	  proceedF = false;
+	end;
+	if(proceedF and blank(RepSpec.f2))then begin
 		messagebox(50012,"");
 		WindowFieldGoto(wn,RepSpec,-1,"f2",false);
 		proceedF = false;
 	end;
-	
+	if (proceedF and nonblank(RepSpec.f2) and nonblank(CDBl.ForbiddenDaySessionCodes) and setinset(RepSpec.f2,CDBl.ForbiddenDaySessionCodes)) then begin
+	  messagebox(50018,"");
+		WindowFieldGoto(wn,RepSpec,-1,"f2",false);
+		proceedF = false;
+	end;
 	if (proceedF) then begin
 	  LoyaltyCardr.SerNr = RepSpec.f2;
     if (ReadFirstMain(LoyaltyCardr,1,true)==false) then begin
@@ -620,7 +629,6 @@ begin
       proceedF = false;
     end;
     if (proceedF) then begin
-      BlockLoad(DSCBl);
       if (CheckDaySessionCashiersIsValid(CurrentDate,CurrentTime)!=0) then begin
         DSCBl.DaySessionCashiers = "";
         DSCBl.TransDate = CurrentDate;

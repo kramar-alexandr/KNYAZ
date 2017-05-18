@@ -869,8 +869,13 @@ begin
         procstr = ""; 
          
       case 200: //Edit***************************Sasha2,13:23 09.03.2017
+<<<<<<< HEAD
         AddTouchScreenPasteButton(h,v,width,heighttemp,procstr,i+1,lblstr,POSBrw.colnr);
         procstr = "";  
+=======
+        procstr = procstr & "TouchScreenPasteButton";  
+        tagstr = i + 1;
+>>>>>>> origin/master
       case kPOSButtonTypeBlank:
         goto LLDrawPOSButtons_RUS;
     end;
@@ -1059,6 +1064,9 @@ begin
     end;
     if (GuiType==kGuiMetro) then begin
       ty = 120;
+    end;
+    if (WindowsMode==0) then begin //Edit***************************Sasha2,10:43 16.03.2017
+      ty = 200;
     end;
   end;
   DataList(tx,ty,bx,by,"receipt");

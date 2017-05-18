@@ -2958,9 +2958,9 @@ begin
       SoftEditFieldTLX(520-310,46+40,h4,"",M4Str,ViewOnly,100,50-20,patM4black,"CustomerDisplayData_Line2",true,0); //Edit***************************Sasha2,10:09 08.09.2016
       StaticText(520-270,90+70,"Наличные в фиск. кассе:",false); //Edit***************************Sasha2,13:53 17.11.2016
       
-      SoftEditFieldTLX(-200,120,h4,"",M4Str,ViewOnly,0,15,patM4black,"DaySessionDataLine1",false,0); //Edit***************************Sasha2,14:12 09.03.2017
-      SoftEditFieldTLX(-200,140,h4,"",M4Str,ViewOnly,0,15,patM4black,"DaySessionDataLine2",false,0); //Edit***************************Sasha2,14:12 09.03.2017
-      SoftEditFieldTLX(-200,160,h4,"",M4Str,ViewOnly,0,15,patM4black,"DaySessionDataLine3",false,0); //Edit***************************Sasha2,14:12 09.03.2017  
+      SoftEditFieldTLX(-200,120,h4,"",M4Str,ViewOnly,100,15,patM4black,"DaySessionDataLine1",false,0); //Edit***************************Sasha2,14:12 09.03.2017
+      SoftEditFieldTLX(-200,140,h4,"",M4Str,ViewOnly,100,15,patM4black,"DaySessionDataLine2",false,0); //Edit***************************Sasha2,14:12 09.03.2017
+      SoftEditFieldTLX(-200,160,h4,"",M4Str,ViewOnly,100,15,patM4black,"DaySessionDataLine3",false,0); //Edit***************************Sasha2,14:12 09.03.2017  
             
       SoftEditFieldTLX(520-140,90+40,150,"",M4Str,ViewOnly,100,50-20,patM4black,"DisplayMoneyInBox",false,0); //Edit***************************Sasha2,13:53 17.11.2016
     end;
@@ -6387,9 +6387,10 @@ begin
     EndFrame;
   end;
   
-  EditField(h2+140,v+=vs,70,"Время начала операц.дня",Normal,DaySessionStartTime,true,PasteCurTime); //Edit***************************Sasha2,11:18 07.03.2017
-  EditField(h2+140,v+=vs,70,"Время конца операц.дня",Normal,DaySessionEndTime,true,PasteCurTime); //Edit***************************Sasha2,11:18 07.03.2017
-  EditField(h2+140,v+=vs,70,"Способы оплаты выторга",Normal,DaySessionPMs,true,PMSClass);
+  EditField(h2+140,v+=vs,70,"Время начала операц.дня",Normal,DaySessionStartTime,false,PasteCurTime); //Edit***************************Sasha2,11:18 07.03.2017
+  EditField(h2+140,v+=vs,70,"Время конца операц.дня",Normal,DaySessionEndTime,false,PasteCurTime); //Edit***************************Sasha2,11:18 07.03.2017
+  EditField(h2+140,v+=vs,70,"Способы оплаты выторга",Normal,DaySessionPMs,false,PMSClass); //Edit***************************Sasha2,12:43 16.03.2017
+  EditField(h2+140,v+=vs,150,"Запрещённые пароли аутент-ции",Normal,ForbiddenDaySessionCodes,false,LoyaltyCardSClass); //Edit***************************Sasha2,12:43 16.03.2017
   
   EndWindow;
 end;

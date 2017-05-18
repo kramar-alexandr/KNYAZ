@@ -159,9 +159,10 @@ begin
           res = -1;
         end;
       end;
-    end else begin
+    end;
+    if (res==-1) then begin
       qupdating.ClearDaySessionBlock;
-    end;   
+    end;
     
     CheckDaySessionCashiersIsValid = res;
   return;
@@ -334,19 +335,22 @@ begin
   BlockLoad(LMb); 
   BlockLoad(CDb);
   
-   //Edit***************************Sasha2,14:25 09.03.2017 {
-  if (CheckDaySessionCashiersIsValid(IVCashr.InvDate,IVCashr.TransTime)!=0) then begin
-    RecordCheckError(50015,"",-1,"SerNr");      
-    res = -1;
-    goto LIVCashVcRecordCheckClient;
-  end else begin
-    BlockLoad(DSCBl);
-    if (NonBlank(DSCBl.DaySessionCashiers)) then begin
-      IVCashr.DaySessionCashiers = DSCBl.DaySessionCashiers;
-      IVCashr.DaySessionStartTime = DSCBl.DaySessionStartTime;
-      IVCashr.DaySessionEndTime = DSCBl.DaySessionEndTime;
-    end; 
-  end; //Edit***************************Sasha2,14:25 09.03.2017 }
+  //Edit***************************Sasha2,14:25 09.03.2017 {
+  if (UserCanAction("UnOKAll",true) == false) then begin
+    if (CheckDaySessionCashiersIsValid(IVCashr.InvDate,IVCashr.TransTime)!=0) then begin
+      RecordCheckError(50015,"",-1,"SerNr");      
+      res = -1;
+      goto LIVCashVcRecordCheckClient;
+    end else begin
+      BlockLoad(DSCBl);
+      if (NonBlank(DSCBl.DaySessionCashiers)) then begin
+        IVCashr.DaySessionCashiers = DSCBl.DaySessionCashiers;
+        IVCashr.DaySessionStartTime = DSCBl.DaySessionStartTime;
+        IVCashr.DaySessionEndTime = DSCBl.DaySessionEndTime;
+      end; 
+    end;  
+  end;
+  //Edit***************************Sasha2,14:25 09.03.2017 }
    
   if (HasLocalization("SWE")) then begin
     if (FindLocalSerialPortDevice(kSerialPortDeviceClassFiscalControlUnit,kSerialPortDeviceModelFiscPrinterCLEANCASHTypeA,LMb.LocalMachineCode,LSPDr)) then begin  
