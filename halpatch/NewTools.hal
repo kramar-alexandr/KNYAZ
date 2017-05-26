@@ -92,8 +92,8 @@ begin
 
 	Boolean TrHs;
 	
-
-	while (LoopMain(IVCashr,1,true)) begin
+  TrHs = true;
+	while (LoopMain(IVCashr,1,TrHs)) begin
 		recorddelete(IVCashr);
 		StepBack(IVCashr);
 	end;
@@ -424,8 +424,8 @@ begin
 	
 	Boolean TrHs;
 	
-
-	while (LoopMain(IVCashr,1,true)) begin
+  TrHs = true;
+	while (LoopMain(IVCashr,1,TrHs)) begin
 		recorddelete(IVCashr);
 		StepBack(IVCashr);
 	end;
