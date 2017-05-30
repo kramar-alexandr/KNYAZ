@@ -659,3 +659,28 @@ begin
   
 return;
 end; //Edit***************************Sasha2,16:23 09.03.2017 }
+
+
+global
+function Boolean StockTakeDClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
+begin
+  Boolean res;
+  record StockTakeVc STr;
+  string 200 tstr;
+  
+  res = true;
+  switch (wnst) begin
+    case Rs_update:      
+      GetPrevWindowRecord(wn,STr);
+    otherwise
+      GetWindowRecord(wn,STr);
+  end;
+  if (STr.OKFlag!=0) then begin
+    res = false;
+  end;
+  switch (fieldname) begin
+    case "InStock": res = true;
+  end;
+  StockTakeDClassActiveEditField = res;
+  return;
+end;
