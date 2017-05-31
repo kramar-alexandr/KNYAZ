@@ -524,6 +524,7 @@ BEGIN
     PUrw.CredAcc = ARAccRec.StockGainAcc;//kaido says
     PUrw.UnitCode = INr.Unittext;
     PUrw.ToPosCode = position;
+    PUrw.ItemGroup = INr.Group; //Edit***************************Sasha2,16:00 31.05.2017
     PUrw.SellPrice = INr.UPrice1; //Edit***************************Sasha2,17:14 03.03.2017
     PUrw.rowGP = ((PUrw.SellPrice/PUrw.CostPrice)-1)*100; //Edit***************************Sasha2,17:14 03.03.2017
     if (loctype==1) then begin
