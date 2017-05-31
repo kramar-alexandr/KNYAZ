@@ -660,7 +660,7 @@ begin
 return;
 end; //Edit***************************Sasha2,16:23 09.03.2017 }
 
-
+/*
 global
 function Boolean StockTakeDClassActiveEditField(Integer wn,string fieldname,Integer fn,Integer wnst,Integer rownr,Integer changed)
 begin
@@ -684,3 +684,4 @@ begin
   StockTakeDClassActiveEditField = res;
   return;
 end;
+*/
