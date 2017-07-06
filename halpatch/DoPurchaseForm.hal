@@ -113,8 +113,8 @@ BEGIN
     OUTFORMFIELD("F_OTHERROW",PUrw.Other);
     OUTFORMFIELD("F_OTHER2ROW",PUrw.Other2);
     
-    OUTFORMFIELD("MYF_SellPrice",PUrw.SellPrice);
-    OUTFORMFIELD("MYF_SumSellPrice",PUrw.SumSellPrice);
+    OUTFORMFIELD("MYF_SELLPRICE",PUrw.SellPrice);
+    OUTFORMFIELD("MYF_SUMSELLPRICE",PUrw.SumSellPrice);
 
     if (FIELDINFORM("F_SERIENRBC39")) then begin
       BC39(PUrw.SerialNr,tstr);    
