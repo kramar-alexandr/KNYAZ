@@ -75,10 +75,12 @@ BEGIN
   record MainStockBlock MSb;
   record MinPerLocVc MinPerLocr;
   record TaxMatrixVc TMr;
+  val mysum;
 
   BlockLoad(ARRec);
   BlockLoad(MSb);
   rwcnt = CountPURows(PUr);
+  mysum = 0;
   for (i=0;i<rwcnt;i=i+1) begin
     MatRowGet(PUr,i,PUrw);
     if (PUrw.ovst!=0) then begin
@@ -113,8 +115,9 @@ BEGIN
     OUTFORMFIELD("F_OTHERROW",PUrw.Other);
     OUTFORMFIELD("F_OTHER2ROW",PUrw.Other2);
     
-    OUTFORMFIELD("MYF_SELLPRICE",PUrw.SellPrice);
-    OUTFORMFIELD("MYF_SUMSELLPRICE",PUrw.SumSellPrice);
+    OUTFORMFIELD("MYF_SELLPRICE",PUrw.SellPrice);// Edit ************************** Thursday, 6 July 2017 17:54:16
+    OUTFORMFIELD("MYF_SUMSELLPRICE",PUrw.SumSellPrice);// Edit ************************** Thursday, 6 July 2017 17:54:15
+    mysum = mysum + PUrw.SumSellPrice;// Edit ************************** Thursday, 6 July 2017 17:54:14
 
     if (FIELDINFORM("F_SERIENRBC39")) then begin
       BC39(PUrw.SerialNr,tstr);    
@@ -230,6 +233,8 @@ BEGIN
     EndFormRow;   
 LSKIPROW:;         
   end;
+  OUTFORMFIELD("MYF_MYSUM",mysum);// Edit ************************** Thursday, 6 July 2017 17:54:15
+  
   OutFormImage(PUr);
   RETURN;
 END;
