@@ -685,3 +685,10 @@ begin
   return;
 end;
 */
+
+
+global function Boolean HasIntegratedNL()
+begin
+		HasIntegratedNL = true;
+return;
+end;
