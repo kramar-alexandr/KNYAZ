@@ -25,6 +25,7 @@ begin
   Maintenance("Обновить текст. поля для быстрого поиска",UpdateTextFieldsForQuickSearchVClass,UpdateTextFieldsForQuickSearchMn,modDBMain); //Edit***************************Sasha2,16:53 14.12.2016
   Maintenance("Пересчитать наценку в Поступлениях",RecalcMarkUpsInPUVClass,RecalcMarkUpsInPUMn,modDBMain);
   Maintenance("Насчитать зарплату за дату",MakeSalaryTransactionVClass,MakeSalaryTransactionMn,modNL); //Edit***************************Sasha2,10:18 14.03.2017
+	Maintenance("Удалить старые записи RHist",CustomRegisterRemoveVClass,RHistRemoveMn,modDBMain);
 
   SString(50000,"Укажите цену закупки"); 
   SString(50001,"Укажите себестоимость");

@@ -1272,3 +1272,18 @@ begin
 		
 return;
 end; //Edit***************************Sasha2,17:59 13.03.2017 }
+
+
+global 
+updating procedure RHistRemoveMn(record RcVc RepSpec)
+begin
+	record RHistVc RHr;
+
+  while(loopmain(RHr,1,true))begin
+  	if(RHr.TransDate<addmonth(currentdate,-3) or blank(RHr.User))then begin
+  		recorddelete(RHr);
+  		stepback(RHr);
+  	end;
+  end;
+  return;
+end;
