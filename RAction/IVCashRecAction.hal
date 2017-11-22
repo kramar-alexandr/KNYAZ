@@ -43,7 +43,7 @@ external procedure RemoveOldCustObjects(string,var string);
 external updating procedure IVCashUpdateItemHist(record IVCashVc,Integer);
 external function Boolean CanOKStockRecord(var Integer);
 external updating procedure IVCashUpdateSerialNr(record IVCashVc);
-external function Boolean POSBalanceExistsAfterThis(Date,Time,string,string);
+remote function Boolean POSBalanceExistsAfterThis(Date,Time,string,string);
 external function Integer CheckRates(string,val,val,val,val,val,var string);
 external function string 255 CurDrawerCode(string);
 external function Boolean RequireOpenSession(string);
