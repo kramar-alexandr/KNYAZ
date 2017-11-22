@@ -3,7 +3,7 @@ external procedure ExtractObj(string,var Integer,var string);
 external procedure IVCashVc_PasteLoyaltyCardNr(var record IVCashVc,Boolean,var string); //Edit***************************Sasha2,14:44 14.09.2016
 external procedure GetUserObject(string,var string);
 external procedure RemoveOldPersObjects(string,var string);
-external procedure SetSalesMan(var string,string);
+remote procedure SetSalesMan(var string,string);
 external function string 60 AddObjectToObjectList(string,string);
 external function Boolean ReadFirstItem(string,var record INVc,Boolean,Boolean);
 external function roundmode DefaultRoundMode();
