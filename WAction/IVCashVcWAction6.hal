@@ -76,6 +76,8 @@ external procedure Bambora_Cancel_Request(Integer);
 remote procedure IVVc_PasteSalesMan(var record IVVc,string);
 external updating function Boolean IVCashFinish(var Integer,var record IVCashVc);
 
+SetLangMode(LangRussian,"RUS",0);
+
 global 
 procedure SelectHWStoreWClass()
 begin
@@ -2515,6 +2517,14 @@ begin
         if (checkLimit) then begin //Edit***************************Sasha2,14:35 17.01.2017 {
           CUr.Code = LoyaltyCardr.CustCode;
           if (ReadFirstMain(CUr,1,true) and CUr.CreditLimit>0) then begin
+          	
+          	BlockLoad(LMb);
+          	if(LMb.LocalMachineCode=="STA2" or LMb.LocalMachineCode=="PER2")then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 18 December 2017 15:22:01
+          		errMessage = "Продажи на себя только с первой кассы";
+              WindowFieldGoto(wn,RepSpec,-1,"f1",false);
+              goto LProceedLoyalCardNPTSSClass;
+          	end;
+          	
             LoopIVCashr.InvDate = CurrentDate;
             TrHs = true;
             totSum = RepSpec.vals0;
@@ -2616,6 +2626,13 @@ begin
         if (checkLimit) then begin //Edit***************************Sasha2,14:35 17.01.2017 {
           CUr.Code = LoyaltyCardr.CustCode;
           if (ReadFirstMain(CUr,1,true) and CUr.CreditLimit>0) then begin
+          	
+          	BlockLoad(LMb);
+          	if(LMb.LocalMachineCode=="STA2" or LMb.LocalMachineCode=="PER2")then begin// Edit ************************** BPI Ukraine - KramarAlexandr - Monday, 18 December 2017 15:22:01
+          		errMessage = "Продажи на себя только с первой кассы";
+              WindowFieldGoto(wn,RepSpec,-1,"f1",false);
+              goto LProceedLoyalCardNPTSSClass;
+          	end;
             LoopIVr.InvDate = CurrentDate;
             TrHs = true;
             totSum = RepSpec.vals0;
