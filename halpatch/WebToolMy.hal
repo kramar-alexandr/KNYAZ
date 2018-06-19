@@ -22,6 +22,13 @@ begin
   SetDocumentFilename("webcust/IVJSTALSKOGORaport.pdf");
   SetMedia(mtPdf);
   ReportDefaults(RepSpec,"IVJRClass");
+  RepSpec.ArtMode = 0;
+  RepSpec.flags[1] = 0;
+  RepSpec.flags[2] = 1;
+  RepSpec.flags[3] = 1;
+  RepSpec.flags[4] = 1;
+  RepSpec.flags[5] = 1;
+  RepSpec.flags[6] = 1;
   RepSpec.sStartDate = currentdate;
   RepSpec.sEndDate = currentdate;
   RepSpec.Media = mtPdf;
@@ -47,6 +54,13 @@ begin
   SetDocumentFilename("webcust/IVJPEROVARaport.pdf");
   SetMedia(mtPdf);
   ReportDefaults(RepSpec,"IVJRClass");
+  RepSpec.ArtMode = 0;
+  RepSpec.flags[1] = 0;
+  RepSpec.flags[2] = 1;
+  RepSpec.flags[3] = 1;
+  RepSpec.flags[4] = 1;
+  RepSpec.flags[5] = 1;
+  RepSpec.flags[6] = 1;
   RepSpec.sStartDate = currentdate;
   RepSpec.sEndDate = currentdate;
   RepSpec.Media = mtPdf;
