@@ -22,7 +22,7 @@ begin
   SetDocumentFilename("webcust/IVJSTALSKOGORaport.pdf");
   SetMedia(mtPdf);
   ReportDefaults(RepSpec,"IVJRClass");
-  RepSpec.f2 = "STALSKOGO";
+  RepSpec.f2 = "NONAM1";
   RepSpec.ArtMode = 0;
   RepSpec.flags[1] = 0;
   RepSpec.flags[2] = 1;
@@ -55,7 +55,7 @@ begin
   SetDocumentFilename("webcust/IVJPEROVARaport.pdf");
   SetMedia(mtPdf);
   ReportDefaults(RepSpec,"IVJRClass");
-  RepSpec.f2 = "PEROVA";
+  RepSpec.f2 = "NONAM2";
   RepSpec.ArtMode = 0;
   RepSpec.flags[1] = 0;
   RepSpec.flags[2] = 1;
