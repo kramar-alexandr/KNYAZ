@@ -36,7 +36,7 @@ begin
   RepSpec.repname = "InvoiceRn";
   RunReport(RepSpec,0);
   SetDocumentFilename("");
-  WebOutString("<p><a href=\"http://37.57.189.14:1080/IVJSTALSKOGORaport.pdf\">Абсолютная ссылка</a></p>");
+  WebOutString("<p><a href=\"http://37.57.199.13:1080/IVJSTALSKOGORaport.pdf\">Абсолютная ссылка</a></p>");
  return;
 end;
 
@@ -69,6 +69,6 @@ begin
   RepSpec.repname = "InvoiceRn";
   RunReport(RepSpec,0);
   SetDocumentFilename("");
-  WebOutString("<p><a href=\"http://37.57.189.14:1080/IVJPEROVARaport.pdf\">Абсолютная ссылка</a></p>");
+  WebOutString("<p><a href=\"http://37.57.199.13:1080/IVJPEROVARaport.pdf\">Абсолютная ссылка</a></p>");
  return;
 end;
