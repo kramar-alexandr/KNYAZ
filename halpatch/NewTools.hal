@@ -1278,8 +1278,13 @@ global
 updating procedure RHistRemoveMn(record RcVc RepSpec)
 begin
 	record RHistVc RHr;
-
-  while(loopmain(RHr,1,true))begin
+	boolean TrHs;
+	
+	TrHs = true;
+  while(loopmain(RHr,1,TrHs))begin
+  	if(fileexists("stop"))then begin
+  		TrHs = false;
+  	end;
   	if(RHr.TransDate<addmonth(currentdate,-3) or blank(RHr.User))then begin
   		recorddelete(RHr);
   		stepback(RHr);
