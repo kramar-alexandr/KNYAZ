@@ -83,11 +83,12 @@ record RHistVc RHistr;
 	integer cnt;
 
 	
+	logtext(0,"WebDeleteRHistr begin");
 	
 	TrHs = true;
 	RHistr.TransDate = stringtodate("1/1/2011");
 	while(loopkey("RecidStr",RHistr,1,TrHs)) begin
-		if(RHistr.TransDate>stringtodate("1/1/2019"))then begin TrHs = false; end;
+		if(RHistr.TransDate>stringtodate("31/12/2019"))then begin TrHs = false; end;
 		if(fileexists("stop"))then begin
 			TrHs = false;
 		end;
@@ -104,7 +105,7 @@ record RHistVc RHistr;
 		end;
 	end;
 
-
+	logtext(0,"WebDeleteRHistr end");
 
 return;
 end;
