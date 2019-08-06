@@ -88,6 +88,10 @@ record RHistVc RHistr;
 	RHistr.TransDate = stringtodate("1/1/2019");
 	while(loopbackkey("RecidStr",RHistr,1,TrHs)) begin
 		if(RHistr.TransDate>stringtodate("1/1/2019"))then begin TrHs = false; end;
+		if(fileexists("stop"))then begin
+			TrHs = false;
+		end;
+		
 		
 		if(TrHs)then begin
 			recorddelete(RHistr);
