@@ -82,7 +82,7 @@ record RHistVc RHistr;
 	boolean TrHs;
 	integer cnt;
 
-	
+	setcompany(1,false);
 	logtext(0,"WebDeleteRHistr begin");
 	
 	TrHs = true;
@@ -98,7 +98,7 @@ record RHistVc RHistr;
 			recorddelete(RHistr);
 			stepback(RHistr);
 			cnt = cnt + 1;
-			if(cnt>10000)then begin
+			if(cnt>100)then begin
 				cnt = 0;
 				logtext(0,"WebDeleteRHistr");
 			end;
