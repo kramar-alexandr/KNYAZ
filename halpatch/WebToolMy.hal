@@ -72,3 +72,34 @@ begin
   WebOutString("<p><a href=\"http://37.57.199.13:1080/IVJPEROVARaport.pdf\">Абсолютная ссылка</a></p>");
  return;
 end;
+
+
+global webpublic updating procedure WebDeleteRHistr()
+begin
+record RHistVc RHistr;
+	record UserVc USr;
+	string 200 rstr;
+	boolean TrHs;
+	integer cnt;
+
+	
+	
+	TrHs = true;
+	RHistr.TransDate = stringtodate("1/1/2019");
+	while(loopbackkey("RecidStr",RHistr,1,TrHs)) begin
+		if(RHistr.TransDate>stringtodate("1/1/2019"))then begin TrHs = false; end;
+		
+		if(TrHs)then begin
+			recorddelete(RHistr);
+			cnt = cnt + 1;
+			if(cnt>10000)then begin
+				cnt = 0;
+				logtext(0,"WebDeleteRHistr");
+			end;
+		end;
+	end;
+
+
+
+return;
+end;
