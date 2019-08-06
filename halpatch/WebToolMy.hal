@@ -85,8 +85,8 @@ record RHistVc RHistr;
 	
 	
 	TrHs = true;
-	RHistr.TransDate = stringtodate("1/1/2019");
-	while(loopbackkey("RecidStr",RHistr,1,TrHs)) begin
+	RHistr.TransDate = stringtodate("1/1/2011");
+	while(loopkey("RecidStr",RHistr,1,TrHs)) begin
 		if(RHistr.TransDate>stringtodate("1/1/2019"))then begin TrHs = false; end;
 		if(fileexists("stop"))then begin
 			TrHs = false;
@@ -95,6 +95,7 @@ record RHistVc RHistr;
 		
 		if(TrHs)then begin
 			recorddelete(RHistr);
+			stepback(RHistr);
 			cnt = cnt + 1;
 			if(cnt>10000)then begin
 				cnt = 0;
