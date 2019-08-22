@@ -1297,6 +1297,8 @@ global webpublic updating procedure WebRefreshBarCodes()
 begin
 	  record BarcodeVc Barcoder,oldBarcoder;
 		
+		logtext(0,"WebRefreshBarCodes");
+		
 		setcompany(1,false);
 		resetloop(Barcoder);
 		while(loopmain(Barcoder,1,true))begin
@@ -1309,6 +1311,6 @@ begin
 			recordcopy(oldBarcoder,Barcoder);
 			recordupdate(oldBarcoder,Barcoder,true);
 		end;
-
+		logtext(0,"WebRefreshBarCodes");
 return;
 end;
