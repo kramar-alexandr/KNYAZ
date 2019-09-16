@@ -162,7 +162,7 @@ begin
     IVCashrw.Quant = StringToVal(ImportField,M4UVal);
     IVCashrw.Price = StringToVal(ImportField,M423Val);
     IVCashrw.Sum = StringToVal(ImportField,M4Val);
-    IVCashrw.vRebate = ImportField;
+    IVCashrw.vRebate = stringtoval(ImportField,m41val);
     IVCashrw.SalesAcc = ImportField;
     IVCashrw.Objects = ImportField;
     IVCashrw.BasePrice = StringToVal(ImportField,M4Val);
@@ -233,8 +233,6 @@ begin
     IVCashrw.AlternateDeviceID = ImportField;
     IVCashrw.MotherSecondarySerialNr = ImportField;
     IVCashrw.MotherAlternateDeviceID = ImportField;
-    IVCashrw.CCReceiptNr = ImportField;
-    IVCashrw.RvrsVATCode = ImportField;
     MatRowPut(IVCashr,rwcnt,IVCashrw);
     rwcnt = rwcnt + 1;
   end;
